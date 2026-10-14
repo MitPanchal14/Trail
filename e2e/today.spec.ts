@@ -5,6 +5,7 @@ test("Today visual states, keyboard, dialog, and isolated samples", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
+  await page.getByRole("button", { name: "Explore sample previews" }).click();
   await expect(
     page.getByRole("heading", { name: "Every path starts here." }),
   ).toBeVisible();
@@ -26,7 +27,7 @@ test("Today visual states, keyboard, dialog, and isolated samples", async ({
   });
   for (const state of ["one", "saved", "rich"]) {
     await page.getByLabel("Preview state").selectOption(state);
-    await expect(page.getByRole("status")).toContainText("fictional");
+    await expect(page.locator(".sample-notice")).toContainText("fictional");
     // Wait for the bounded 420ms canvas spread before capturing its retained state.
     await page.waitForTimeout(500);
     if (state === "saved")
@@ -60,14 +61,18 @@ test("Today visual states, keyboard, dialog, and isolated samples", async ({
     ),
   ).toBe(true);
   await page.reload();
+  await page.getByRole("button", { name: "Explore sample previews" }).click();
   await expect(page.getByLabel("Preview state")).toHaveValue("empty");
-  expect(await page.evaluate(() => localStorage.length)).toBe(0);
+  expect(
+    await page.evaluate(() => localStorage.getItem("work-trail:snapshot:v1")),
+  ).toBeNull();
   expect(errors).toEqual([]);
 });
 
 test("Dusk contrast and localized earned light", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await page.getByRole("button", { name: "Explore sample previews" }).click();
   const contrast = await page.evaluate(() => {
     const rgb = (s: string) =>
       s

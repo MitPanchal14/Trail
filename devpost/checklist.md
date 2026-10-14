@@ -10,6 +10,8 @@ Build mode: fast — selected October 15, 2026. Git initialization authorized.
 
 Slice 1 implementation, checks and user visual review passed. Slice 2 implementation authorized; stop for hands-on review before slice 3.
 
+Slice 1 checkpoint: `92da564`. Slice 2 implementation and mechanical verification are ready for hands-on review; its slice/review boxes remain unchecked pending the user's result. Evidence and limitations are in HANDOFF.md.
+
 ## Slices
 
 - [x] **1. Today has a compelling pixel world**
@@ -87,3 +89,4 @@ Activity mode: running app/editor preferred, disclose static fallback if needed.
 ## Revisions
 
 - User visual feedback: retain original terrain/bento identity, select Dusk instead of Woodland, strengthen localized completion light and climber, and shorten mobile hierarchy. Implemented within slice 1 only; revised visual approval remains pending. No later slice advanced.
+- The user subsequently accepted slice 1 and authorized slice 2 plus local checkpoint commits on `MitPanchal14/feat/persistent-work-return-loop`. No push/deploy. Slice 2 adds real local records, guarded focus/recovery and completion/Undo; reviewed breakdowns, advanced planning, voice/AI, summit workflows and reports remain in their later slices. Stop for slice 2 review.

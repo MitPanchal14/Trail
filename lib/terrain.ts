@@ -12,6 +12,9 @@ const trail = [
   [27, 17],
   [28, 14],
 ];
+export function checkpointPosition(slot: number) {
+  return [...trail[slot % trail.length]];
+}
 function height(u: number, v: number) {
   return (
     Math.floor(
@@ -36,9 +39,19 @@ export function drawTerrain(
   count: number,
   saved: boolean,
   light = 1,
+  slots = Array.from({ length: count }, (_, i) => i),
+  currentSlot = count,
+  seed = "",
+  bob = 0,
 ) {
+  const segment = Math.floor(currentSlot / trail.length);
+  const earned = slots
+    .filter((slot) => Math.floor(slot / trail.length) === segment)
+    .map(checkpointPosition);
+  const seedOffset =
+    Array.from(seed).reduce((sum, c) => sum + c.charCodeAt(0), 0) % 101;
   ctx.imageSmoothingEnabled = false;
-  ctx.fillStyle = "#93a9aa";
+  ctx.fillStyle = "#829b9e";
   ctx.fillRect(0, 0, 700, 430);
   ctx.fillStyle = "#dfd5a8";
   ctx.fillRect(558, 35, 30, 30);
@@ -68,7 +81,7 @@ export function drawTerrain(
     [0, 430],
   ].forEach(([x, y]) => ctx.lineTo(x, y));
   ctx.fill();
-  ctx.fillStyle = "#5b969b";
+  ctx.fillStyle = "#50868e";
   ctx.fillRect(0, 270, 700, 160);
   for (let i = 0; i < 80; i++) {
     ctx.fillStyle = i % 2 ? "#77999a" : "#4c838b";
@@ -85,16 +98,14 @@ export function drawTerrain(
         continue;
       const [x, y] = pos(u, v),
         h = height(u, v),
-        n = noise(u, v);
+        n = noise(u + seedOffset, v);
       ctx.fillStyle = "#526e50";
       ctx.fillRect(x - 6, y, 6, 7);
       ctx.fillStyle = "#3f5945";
       ctx.fillRect(x, y, 6, 7);
       const lit =
         light > 0 &&
-        trail
-          .slice(0, count)
-          .some(([a, b]) => Math.hypot(u - a, v - b) < 6.5 * light);
+        earned.some(([a, b]) => Math.hypot(u - a, v - b) < 6.5 * light);
       ctx.fillStyle = lit
         ? ["#bdaf70", "#a4ad69", "#dec47f"][Math.floor(n * 3)]
         : h > 91
@@ -129,7 +140,7 @@ export function drawTerrain(
     ctx.strokeStyle = "#dec47f";
     ctx.lineWidth = 5;
     ctx.beginPath();
-    trail.slice(0, count).forEach(([u, v], i) => {
+    earned.forEach(([u, v], i) => {
       const [x, y] = pos(u, v);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -143,7 +154,7 @@ export function drawTerrain(
         v < 4 ||
         v > 48 ||
         v % 3 !== 1 ||
-        noise(u, v) < 0.37 ||
+        noise(u + seedOffset, v) < 0.37 ||
         height(u, v) > 88 ||
         (u - 26) ** 2 / 460 + (v - 26) ** 2 / 450 > 1 ||
         trail.some(([a, b]) => Math.hypot(u - a, v - b) < 2.8)
@@ -170,7 +181,7 @@ export function drawTerrain(
   ctx.fillRect(wx, wy, 4, 39);
   ctx.fillStyle = "#d8e5cd";
   ctx.fillRect(wx - 6, wy + 36, 16, 3);
-  trail.slice(0, count).forEach(([u, v]) => {
+  earned.forEach(([u, v]) => {
     const [x, y] = pos(u, v);
     ctx.fillStyle = "#dec47f66";
     ctx.fillRect(x - 10, y - 9, 20, 15);
@@ -180,10 +191,9 @@ export function drawTerrain(
     ctx.fillRect(x - 3, y - 10, 6, 5);
   });
   if (count || saved) {
-    const [x, y] = pos(
-      trail[Math.min(count, 9)][0],
-      trail[Math.min(count, 9)][1],
-    );
+    const point = checkpointPosition(currentSlot);
+    const [x, restingY] = pos(point[0], point[1]);
+    const y = restingY + bob;
     // Cool outlined resting marker is distinct from warm completed lanterns.
     ctx.strokeStyle = "#d2edf0";
     ctx.lineWidth = 2;
