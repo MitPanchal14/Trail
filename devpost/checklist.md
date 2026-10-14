@@ -10,7 +10,7 @@ Build mode: fast — selected October 15, 2026. Git initialization authorized.
 
 Slice 1 implementation, checks and user visual review passed. Slice 2 implementation authorized; stop for hands-on review before slice 3.
 
-Slice 1 checkpoint: `92da564`. Slice 2 implementation and mechanical verification are ready for hands-on review; its slice/review boxes remain unchecked pending the user's result. Evidence and limitations are in HANDOFF.md.
+Slice 1 checkpoint: `92da564`. Slice 2 implementation checkpoint: `71e624b`; mechanical verification is ready for hands-on review. Its slice/review boxes remain unchecked pending the user's result. Evidence and limitations are in HANDOFF.md.
 
 ## Slices
 

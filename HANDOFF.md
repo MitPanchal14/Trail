@@ -86,4 +86,6 @@ Record files changed, exact commands and observed results, browser evidence, kno
 4. Resume, optionally Pause/Continue, then Complete action. Reload and inspect the checkpoint details and earned light. Undo should remove that checkpoint only, retaining session history.
 5. While one tab owns editing, open a second tab; verify its read-only notice and disabled editing controls.
 
-User review: pending. First unchecked slice: **2**. Stop here; do not begin slice 3 or push/deploy. Local implementation checkpoint ID is recorded below after staged privacy review.
+User review: pending. First unchecked slice: **2**. Stop here; do not begin slice 3 or push/deploy.
+
+Local implementation checkpoint: **`71e624b`** (`feat: Persist and verify work resumption`), following accepted visual checkpoint `92da564`. Staged paths/diff checked for secrets/private context/unrelated files; `.env.local` and `devpost/learner-profile.md` confirmed ignored. Existing untracked planning/agent/research files left untouched and unstaged. No push or deployment. This checkpoint records verified implementation, not user acceptance; slice 2 remains unchecked.
