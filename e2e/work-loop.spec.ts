@@ -34,6 +34,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.getByRole("timer")).toHaveText("01:00");
   await page.clock.fastForward(10000);
+  await page.getByText("Return note (optional)", { exact: true }).click();
   await page
     .getByLabel("Where did you stop?")
     .fill("Oak outline ready; add the veins next.");

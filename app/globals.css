@@ -32,12 +32,43 @@
 .world {
   background: #829b9e;
 }
-.is-focusing {
+.shell.is-focusing {
+  display: grid;
   grid-template-columns: 1fr;
   max-width: 1250px;
+  width: 100%;
+  margin-inline: auto;
 }
-.is-focusing .sidebar {
+.shell.is-focusing .sidebar {
   display: none;
+}
+.shell.is-focusing > main {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+}
+.shell.is-focusing .bento {
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr);
+  align-items: stretch;
+}
+.return-note {
+  font-size: 13px;
+}
+.return-note summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 10px;
+}
+.return-note label {
+  display: block;
+  margin-top: 8px;
+}
+.is-focusing h1 {
+  scroll-margin-top: 18px;
+}
+.is-focusing h1:focus-visible {
+  outline: 2px solid #dec47f;
+  outline-offset: 5px;
 }
 .countdown {
   font-size: clamp(46px, 6vw, 72px);
@@ -799,5 +830,33 @@ dialog p {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+/* Focus remains a full-width composition even when the regular shell changes. */
+@media (max-width: 800px) {
+  .shell.is-focusing {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shell.is-focusing .bento {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .shell.is-focusing > main {
+    padding: 16px;
+  }
+  .shell.is-focusing .heading {
+    padding-top: 8px;
+    padding-bottom: 16px;
+  }
+  .shell.is-focusing .real-action {
+    gap: 10px;
+    padding: 16px;
+  }
+  .shell.is-focusing .real-action .primary {
+    margin-top: 4px;
+  }
+  .shell.is-focusing .world canvas {
+    min-height: 0;
   }
 }

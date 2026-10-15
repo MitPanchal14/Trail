@@ -12,6 +12,16 @@ Existing design-lab is a standalone illustrative HTML prototype with synthetic r
 
 Open http://localhost:3000 (development) or http://localhost:3001 (local production build); both servers left running. Keep the same origin/browser for a saved task. Try the learner check below, resolve feedback and obtain approval before marking slice 2 complete. Do not begin slice 3 yet. No repeat discovery/mode interview.
 
+### Current focus-layout repair review
+
+The user reported cramped focus after switching tasks. Reproduced the exact A → Save A → create/start/save B → select/Resume A sequence before editing. Computed desktop/tablet layouts had two shell columns, `main` only 220/180px wide and the mountain 2px wide: later equal-specificity `.shell`/responsive rules overrode `.is-focusing`.
+
+Repair: `.shell.is-focusing` explicitly owns the one-column shell, full-width main and centered 1250px maximum; its bento maintains side-by-side scene and controls above 800px, with an explicit mobile stack below. Return-note textarea is collapsed in native details until requested. Start/Resume focuses the heading and scrolls it into view. No domain/storage/timer or terrain source changed; no user browser records were cleared, migrated or rewritten.
+
+Verification: `npm test` 13 pass; `npm run lint`, `npm run typecheck`, `npm run build` pass; `npm run test:e2e` 33 pass across desktop 1440px, tablet 1024px and mobile 390px. New `e2e/focus-layout.spec.ts` asserts computed widths/columns/alignment, no overflow, heading focus, collapsed note editor, correct mountain/action, A's note/110s and B's note/100s with separate preserved credited times, plus Resume A after reload. Test-only isolated browser contexts and fictional records used. Existing return-loop tests now open the note disclosure before editing; timing assertions retained.
+
+After repair: desktop shell/main both 1250px wide centered at x=95; tablet shell/main both 1024px wide; mobile both 390px with scene below controls at y≈560px. Inspected all three screenshots: `devpost/evidence/focus-repair-{desktop,tablet,mobile}.png`. Physical-device Safari and longer real-world text/zoom testing remain unverified. Review the repaired screen at localhost:3000; slice 2 remains unaccepted/unchecked, and slice 3 has not started. localhost:3001 may still serve an older running process; use the development URL for this repair review.
+
 ## Accepted limits and outstanding implementation checks
 
 Browser-local data only; export/import provides manual backup, not sync. Optional native browser voice with typing fallback. Gemini key server-only. Production public AI disabled until genuine abuse protection/quota constraints are verified. Closed-tab recovery uses last durable heartbeat; absence receives no credit. Verify current framework/runtime/model versions and real service limits during their slices.

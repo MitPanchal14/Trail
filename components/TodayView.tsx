@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
 import { useWorkTrail } from "@/lib/use-work-trail";
@@ -20,6 +20,13 @@ export default function TodayView() {
     [minutes, setMinutes] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null),
     form = useRef<HTMLFormElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (focus) {
+      heading.current?.focus({ preventScroll: true });
+      heading.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  }, [focus]);
   if (!s)
     return (
       <main className="loading" role="status">
@@ -151,7 +158,7 @@ export default function TodayView() {
         </header>
         <div className="heading">
           <div>
-            <h1>
+            <h1 ref={heading} tabIndex={-1}>
               {focused
                 ? "One action at a time."
                 : completion
@@ -281,19 +288,22 @@ export default function TodayView() {
                     No completion was recorded.
                   </p>
                 )}
-                <label className="note-label" htmlFor="context-note">
-                  Where did you stop? <span>(optional)</span>
-                  <textarea
-                    id="context-note"
-                    maxLength={2000}
-                    value={session.note}
-                    disabled={readOnly}
-                    onChange={(e) =>
-                      dispatch({ type: "note", note: e.target.value })
-                    }
-                    placeholder="A thought that will help you return…"
-                  />
-                </label>
+                <details className="return-note">
+                  <summary>Return note (optional)</summary>
+                  <label className="note-label" htmlFor="context-note">
+                    Where did you stop? <span>(optional)</span>
+                    <textarea
+                      id="context-note"
+                      maxLength={2000}
+                      value={session.note}
+                      disabled={readOnly}
+                      onChange={(e) =>
+                        dispatch({ type: "note", note: e.target.value })
+                      }
+                      placeholder="A thought that will help you return…"
+                    />
+                  </label>
+                </details>
                 <div className="button-row">
                   <button
                     disabled={readOnly || session.status === "expired"}
