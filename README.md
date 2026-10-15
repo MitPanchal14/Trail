@@ -6,11 +6,40 @@ Use Node 24 LTS. Run `npm ci`, then `npm run dev` and open http://localhost:3000
 
 ## Optional local AI and voice
 
-Copy `.env.example` to ignored `.env.local`, set your own `GEMINI_API_KEY` and a project-accessible `GEMINI_MODEL`, and opt in with `ENABLE_AI_PLANNING=true`; restart the development server. Never use `NEXT_PUBLIC_` for secrets. Requests go server-to-server to Gemini, sending only submitted text/context or supplied daily candidates/availability. No automatic retries; responses time out at 25 seconds and require review. Restrict local exposure and set provider spending/quota limits before enabling. Public production AI is locked off in code regardless of the protection flag: a flag alone is not abuse protection. The adapter has mocked contract coverage; live Gemini has not been tested because credentials are absent.
+If `.env.local` does not exist, copy `.env.example` to it. Open **that file directly in your editor**, enter your own key, and configure:
 
-Microphone use is explicitly opt-in. Native browser speech recognition may transmit audio to the browser/platform provider; this is not guaranteed on-device transcription. Stop recording, correct the editable transcript, then submit text separately. Unsupported/denied recognition falls back to typing. Real microphone/provider behavior and physical Safari remain unverified.
+```dotenv
+GEMINI_API_KEY=enter_your_key_directly_in_this_file
+GEMINI_MODEL=gemini-3.5-flash-lite
+ENABLE_AI_PLANNING=true
+```
 
-Checks: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:e2e` (requires `npx playwright install chromium` and a server at localhost:3000, or `PW_BASE_URL`). Actual evidence and next action live in `HANDOFF.md`.
+Never paste a key into chat, screenshots or a commit, and never prefix it with `NEXT_PUBLIC_`. `gemini-3.5-flash-lite` is documented as supporting structured output; documentation does not establish your project's access or quota. Check [your active AI Studio limits](https://aistudio.google.com/rate-limit) and spending controls before enabling. ChatGPT Plus/OpenCode access does not supply Gemini API credits; no free-usage promise is made. Restart your development server after configuring; for AI use bind locally with `npm run dev -- --hostname 127.0.0.1 --port 3000`.
+
+Requests go server-to-server to Gemini, sending only submitted text/context or supplied daily candidates/availability. No automatic retries; each request has a 25-second timeout and a 4096-output-token cap. Blocked/incomplete output is never used as a draft; access, model, quota and request-configuration errors have separate sanitized messages. All valid drafts still require review. Public production AI is locked off in code regardless of the protection flag: a flag alone is not abuse protection. **Live Gemini remains unverified until the authorized smoke test succeeds.**
+
+Microphone use is explicitly opt-in. Native browser speech recognition may transmit audio to the browser/platform provider; this is not guaranteed on-device transcription. Unsupported/denied recognition falls back to typing. For a real user check: explicitly start recording, speak one short description, stop, correct the transcript, then leave the flow and confirm the browser microphone indicator stops. Submit text separately only when ready. Automated browser doubles do not verify actual transcription; that and physical Safari remain unverified. Typing is a complete alternative.
+
+## Verification
+
+Run `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`, and `npm run build`. Install Chromium once with `npx playwright install chromium`.
+
+- **Local browser tests:** `npm run test:e2e` starts its own dev server at `http://127.0.0.1:3100`, waits at most 120 seconds, and shuts down only that managed process. Its `.next-e2e` compiler output is separate from your development server. An occupied port fails instead of silently reusing a stale/unrelated app. AI is forcibly disabled on this managed server even if your `.env.local` enables it.
+- **External dev server:** `PW_BASE_URL=http://localhost:3000 npm run test:e2e` explicitly uses the server you started, checks its Work Trail title, and never starts/stops it. Restart it yourself if its source/config is stale. Successful AI in ordinary tests is mocked; unavailable-AI browser behavior is also mocked for external servers to avoid accidental API spending. The managed default exercises the real missing-config endpoint.
+- **Production build:** run `npm run build`, start the new build with `npm run start -- --hostname 127.0.0.1 --port 3001`, then in another terminal run `PW_BASE_URL=http://127.0.0.1:3001 npm run test:e2e`. Production AI stays disabled. An old running production process is not refreshed by rebuilding; restart the intended process deliberately. Do not use a production server for the live-AI check.
+- Tests use fresh isolated browser contexts, not your normal browser/profile or saved records. Screenshots go to ignored `test-results/`, no longer overwriting reviewed `devpost/evidence/` images. Next may regenerate `next-env.d.ts` and TypeScript include paths for the active build; inspect generated changes before staging.
+
+### Authorized live smoke (not part of routine tests)
+
+After local configuration and explicit approval of **up to three generation requests**, run:
+
+```sh
+PW_LIVE_GEMINI=1 PW_BASE_URL=http://localhost:3000 npm run test:e2e -- --project=desktop
+```
+
+This selects only `e2e/live-gemini.spec.ts`: a fictional clear goal, a budgeted day using real accepted candidate IDs, and a vague goal needing clarification. No response mocking, retries, saved user-data imports, microphone permission grants or automatic acceptance. The browser test explicitly reviews/edits/accepts, commits a manageable subset, saves/reopens/resumes, completes and undoes one checkpoint. It aborts requests beyond three in that run; do not use repeat/retry options. HTTP/provider failure stops the test. Actual fictional responses are attached under `test-results/` for qualitative review: concrete first actions/outputs, short plans, no invented facts/deadlines or unnecessary clarification. Automated schema checks alone do not prove usefulness. Confirm project model access/limits separately; a successful call does not reveal remaining quota.
+
+Actual outcomes, limitations and the next user check live in `HANDOFF.md`.
 
 ## Local records and recovery
 

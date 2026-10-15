@@ -97,6 +97,43 @@ describe("bounded Gemini adapter and route", () => {
     );
     expect(body.systemInstruction.parts[0].text).toContain("DATA");
     expect(body.contents[0].parts[0].text).toContain(input.description);
+    const schema = body.generationConfig.responseFormat.text.schema;
+    expect(schema.anyOf[0].properties.kind).toEqual({ type: "string", enum: ["breakdown"] });
+    expect(schema.anyOf[0].properties.steps.items.properties.suggestedMinutes)
+      .toMatchObject({ type: "integer", minimum: 1, maximum: 120 });
+    expect(JSON.stringify(schema)).not.toMatch(/"(?:\$schema|const|minLength|maxLength|pattern|format)":/);
+  });
+  it("distinguishes blocked and incomplete provider output without accepting partial JSON", async () => {
+    for (const [payload, code] of [
+      [{ promptFeedback: { blockReason: "SAFETY" } }, "BLOCKED"],
+      [{ candidates: [{ finishReason: "SAFETY" }] }, "BLOCKED"],
+      [{ candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: JSON.stringify(result) }] } }] }, "INCOMPLETE"],
+      [{ candidates: [{ content: { parts: [{ text: JSON.stringify(result) }] } }] }, "INCOMPLETE"],
+    ] as const) {
+      await expect(generatePlan(input, signal(), env, mocked(async () =>
+        new Response(JSON.stringify(payload)),
+      ))).rejects.toMatchObject({ code });
+    }
+  });
+  it("parses only final text, not thinking parts, and validates the assembled result", async () => {
+    const fetcher = mocked(async () => new Response(JSON.stringify({ candidates: [{
+      finishReason: "STOP", content: { parts: [
+        { thought: true, text: "private internal reasoning, not JSON" },
+        { text: JSON.stringify(result).slice(0, 30) },
+        { text: JSON.stringify(result).slice(30) },
+      ] },
+    }] })));
+    await expect(generatePlan(input, signal(), env, fetcher)).resolves.toEqual(result);
+  });
+  it("reports provider request/access/model/quota failures without exposing upstream details", async () => {
+    for (const [status, code] of [[400, "PROVIDER_REQUEST"], [401, "PROVIDER_ACCESS"],
+      [403, "PROVIDER_ACCESS"], [404, "MODEL_UNAVAILABLE"], [429, "QUOTA"]] as const) {
+      const error = await generatePlan(input, signal(), env,
+        mocked(async () => new Response("sensitive upstream detail", { status })),
+      ).catch((e) => e);
+      expect(error.code).toBe(code);
+      expect(error.message).not.toContain("sensitive");
+    }
   });
   it("missing configuration and production disable make no upstream requests", async () => {
     const fetcher = mocked(async () => response(result));

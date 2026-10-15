@@ -4,6 +4,7 @@ export default defineConfig([
   ...nextVitals,
   globalIgnores([
     ".next/**",
+    ".next-e2e/**",
     "devpost/design-lab/**",
     ".agents/**",
     ".claude/**",

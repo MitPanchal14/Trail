@@ -22,7 +22,7 @@ test("Today visual states, keyboard, dialog, and isolated samples", async ({
   await page.locator("h1").click();
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
   await page.screenshot({
-    path: `devpost/evidence/${testInfo.project.name}-empty.png`,
+    path: testInfo.outputPath("empty.png"),
     fullPage: true,
   });
   for (const state of ["one", "saved", "rich"]) {
@@ -45,7 +45,7 @@ test("Today visual states, keyboard, dialog, and isolated samples", async ({
       ),
     ).toBe(true);
     await page.screenshot({
-      path: `devpost/evidence/${testInfo.project.name}-${state}.png`,
+      path: testInfo.outputPath(`${state}.png`),
       fullPage: true,
     });
     await page.locator("summary").first().click();

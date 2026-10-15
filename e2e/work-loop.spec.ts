@@ -68,7 +68,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   ).toBeVisible();
   expect((await records(page)).sessions[0].remainingMs).toBe(50000);
   await page.screenshot({
-    path: `devpost/evidence/slice2-${info.project.name}-saved.png`,
+    path: info.outputPath("slice2-saved.png"),
     fullPage: true,
   });
   expect(
@@ -109,7 +109,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   await returned.clock.fastForward(10000);
   expect((await records(returned)).sessions[0].creditedMs).toBe(22000);
   await returned.screenshot({
-    path: `devpost/evidence/slice2-${info.project.name}-focus.png`,
+    path: info.outputPath("slice2-focus.png"),
     fullPage: true,
   });
   expect(
@@ -138,7 +138,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
     }),
   ).toBeVisible();
   await returned.screenshot({
-    path: `devpost/evidence/slice2-${info.project.name}-complete.png`,
+    path: info.outputPath("slice2-complete.png"),
     fullPage: true,
   });
   await returned

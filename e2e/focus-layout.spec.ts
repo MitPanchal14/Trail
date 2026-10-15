@@ -70,7 +70,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
   ).toBeFocused();
   await expect(page.getByLabel("Where did you stop?")).not.toBeVisible();
   await page.screenshot({
-    path: `devpost/evidence/focus-repair-${info.project.name}.png`,
+    path: info.outputPath("focus-repair.png"),
     fullPage: true,
   });
   const layout = await page.locator(".shell.is-focusing").evaluate((el) => {

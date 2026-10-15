@@ -4,13 +4,39 @@ Updated: October 15, 2026.
 
 ## Actual status
 
-Slice 3 implementation is ready for hands-on review after explicit user execution approval. It adds reviewed breakdowns, retained drafts, optional browser voice, the server Gemini adapter and daily drafts/commitments around the slice 2 loop. Latest checks: 26 unit/API tests and 45 desktop/tablet/mobile browser tests pass, plus lint/typecheck/build. Live Gemini remains unverified: no credentials configured. Fast mode; branch `MitPanchal14/feat/persistent-work-return-loop`. No push, deployment or slice 4 work. User acceptance boxes remain unchecked.
+Slice 3's independent integration review and browser-test setup are complete; live Gemini and user acceptance are still pending. Fresh checks: 29 unit/API tests, 51 desktop/tablet/mobile browser tests against both managed development and a fresh local production build, plus lint/typecheck/build pass. Required Gemini variables are absent from the shell and `.env.local` does not exist; no provider requests or real microphone tests were made. Fast mode; branch `MitPanchal14/feat/persistent-work-return-loop`. Dusk, bento, terrain and repaired focus layout are unchanged. No push, deployment or slice 4 work. User acceptance boxes remain unchecked.
 
 Existing design-lab is a standalone illustrative HTML prototype with synthetic records and in-memory interactions. It is visual research, not the implemented kernel. Do not mistake it for persistent production behavior.
 
 ## Next action
 
-Open http://localhost:3000 (current development build). Do not use the possibly stale localhost:3001 process for review. Keep the same origin/browser for saved work. Try the slice 3 learner check below; resolve feedback before slice 4. Do not restart discovery or infer acceptance from execution approval.
+Configure ignored `.env.local` directly in an editor using the README instructions; never paste the key into chat. Confirm configuration and authorize at most three fictional generation requests (no retries), then restart the intended local development server, verify configured model access and run the explicit live smoke. Review actual returned drafts qualitatively. Project quota/spending limits must be checked in AI Studio; no remaining quota is known. ChatGPT Plus/OpenCode does not fund Gemini API calls. Until then, the typed manual journey is usable at http://localhost:3000 (HTTP 200/Work Trail title verified); keep the same origin/browser for real saved work. Do not use a production server for live AI. Stop for real-use feedback before slice 4; no acceptance is inferred.
+
+## Slice 3 follow-up — provider contract and integrated verification
+
+- Reviewed official GenerateContent API reference, structured-output guide and model/rate-limit documentation: https://ai.google.dev/api/generate-content , https://ai.google.dev/gemini-api/docs/generate-content/structured-output , https://ai.google.dev/gemini-api/docs/generate-content/whats-new-gemini-3.6 and https://ai.google.dev/gemini-api/docs/rate-limits . `gemini-3.5-flash-lite` remains documented with structured-output support, but project access/quota are unverified. No model was actually used for a live request.
+- Preserved configurable `GEMINI_MODEL`, `v1beta/models/{model}:generateContent`, server-only `x-goog-api-key`, `generationConfig.responseFormat.text` and API-reference `APPLICATION_JSON` MIME enum. Projected Zod output onto the documented provider schema subset (`const` → `enum`; omit string-length/UUID-pattern/meta keywords), retaining strict runtime checks. The docs alone do not prove provider acceptance.
+- `lib/gemini.server.ts`: distinguish provider request/access/model/quota failures, blocked prompts/candidates, and incomplete/missing finish reasons. Parse only final non-thinking text, then validate the full draft. Preserve 32 KB input, 64 KB response, 4096 output tokens, 25-second timeout, cancellation, no retries and unconditional production lockout. Added failing regressions first, then corrected implementation; final tests pass.
+- `playwright.config.ts`, `next.config.ts`, `e2e/check-server.ts`: plain `npm run test:e2e` starts an AI-disabled loopback dev server on port 3100 with a 120-second startup bound and separate ignored `.next-e2e` compiler output. Refuse an occupied port rather than silently reuse stale/unrelated code. Explicit `PW_BASE_URL` uses an external server without taking lifecycle ownership; title check rejects unrelated apps. Ordinary external-server tests mock AI unavailability to avoid accidental provider calls.
+- Added browser regressions for accepted edit/reorder/duration/archive/restore with stable IDs and slots, another goal's retained saved session, completion/Undo, quota failure, explicit cancellation and corrected drafts surviving reload. Existing late-response, removed/deferred history, closure recovery, task-switch focus-layout and storage failure tests are retained. All use isolated fictional browser records, never the user's browser/profile.
+- Prepared `e2e/live-gemini.spec.ts`, selected only with `PW_LIVE_GEMINI=1 PW_BASE_URL=http://localhost:3000 npm run test:e2e -- --project=desktop`. One test, at most three real generation requests, no retries: clear breakdown → budgeted day → vague clarification, with explicit browser review/edit/accept/commit/save/reopen/resume/complete/Undo. Actual fictional replies attach to ignored test output for qualitative assessment. `--list` confirmed one selected desktop test; it has **not executed against Gemini**. Useful first actions, excessive preparation, workload and hallucination checks remain pending actual returned drafts. No prompt tuning or usefulness claims were invented from simulated output.
+
+### Fresh commands and evidence
+
+- `npm run lint`: pass. `npm run typecheck`: pass. `npm test`: **29 passed**.
+- `npm run test:e2e`: **51 passed** against the self-started development app, Chromium desktop 1440×1000, tablet 1024×900 and mobile 390×844. An earlier verification of the initial harness passed the prior 45-test suite before the six viewport-expanded regressions were added.
+- `npm run build`: pass, `/` static and `/api/plan` dynamic. `npm run start -- --hostname 127.0.0.1 --port 3001`, then `PW_BASE_URL=http://127.0.0.1:3001 npm run test:e2e`: **51 passed** against the fresh local production build. Direct fictional POST to that real production endpoint returned **503 PUBLIC_AI_DISABLED**. Only the agent-started port-3001 process was stopped afterward; the pre-existing user's port-3000 development server was not stopped.
+- Successful AI drafts/clarification/day replies and speech permission/unsupported behavior in these automated suites remain **test doubles**, not live provider/microphone evidence. The managed dev missing-config response and direct production lockout were real app responses.
+- Fresh screenshots now go to ignored `test-results/`, not tracked evidence paths. Inspected mobile review, desktop day plan and tablet focus from the production run: original Dusk/bento/terrain retained; task-switch layout assertions still pass without overflow. Native review dialog scrolls through long drafts; physical-device/browser testing remains pending.
+- Initial working tree already contained modified screenshot binaries and `next-env.d.ts` (Next dev-type paths). The first existing suite regenerated screenshots again before output paths were redirected. Do not attribute all image changes to this implementation; leave them unstaged. Next regenerates `next-env.d.ts` for whichever build ran last; no hand edits or staging of that file. Reviewed intended code/docs only for the local checkpoint. No private storage cleared or replaced, no key displayed, no `.env.local` created, no push/deploy.
+
+### Remaining hands-on checks
+
+1. Finish the credentialed fictional smoke and inspect actual draft usefulness. Any provider access/quota failure remains a blocker, not a passing mock. Verify project limits in AI Studio; no paid plan or quota increase is authorized.
+2. User independently enters/submits one real task: review whether the first action is immediately clear, the breakdown reduces uncertainty, the plan fits available time, and full review/editing is proportionate. Start one action, save a genuine note, close/reopen the same URL, Resume, complete and inspect a checkpoint; try Undo. Ask whether returning required reconstructing context. No user feedback has been supplied yet.
+3. Optional real voice: explicitly start recording, speak a short description, stop, correct the transcript, leave and confirm the browser microphone indicator stops. Do not grant permission for the user. Real transcription/physical Safari are unverified; typing remains a complete path and is not blocked by this check.
+
+Slice 3 is **not accepted**. Stop before slice 4, artwork redesign, deployment or submission.
 
 ## Slice 3 — current implementation evidence
 
@@ -45,11 +71,11 @@ After repair: desktop shell/main both 1250px wide centered at x=95; tablet shell
 
 ## Accepted limits and outstanding implementation checks
 
-Browser-local data only; export/import provides manual backup, not sync. Optional native browser voice with typing fallback. Gemini key server-only. Production public AI disabled until genuine abuse protection/quota constraints are verified. Closed-tab recovery uses last durable heartbeat; absence receives no credit. Verify current framework/runtime/model versions and real service limits during their slices.
+Browser-local data only; recovery export exists, import/replacement remains a later slice, and neither provides sync. Optional native browser voice with typing fallback. Gemini key server-only. Production public AI remains unconditionally disabled in this task. Closed-tab recovery uses last durable heartbeat; absence receives no credit. Verify actual project model access/quota before live testing.
 
 ## Documentation verification
 
-Planning documents remain the approved source. The real manual persistence/focus kernel now exists independently of design-lab. Live planning, full breakdown editing, reports and summit workflows remain unimplemented, as intended for later slices.
+Planning documents remain the approved source. The real persistence/focus kernel, full reviewed breakdown editor and daily planning exist independently of design-lab. Live provider behavior is unverified; reports and summit workflows remain later-slice work. Earlier dated slice narratives below are historical, not current instructions.
 
 ## Original slice 1 evidence (before Dusk refinement)
 

@@ -36,11 +36,105 @@ const records = (page: Page) =>
   page.evaluate(() =>
     JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!),
   );
-test("real missing-AI fallback, draft reload, full manual review and daily commitments", async ({
+test("accepted edits preserve IDs, archived history and another goal's saved place through completion and Undo", async ({ page }) => {
+  await page.route("**/api/plan", (route) => route.fulfill({ json: fixture }));
+  await page.goto("/");
+  await open(page);
+  await page.getByLabel("Describe the work").fill("Fictional guide A.");
+  await page.getByRole("button", { name: "Build with AI", exact: true }).click();
+  await expect(page.getByLabel("Mountain name", { exact: true })).toHaveValue(fixture.goal);
+  await accept(page);
+  await page.getByRole("button", { name: "Start", exact: true }).click();
+  await page.getByText("Return note (optional)", { exact: true }).click();
+  await page.getByLabel("Where did you stop?").fill("Guide A: outline ready; next draw three veins.");
+  await page.getByRole("button", { name: "Save my place", exact: true }).click();
+  const original = await records(page);
+
+  await open(page);
+  await page.getByLabel("Describe the work").fill("Fictional guide B.");
+  await page.getByRole("button", { name: "Build with AI", exact: true }).click();
+  await expect(page.getByLabel("Mountain name", { exact: true })).toHaveValue(fixture.goal);
+  await page.getByLabel("Mountain name", { exact: true }).fill("Other fictional goal");
+  await page.getByLabel("Action 1 title", { exact: true }).fill("Draft other guide");
+  await accept(page);
+  const before = await records(page);
+  const b = before.subtasks.filter((t: { mountainId: string }) => t.mountainId === before.mountains[1].id);
+  await page.getByRole("button", { name: "Edit breakdown", exact: true }).click();
+  await page.getByLabel("Action 1 instruction", { exact: true }).fill("Draw the other leaf outline and label its edge.");
+  await page.getByLabel("Action 1 session minutes", { exact: true }).fill("7");
+  await page.getByRole("button", { name: "Move action 1 down", exact: true }).click();
+  await page.getByRole("button", { name: "Remove action 1", exact: true }).click();
+  await accept(page);
+  let edited = await records(page);
+  expect(edited.subtasks.find((t: { id: string }) => t.id === b[0].id)).toMatchObject({
+    checkpointSlot: b[0].checkpointSlot, suggestedMinutes: 7,
+    nextAction: "Draw the other leaf outline and label its edge.",
+  });
+  expect(edited.subtasks.find((t: { id: string }) => t.id === b[1].id).archivedAt).not.toBeNull();
+  expect(edited.sessions[0]).toEqual(original.sessions[0]);
+  await page.getByRole("button", { name: "Edit breakdown", exact: true }).click();
+  await page.getByText("Archived actions and saved context", { exact: true }).click();
+  await page.getByRole("button", { name: "Restore Review labels", exact: true }).click();
+  await accept(page);
+  edited = await records(page);
+  expect(edited.subtasks.find((t: { id: string }) => t.id === b[1].id)).toMatchObject({
+    checkpointSlot: b[1].checkpointSlot, archivedAt: null,
+  });
+  await page.reload();
+  await expect(page.getByText(original.sessions[0].note, { exact: true })).toBeVisible();
+  expect((await records(page)).sessions[0]).toEqual(original.sessions[0]);
+  await page.getByRole("button", { name: "Resume", exact: true }).click();
+  await page.getByRole("button", { name: "Complete action", exact: true }).click();
+  await expect(page.getByText("✦ 1 earned checkpoint", { exact: true })).toBeVisible();
+  await page.locator(".checkpoints summary").click();
+  await expect(page.locator(".checkpoints")).toContainText(original.sessions[0].note);
+  await page.getByRole("button", { name: "Undo completion", exact: true }).first().click();
+  const undone = await records(page);
+  expect(undone.completions[0].undoneAt).not.toBeNull();
+  expect(undone.sessions[0].note).toBe(original.sessions[0].note);
+  expect(undone.subtasks.find((t: { id: string }) => t.id === b[0].id).checkpointSlot).toBe(b[0].checkpointSlot);
+});
+
+test("quota failure and explicit cancellation preserve editable drafts across reload", async ({ page }) => {
+  let release: () => void = () => {};
+  let calls = 0;
+  await page.route("**/api/plan", async (route) => {
+    if (++calls === 1) {
+      await route.fulfill({ status: 429, json: { error: { code: "QUOTA", message: "Gemini quota reached; edit manually." } } });
+      return;
+    }
+    await new Promise<void>((resolve) => { release = resolve; });
+    await route.fulfill({ json: fixture });
+  });
+  await page.goto("/");
+  await open(page);
+  await page.getByLabel("Describe the work").fill("Fictional text retained after quota failure.");
+  await page.getByRole("button", { name: "Build with AI", exact: true }).click();
+  await expect(page.getByText("Gemini quota reached; edit manually.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Build with AI", exact: true }).click();
+  await expect.poll(() => calls).toBe(2);
+  await page.getByRole("button", { name: "Cancel request", exact: true }).click();
+  const corrected = "Fictional corrected description after cancellation.";
+  await page.getByLabel("Describe the work").fill(corrected);
+  release();
+  await page.getByRole("button", { name: "Write manually", exact: true }).click();
+  await expect(page.getByLabel("Mountain name", { exact: true })).toHaveValue("");
+  await page.reload();
+  await page.getByRole("button", { name: "Continue creation draft", exact: true }).click();
+  await expect(page.getByLabel("Describe the work")).toHaveValue(corrected);
+  expect((await records(page)).mountains).toHaveLength(0);
+});
+test("missing-AI fallback, draft reload, full manual review and daily commitments", async ({
   page,
 }, info) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  // External dev servers may have paid AI enabled. Routine tests never call it.
+  // The managed default server exercises the actual disabled-config endpoint.
+  if (process.env.PW_BASE_URL)
+    await page.route("**/api/plan", (route) => route.fulfill({ status: 503,
+      json: { error: { code: "AI_UNAVAILABLE", message: "AI is unavailable. Use the manual editor." } },
+    }));
   await page.addInitScript(() => {
     Object.defineProperty(window, "SpeechRecognition", { value: undefined });
     Object.defineProperty(window, "webkitSpeechRecognition", {
@@ -95,7 +189,7 @@ test("real missing-AI fallback, draft reload, full manual review and daily commi
     .fill("Read the page and mark one unclear label.");
   await page.getByLabel("Action 2 session minutes", { exact: true }).fill("10");
   await page.screenshot({
-    path: `devpost/evidence/slice3-${info.project.name}-review.png`,
+    path: info.outputPath("slice3-review.png"),
     fullPage: true,
   });
   await accept(page);
@@ -113,7 +207,7 @@ test("real missing-AI fallback, draft reload, full manual review and daily commi
   expect((await records(page)).dayPlans[0].commitments).toHaveLength(0);
   await page.getByRole("button", { name: "Move planned action 2 up" }).click();
   await page.screenshot({
-    path: `devpost/evidence/slice3-${info.project.name}-plan.png`,
+    path: info.outputPath("slice3-plan.png"),
     fullPage: true,
   });
   await page
@@ -221,7 +315,7 @@ test("mocked clarification retains context; reviewed AI plan is editable and pre
     page.getByRole("heading", { name: "One action at a time." }),
   ).toBeFocused();
   await page.screenshot({
-    path: `devpost/evidence/slice3-${info.project.name}-focus.png`,
+    path: info.outputPath("slice3-focus.png"),
     fullPage: true,
   });
   const after = await records(page);

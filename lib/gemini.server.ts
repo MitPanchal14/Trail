@@ -15,6 +15,30 @@ export class PlanningError extends Error {
     super(message);
   }
 }
+// Project our small Zod schemas onto Gemini's documented JSON Schema subset.
+// String lengths/UUID syntax still have to pass the stricter runtime validator.
+function providerSchema(
+  schema: Record<string, unknown>,
+): Record<string, unknown> {
+  const output: Record<string, unknown> = {};
+  for (const key of [
+    "type", "description", "title", "required", "additionalProperties",
+    "minimum", "maximum", "minItems", "maxItems", "enum",
+  ])
+    if (key in schema) output[key] = schema[key];
+  if ("const" in schema) output.enum = [schema.const];
+  if (schema.properties)
+    output.properties = Object.fromEntries(
+      Object.entries(
+        schema.properties as Record<string, Record<string, unknown>>,
+      ).map(([key, value]) => [key, providerSchema(value)]),
+    );
+  if (schema.items)
+    output.items = providerSchema(schema.items as Record<string, unknown>);
+  if (schema.anyOf)
+    output.anyOf = (schema.anyOf as Record<string, unknown>[]).map(providerSchema);
+  return output;
+}
 export async function boundedText(response: Response, maxBytes: number) {
   const reader = response.body?.getReader();
   if (!reader) return "";
@@ -107,7 +131,9 @@ export async function generatePlan(
             responseFormat: {
               text: {
                 mimeType: "APPLICATION_JSON",
-                schema: z.toJSONSchema(schema, { target: "draft-7" }),
+                schema: providerSchema(
+                  z.toJSONSchema(schema, { target: "draft-7" }),
+                ),
               },
             },
           },
@@ -116,10 +142,27 @@ export async function generatePlan(
     );
     if (!response.ok) {
       await response.body?.cancel();
+      if (response.status === 400)
+        throw new PlanningError(
+          502, "PROVIDER_REQUEST",
+          "Gemini rejected the request configuration. Check model/schema compatibility; your input is retained and manual editing remains available.",
+        );
+      if ([401, 403].includes(response.status))
+        throw new PlanningError(
+          503, "PROVIDER_ACCESS",
+          "Gemini access was denied. Check the server key, project access and API restrictions; use manual editing meanwhile.",
+        );
+      if (response.status === 404)
+        throw new PlanningError(
+          503, "MODEL_UNAVAILABLE",
+          "The configured Gemini model is unavailable. Check GEMINI_MODEL and project access; use manual editing meanwhile.",
+        );
       throw new PlanningError(
         response.status === 429 ? 429 : 502,
         response.status === 429 ? "QUOTA" : "UPSTREAM",
-        "Planning could not complete. Retry explicitly or edit manually; your input is retained.",
+        response.status === 429
+          ? "Gemini quota or rate limit reached. Check your project's limits in AI Studio before retrying explicitly; your input is retained and manual editing remains available."
+          : "Gemini is temporarily unavailable. Retry explicitly or edit manually; your input is retained.",
       );
     }
     const payload = JSON.parse(await boundedText(response, 65536));
@@ -129,19 +172,46 @@ export async function generatePlan(
           .array(
             z.object({
               finishReason: z.string().optional(),
-              content: z.object({
-                parts: z.array(z.object({ text: z.string().optional() })),
-              }),
+              content: z
+                .object({
+                  parts: z.array(z.object({
+                    text: z.string().optional(),
+                    thought: z.boolean().optional(),
+                  })),
+                })
+                .optional(),
             }),
           )
-          .min(1),
+          .optional(),
+        promptFeedback: z
+          .object({ blockReason: z.string().optional() })
+          .optional(),
       })
       .parse(payload);
-    const candidate = envelope.candidates[0];
-    if (candidate.finishReason && candidate.finishReason !== "STOP")
-      throw Error("Incomplete output");
+    const candidate = envelope.candidates?.[0];
+    if (
+      (envelope.promptFeedback?.blockReason &&
+        envelope.promptFeedback.blockReason !== "BLOCK_REASON_UNSPECIFIED") ||
+      ["SAFETY", "BLOCKLIST", "PROHIBITED_CONTENT", "RECITATION", "SPII"].includes(
+        candidate?.finishReason ?? "",
+      )
+    )
+      throw new PlanningError(
+        502, "BLOCKED",
+        "Gemini did not return a draft because the request or response was blocked. Your input is retained; use manual editing.",
+      );
+    if (!candidate) throw Error("Missing candidate");
+    if (candidate.finishReason !== "STOP")
+      throw new PlanningError(
+        502, "INCOMPLETE",
+        "Gemini did not finish a complete draft. Nothing was accepted; retry explicitly or edit manually.",
+      );
+    const text = candidate.content?.parts
+      .filter((p) => !p.thought)
+      .map((p) => p.text ?? "")
+      .join("") ?? "";
     return parsePlanResponse(
-      JSON.parse(candidate.content.parts.map((p) => p.text ?? "").join("")),
+      JSON.parse(text),
       request,
     );
   } catch (error) {
