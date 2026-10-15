@@ -109,6 +109,16 @@ export const draftSchema = z
   })
   .strict();
 export type CreationDraft = z.infer<typeof draftSchema>;
+export function meaningfulDraft(d: CreationDraft | null): boolean {
+  return !!d && ([d.description, d.alreadyDone, d.stuck, d.constraints,
+    d.clarification, d.goal, d.finishCondition].some((value) => value.trim()) ||
+    d.steps.some((step) => step.title.trim() || step.nextAction.trim() ||
+      step.suggestedMinutes !== 20));
+}
+export function distinctInstruction(title: string, instruction: string): boolean {
+  const normalize = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
+  return !!normalize(instruction) && normalize(title) !== normalize(instruction);
+}
 export function newDraft(): CreationDraft {
   return {
     id: crypto.randomUUID(),

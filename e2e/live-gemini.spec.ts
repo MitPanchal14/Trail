@@ -58,9 +58,10 @@ test("live Gemini: clear breakdown, budgeted day, clarification and complete ret
   await page.getByLabel("I reviewed the goal, finish condition and every action", { exact: true }).check();
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   await page.getByRole("button", { name: "Plan today", exact: true }).click();
-  await page.getByLabel("Available minutes (optional)", { exact: true }).fill("10");
-  await page.getByLabel("Availability/context", { exact: true }).fill("Only ten minutes for this fictional guide. Prefer a small useful first result.");
-  const day = await requestDraft(page, "Suggest today with AI", info, "C-budgeted-day");
+  await page.getByLabel("Time available today (optional)", { exact: true }).fill("10");
+  await page.getByText("What’s your day like?", { exact: false }).click();
+  await page.getByLabel("What’s your day like?", { exact: true }).fill("Only ten minutes for this fictional guide. Prefer a small useful first result.");
+  const day = await requestDraft(page, "Suggest a plan with AI", info, "C-budgeted-day");
   expect(day.kind).toBe("day");
   let snapshot = await records(page);
   expect(snapshot.dayPlans[0].commitments).toHaveLength(0);

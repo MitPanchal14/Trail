@@ -69,6 +69,25 @@
   min-width: 0;
   border: 1px solid var(--border);
 }
+.day-capacity, .planner-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.daily-editor .day-minutes input { width: 10ch; display: block; margin-top: 8px; }
+.day-capacity textarea { min-height: 64px; }
+.planner-columns fieldset { margin: 0; padding: 12px; border-radius: 10px; }
+.selected-plan { min-width: 0; }
+.selected-plan h3 { margin: 0; }
+.plan-total { margin-block: 6px; font-weight: 600; }
+.daily-editor .plan-list { margin-top: 10px; }
+.daily-editor .secondary { white-space: normal; }
+.selected-plan .primary { margin-top: 0; }
+@media (max-width: 800px) {
+  .day-capacity, .planner-columns { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .day-minutes { grid-row: 1; }
+}
 .daily-editor .plan-list li {
   padding: 10px 0;
 }

@@ -130,19 +130,27 @@ export default function DailyPlanner({
       </p>
       {editing && (
         <div className="daily-editor">
-          <label>
-            Availability/context
+          <div className="day-capacity">
+          <details>
+            <summary>What’s your day like? <small>(optional)</small></summary>
+            <label>
+            <span className="session-time">Add a short note</span>
             <textarea
-              aria-label="Availability/context"
+              aria-label="What’s your day like?"
+              placeholder="Busy afternoon; about 30 minutes free."
+              rows={2}
               maxLength={900}
               disabled={disabled}
               value={plan?.availabilityText ?? ""}
               onChange={(e) => draft(ids, e.target.value)}
             />
           </label>
-          <label>
-            Available minutes (optional)
+          </details>
+          <label className="day-minutes">
+            Time available today (optional)
             <input
+              aria-label="Time available today (optional)"
+              placeholder="Minutes"
               type="number"
               min={1}
               max={1440}
@@ -159,8 +167,10 @@ export default function DailyPlanner({
               }}
             />
           </label>
+          </div>
+          <div className="planner-columns">
           <fieldset>
-            <legend>Select unfinished actions (up to 50)</legend>
+            <legend>Choose work for today</legend>
             {candidates.map((t) => (
               <label className="check-label" key={t.id}>
                 <input
@@ -188,7 +198,10 @@ export default function DailyPlanner({
               </p>
             )}
           </fieldset>
-          <h3>Draft order · {total} suggested minutes</h3>
+          <div className="selected-plan">
+          <h3>Your plan</h3>
+          <p className="plan-total">{total} minutes suggested.</p>
+          <p className="session-time">Edit any suggestion, then commit when ready. AI never commits automatically.</p>
           {plan?.availableMinutes && total > plan.availableMinutes ? (
             <p className="notice">
               This is more than your {plan.availableMinutes} available minutes.
@@ -235,7 +248,7 @@ export default function DailyPlanner({
               disabled={disabled || pending || !candidates.length}
               onClick={suggest}
             >
-              {pending ? "Suggesting…" : "Suggest today with AI"}
+              {pending ? "Suggesting…" : "Suggest a plan with AI"}
             </button>
             <button
               className="primary"
@@ -265,6 +278,8 @@ export default function DailyPlanner({
               Cancel suggestion
             </button>
           )}
+          </div>
+          </div>
         </div>
       )}
       {message && (

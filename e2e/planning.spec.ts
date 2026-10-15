@@ -199,7 +199,7 @@ test("missing-AI fallback, draft reload, full manual review and daily commitment
   );
   await page.getByRole("button", { name: "Plan today", exact: true }).click();
   await page
-    .getByLabel("Available minutes (optional)", { exact: true })
+    .getByLabel("Time available today (optional)", { exact: true })
     .fill("20");
   await page.getByRole("checkbox", { name: /Sketch oak leaf —/ }).check();
   await page.getByRole("checkbox", { name: /Review labels —/ }).check();
@@ -426,7 +426,7 @@ test("mocked daily AI rejects unknown candidates and never commits its valid sug
     }),
   );
   await page
-    .getByRole("button", { name: "Suggest today with AI", exact: true })
+    .getByRole("button", { name: "Suggest a plan with AI", exact: true })
     .click();
   await expect(
     page.getByText("Invalid candidate IDs", { exact: true }),
@@ -445,7 +445,7 @@ test("mocked daily AI rejects unknown candidates and never commits its valid sug
     }),
   );
   await page
-    .getByRole("button", { name: "Suggest today with AI", exact: true })
+    .getByRole("button", { name: "Suggest a plan with AI", exact: true })
     .click();
   await expect(
     page.getByText(/AI draft, not committed: One short/),

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   combinedDescription,
+  meaningfulDraft,
   RequestGate,
   parsePlanResponse,
   type CreationDraft,
@@ -516,7 +517,7 @@ export default function TaskCreation({
         </details>
       )}
       <button type="button" className="secondary" onClick={close}>
-        Close · keep draft
+        {meaningfulDraft(d) ? "Close · keep draft" : "Close"}
       </button>
       <button
         className="secondary"

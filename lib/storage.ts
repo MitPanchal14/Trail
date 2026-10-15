@@ -1,5 +1,6 @@
 import { emptySnapshot, snapshotSchema, type Snapshot } from "./domain";
 import { recoverSnapshot } from "./actions";
+import { meaningfulDraft } from "./planning";
 export const STORAGE_KEY = "work-trail:snapshot:v1";
 export function loadSnapshot(storage: Pick<Storage, "getItem">): {
   snapshot: Snapshot;
@@ -18,8 +19,10 @@ export function loadSnapshot(storage: Pick<Storage, "getItem">): {
         blocked: false,
       };
     if (raw.length > 2 * 1024 * 1024) throw Error("Snapshot too large");
+    const snapshot = recoverSnapshot(snapshotSchema.parse(JSON.parse(raw)));
+    if (!meaningfulDraft(snapshot.creationDraft)) snapshot.creationDraft = null;
     return {
-      snapshot: recoverSnapshot(snapshotSchema.parse(JSON.parse(raw))),
+      snapshot,
       warning: "",
       raw,
       blocked: false,

@@ -7,7 +7,7 @@ import { activeCompletion, currentSession } from "@/lib/domain";
 import { downloadPrivate } from "@/lib/storage";
 import TaskCreation from "./TaskCreation";
 import DailyPlanner from "./DailyPlanner";
-import { newDraft } from "@/lib/planning";
+import { newDraft, meaningfulDraft, distinctInstruction } from "@/lib/planning";
 
 const clock = (ms: number) =>
   `${Math.floor(Math.ceil(ms / 1000) / 60)
@@ -74,6 +74,8 @@ export default function TodayView() {
     dialog.current?.showModal();
   };
   const closeCreate = () => {
+    if (s.creationDraft && !meaningfulDraft(s.creationDraft))
+      dispatch({ type: "draft", draft: null });
     setCreationOpen(false);
     setMinutes(null);
     dialog.current?.close();
@@ -294,7 +296,7 @@ export default function TodayView() {
               <h2 id="action-title">
                 {task?.title ?? "What would you like to move forward?"}
               </h2>
-              {task && <p className="next-instruction">{task.nextAction}</p>}
+              {task && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
               {mountain && <p>Finish condition: {mountain.finishCondition}</p>}
             </div>
             {session && !completion && !focused && (
@@ -527,7 +529,7 @@ export default function TodayView() {
                 Edit breakdown
               </button>
             )}
-            {s.creationDraft && (
+            {meaningfulDraft(s.creationDraft) && (
               <button
                 className="secondary"
                 disabled={readOnly}
@@ -605,7 +607,7 @@ export default function TodayView() {
           className="creation-dialog"
           ref={dialog}
           aria-labelledby="create-title"
-          onCancel={() => setCreationOpen(false)}
+          onCancel={closeCreate}
         >
           {creationOpen && (
             <TaskCreation
