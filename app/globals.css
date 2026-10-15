@@ -8,6 +8,77 @@
   --border: #3e5549;
   --soft: #304c3d;
 }
+.creation-dialog {
+  max-width: 760px;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+.creation-flow {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.creation-flow label,
+.daily-editor label {
+  display: block;
+  font-size: 14px;
+}
+.creation-flow input:not([type="checkbox"]),
+.daily-editor input:not([type="checkbox"]) {
+  width: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid #819880;
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 9px;
+}
+.creation-flow summary,
+.daily-editor summary,
+.plan > details > summary {
+  min-height: 44px;
+  padding-block: 10px;
+  cursor: pointer;
+}
+.step-editor {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.check-label {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  flex-wrap: wrap;
+}
+.check-label input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.daily-editor {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+.daily-editor fieldset {
+  min-width: 0;
+  border: 1px solid var(--border);
+}
+.daily-editor .plan-list li {
+  padding: 10px 0;
+}
+.plan-row {
+  flex-wrap: wrap;
+}
+.next-instruction {
+  color: var(--ink) !important;
+  font-size: 15px !important;
+}
 .real-action {
   justify-content: flex-start;
 }
@@ -125,7 +196,7 @@ textarea:focus-visible {
 .task-form label {
   font-size: 13px;
 }
-.task-form input {
+.task-form input:not([type="checkbox"]) {
   display: block;
   width: 100%;
   min-height: 44px;

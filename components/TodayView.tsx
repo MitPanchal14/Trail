@@ -5,6 +5,9 @@ import SampleToday from "./SampleToday";
 import { useWorkTrail } from "@/lib/use-work-trail";
 import { activeCompletion, currentSession } from "@/lib/domain";
 import { downloadPrivate } from "@/lib/storage";
+import TaskCreation from "./TaskCreation";
+import DailyPlanner from "./DailyPlanner";
+import { newDraft } from "@/lib/planning";
 
 const clock = (ms: number) =>
   `${Math.floor(Math.ceil(ms / 1000) / 60)
@@ -17,6 +20,7 @@ export default function TodayView() {
   const { snapshot: s, owned, warning, notice, dispatch, raw } = useWorkTrail();
   const [samples, setSamples] = useState(false),
     [focus, setFocus] = useState(false),
+    [creationOpen, setCreationOpen] = useState(false),
     [minutes, setMinutes] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null),
     form = useRef<HTMLFormElement>(null);
@@ -63,7 +67,47 @@ export default function TodayView() {
         setFocus(true);
     } else if (dispatch({ type: "resume" })) setFocus(true);
   };
-  const openCreate = () => dialog.current?.showModal();
+  const openCreate = () => {
+    if (!s.creationDraft && !dispatch({ type: "draft", draft: newDraft() }))
+      return;
+    setCreationOpen(true);
+    dialog.current?.showModal();
+  };
+  const closeCreate = () => {
+    setCreationOpen(false);
+    setMinutes(null);
+    dialog.current?.close();
+  };
+  const editBreakdown = () => {
+    if (!mountain) return;
+    if (s.creationDraft) {
+      openCreate();
+      return;
+    }
+    const draft = newDraft();
+    dispatch({
+      type: "draft",
+      draft: {
+        ...draft,
+        editingMountainId: mountain.id,
+        description: mountain.description,
+        goal: mountain.title,
+        finishCondition: mountain.finishCondition,
+        steps: s.subtasks
+          .filter((t) => t.mountainId === mountain.id && !t.archivedAt)
+          .sort((a, b) => a.orderKey - b.orderKey)
+          .map((t) => ({
+            key: crypto.randomUUID(),
+            existingId: t.id,
+            title: t.title,
+            nextAction: t.nextAction,
+            suggestedMinutes: t.suggestedMinutes,
+          })),
+      },
+    });
+    setCreationOpen(true);
+    dialog.current?.showModal();
+  };
   const storageNotice = (
     <>
       {warning && (
@@ -248,8 +292,9 @@ export default function TodayView() {
                     : "Your next action"}
               </span>
               <h2 id="action-title">
-                {task?.nextAction ?? "What would you like to move forward?"}
+                {task?.title ?? "What would you like to move forward?"}
               </h2>
+              {task && <p className="next-instruction">{task.nextAction}</p>}
               {mountain && <p>Finish condition: {mountain.finishCondition}</p>}
             </div>
             {session && !completion && !focused && (
@@ -464,61 +509,33 @@ export default function TodayView() {
         </div>
         {!focused && (
           <>
-            <section className="plan card" aria-labelledby="plan-title">
-              <div className="plan-heading">
-                <h2 id="plan-title">
-                  Your work{" "}
-                  <span>
-                    {s.subtasks.length} action
-                    {s.subtasks.length === 1 ? "" : "s"}
-                  </span>
-                </h2>
-                <span className="plan-label">
-                  Manual tasks · day planning comes later
-                </span>
-              </div>
-              {!s.subtasks.length ? (
-                <div className="empty-plan">
-                  <p>No tasks yet. Add your first action to begin.</p>
-                </div>
-              ) : (
-                <ul className="plan-list">
-                  {s.subtasks.map((t) => (
-                    <li key={t.id}>
-                      <button
-                        disabled={readOnly}
-                        aria-pressed={t.id === task?.id}
-                        onClick={() => {
-                          dispatch({ type: "select", id: t.id });
-                          setMinutes(String(t.suggestedMinutes));
-                        }}
-                      >
-                        <span
-                          className={
-                            activeCompletion(s, t.id) ? "done" : "step"
-                          }
-                        >
-                          {activeCompletion(s, t.id) ? "✓" : "○"}
-                        </span>
-                        <span>
-                          <strong>{t.title}</strong>
-                          <small>
-                            {
-                              s.mountains.find((m) => m.id === t.mountainId)
-                                ?.title
-                            }{" "}
-                            ·{" "}
-                            {activeCompletion(s, t.id)
-                              ? "Completed"
-                              : "Unfinished"}
-                          </small>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <DailyPlanner
+              snapshot={s}
+              dispatch={dispatch}
+              disabled={readOnly}
+              onSelect={(id) => {
+                dispatch({ type: "select", id });
+                setMinutes(null);
+              }}
+            />
+            {mountain && (
+              <button
+                className="secondary"
+                disabled={readOnly}
+                onClick={editBreakdown}
+              >
+                Edit breakdown
+              </button>
+            )}
+            {s.creationDraft && (
+              <button
+                className="secondary"
+                disabled={readOnly}
+                onClick={openCreate}
+              >
+                Continue creation draft
+              </button>
+            )}
             {earned.length > 0 && (
               <section
                 className="checkpoints"
@@ -584,61 +601,20 @@ export default function TodayView() {
             </p>
           </>
         )}
-        <dialog ref={dialog} aria-labelledby="create-title">
-          <h2 id="create-title">Give your work a starting place.</h2>
-          <form
-            className="task-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const data = new FormData(e.currentTarget);
-              const applied = dispatch({
-                type: "create",
-                title: String(data.get("title")),
-                finishCondition: String(data.get("finish")),
-                action: String(data.get("action")),
-                minutes: Number(data.get("minutes")),
-              });
-              if (!applied) return;
-              setMinutes(String(data.get("minutes")));
-              dialog.current?.close();
-              e.currentTarget.reset();
-            }}
-          >
-            <label>
-              Mountain name
-              <input name="title" required maxLength={500} autoComplete="off" />
-            </label>
-            <label>
-              Finish condition
-              <input name="finish" required maxLength={500} />
-            </label>
-            <label>
-              First action
-              <input name="action" required maxLength={500} />
-            </label>
-            <label>
-              Suggested session (minutes)
-              <input
-                name="minutes"
-                required
-                type="number"
-                min={1}
-                max={120}
-                step={1}
-                defaultValue={20}
-              />
-            </label>
-            <button className="primary" disabled={readOnly}>
-              Create task
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => dialog.current?.close()}
-            >
-              Cancel
-            </button>
-          </form>
+        <dialog
+          className="creation-dialog"
+          ref={dialog}
+          aria-labelledby="create-title"
+          onCancel={() => setCreationOpen(false)}
+        >
+          {creationOpen && (
+            <TaskCreation
+              snapshot={s}
+              dispatch={dispatch}
+              disabled={readOnly}
+              onClose={closeCreate}
+            />
+          )}
         </dialog>
       </main>
     </div>

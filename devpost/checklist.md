@@ -8,7 +8,7 @@ status: approved
 Build order approved October 15, 2026 in handoff-review.md. Slice 1 accepted by the user; slice 2 authorized.
 Build mode: fast — selected October 15, 2026. Git initialization authorized.
 
-Slice 1 implementation, checks and user visual review passed. Slice 2 implementation authorized; stop for hands-on review before slice 3.
+Slice 1 implementation, checks and user visual review passed. Slice 3 execution was explicitly approved and is now implemented for hands-on review. Prior slice 2 acceptance is not inferred; its review box stays unchecked. Stop before slice 4.
 
 Slice 1 checkpoint: `92da564`. Slice 2 implementation checkpoint: `71e624b`; mechanical verification is ready for hands-on review. Its slice/review boxes remain unchecked pending the user's result. Evidence and limitations are in HANDOFF.md.
 
@@ -87,6 +87,8 @@ Reflection: offer during final wrap-up; personal answer stays in ignored profile
 Activity mode: running app/editor preferred, disclose static fallback if needed.
 
 ## Revisions
+
+- Slice 3 implementation: persistent capture/full manual or AI draft review, native voice fallback, bounded server Gemini endpoint, stable accepted edits/archive/restore, daily drafts/explicit commitments with removal/defer records. Final checks: 26 unit/API tests, 45 desktop/tablet/mobile browser tests, lint/typecheck/build pass. Successful AI/voice behavior uses test doubles; live Gemini is pending absent credentials and real microphone/provider behavior is unverified. See HANDOFF.md for exact evidence and hands-on session. Slice 3 box remains unchecked; no slice 4, push or deployment.
 
 - Slice 2 focus-layout regression reproduced with two distinct tasks and fixed via explicit `.shell.is-focusing` shell/main/responsive rules, collapsed optional note editor and focus-heading entry. Domain/timer/storage semantics unchanged. 13 domain tests and 33 desktop/tablet/mobile browser tests plus lint/typecheck/build pass. See HANDOFF.md and focus-repair screenshots; slice 2 user acceptance is still pending.
 

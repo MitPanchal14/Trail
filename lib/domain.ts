@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { draftSchema } from "./planning";
 
 const id = z.uuid();
 const time = z.iso.datetime();
@@ -86,8 +87,40 @@ export const snapshotSchema = z
     sessions: z.array(sessionSchema).max(10000),
     completions: z.array(completionSchema).max(10000),
     summitConfirmations: z.array(z.never()),
-    dayPlans: z.array(z.never()),
-    creationDraft: z.null(),
+    dayPlans: z
+      .array(
+        z
+          .object({
+            dateKey: z.iso.date(),
+            availabilityText: z.string().max(1000),
+            availableMinutes: z
+              .number()
+              .int()
+              .min(1)
+              .max(1440)
+              .nullable()
+              .optional(),
+            draftSubtaskIds: z.array(id).max(50),
+            committedAt: nullableTime,
+            commitments: z
+              .array(
+                z
+                  .object({
+                    id,
+                    subtaskId: id,
+                    titleSnapshot: text,
+                    committedAt: time,
+                    disposition: z.enum(["planned", "removed", "deferred"]),
+                    dispositionAt: nullableTime,
+                  })
+                  .strict(),
+              )
+              .max(10000),
+          })
+          .strict(),
+      )
+      .max(3660),
+    creationDraft: draftSchema.nullable(),
     selection: z
       .object({
         selectedMountainId: id.nullable(),
@@ -107,6 +140,35 @@ export const snapshotSchema = z
       sessions = new Map(s.sessions.map((x) => [x.id, x]));
     const slots = new Set<string>(),
       active = new Set<string>();
+    if (new Set(s.dayPlans.map((p) => p.dateKey)).size !== s.dayPlans.length)
+      fail("Duplicate day plans");
+    for (const plan of s.dayPlans) {
+      if (
+        new Set(plan.draftSubtaskIds).size !== plan.draftSubtaskIds.length ||
+        plan.draftSubtaskIds.some((id) => !tasks.has(id))
+      )
+        fail("Invalid draft selection");
+      if (
+        new Set(plan.commitments.map((c) => c.id)).size !==
+          plan.commitments.length ||
+        new Set(plan.commitments.map((c) => c.subtaskId)).size !==
+          plan.commitments.length ||
+        plan.commitments.some((c) => !tasks.has(c.subtaskId))
+      )
+        fail("Invalid commitments");
+    }
+    if (
+      s.creationDraft?.editingMountainId &&
+      !mountains.has(s.creationDraft.editingMountainId)
+    )
+      fail("Invalid editing mountain");
+    for (const step of s.creationDraft?.steps ?? [])
+      if (
+        step.existingId &&
+        tasks.get(step.existingId)?.mountainId !==
+          s.creationDraft?.editingMountainId
+      )
+        fail("Invalid draft action");
     for (const t of s.subtasks) {
       const m = mountains.get(t.mountainId),
         key = `${t.mountainId}:${t.checkpointSlot}`;

@@ -6,11 +6,25 @@ const read = (page: Page): Promise<Snapshot> =>
   );
 async function create(page: Page, name: string) {
   await page.getByRole("button", { name: "＋ New task", exact: true }).click();
+  await page
+    .getByLabel("Describe the work")
+    .fill(`Prepare fictional task ${name}.`);
+  await page
+    .getByRole("button", { name: "Write manually", exact: true })
+    .click();
   await page.getByLabel("Mountain name").fill(`Mountain ${name}`);
-  await page.getByLabel("Finish condition").fill(`Finish ${name}`);
-  await page.getByLabel("First action").fill(`Action ${name}`);
-  await page.getByLabel("Suggested session (minutes)").fill("2");
-  await page.getByRole("button", { name: "Create task", exact: true }).click();
+  await page
+    .getByLabel("Finish condition", { exact: true })
+    .fill(`Finish ${name}`);
+  await page.getByLabel("Action 1 title").fill(`Action ${name}`);
+  await page.getByLabel("Action 1 instruction").fill(`Action ${name}`);
+  await page.getByLabel("Action 1 session minutes").fill("2");
+  await page
+    .getByLabel("I reviewed the goal, finish condition and every action")
+    .check();
+  await page
+    .getByRole("button", { name: "Accept breakdown", exact: true })
+    .click();
 }
 async function save(page: Page, note: string) {
   if (!(await page.getByLabel("Where did you stop?").isVisible()))
@@ -47,6 +61,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
   expect(b.remainingMs).toBe(100000);
   expect(a.note).toBe("Return note A");
   expect(a.remainingMs).toBe(110000);
+  await page.getByText("Choose other work", { exact: true }).click();
   await page.getByRole("button", { name: /Action A.*Mountain A/ }).click();
   await expect(page.getByText("Return note A", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Resume", exact: true }).click();

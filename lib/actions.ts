@@ -6,7 +6,9 @@ import {
   type Snapshot,
 } from "./domain";
 import { account, recover, resume } from "./timer";
+import { applyPlanning, type PlanningAction } from "./plan-actions";
 export type Action =
+  | PlanningAction
   | {
       type: "create";
       title: string;
@@ -34,6 +36,13 @@ export function transition(
   }
   const task = s.subtasks.find((x) => x.id === s.selection.selectedSubtaskId);
   switch (action.type) {
+    case "draft":
+    case "accept":
+    case "day-draft":
+    case "day-commit":
+    case "disposition":
+      applyPlanning(s, action, now);
+      break;
     case "create": {
       if (session && ["running", "paused"].includes(session.status))
         return previous;
@@ -83,7 +92,7 @@ export function transition(
       if (session && ["running", "paused"].includes(session.status))
         return previous;
       const selected = s.subtasks.find((x) => x.id === action.id);
-      if (!selected) return previous;
+      if (!selected || selected.archivedAt) return previous;
       s.selection = {
         selectedMountainId: selected.mountainId,
         selectedSubtaskId: selected.id,
@@ -93,7 +102,8 @@ export function transition(
       break;
     }
     case "start":
-      if (!task || activeCompletion(s, task.id)) return previous;
+      if (!task || task.archivedAt || activeCompletion(s, task.id))
+        return previous;
       if (session && session.status !== "completed") {
         Object.assign(session, resume(session, now));
         break;
@@ -161,6 +171,10 @@ export function transition(
       break;
     case "complete":
       if (task && !activeCompletion(s, task.id)) {
+        for (const plan of s.dayPlans)
+          plan.draftSubtaskIds = plan.draftSubtaskIds.filter(
+            (id) => id !== task.id,
+          );
         if (session) {
           session.status = "completed";
           session.runningDeadlineAt = null;
@@ -190,11 +204,12 @@ export function transition(
   s.revision++;
   return s;
 }
-export function recoverSnapshot(s: Snapshot): Snapshot {
+export function recoverSnapshot(s: Snapshot, now = Date.now()): Snapshot {
   const sessions = s.sessions.map(recover);
   const candidates = sessions.filter(
     (x) =>
       ["saved", "interrupted"].includes(x.status) &&
+      s.subtasks.some((t) => t.id === x.subtaskId && !t.archivedAt) &&
       !activeCompletion(s, x.subtaskId),
   );
   const savedTime = (session: (typeof sessions)[number]) =>
@@ -203,17 +218,28 @@ export function recoverSnapshot(s: Snapshot): Snapshot {
   const latest = candidates.sort(
     (a, b) => Date.parse(savedTime(b)) - Date.parse(savedTime(a)),
   )[0];
-  const task = s.subtasks.find((t) => t.id === latest?.subtaskId);
+  const today = s.dayPlans.find(
+    (p) => p.dateKey === dateKey(now, s.calendarTimeZone),
+  );
+  const planned = today?.commitments.find(
+    (c) =>
+      c.disposition === "planned" &&
+      !activeCompletion(s, c.subtaskId) &&
+      s.subtasks.some((t) => t.id === c.subtaskId && !t.archivedAt),
+  )?.subtaskId;
+  const task = s.subtasks.find((t) => t.id === (latest?.subtaskId ?? planned));
   return {
     ...s,
     sessions,
-    selection:
-      latest && task
-        ? {
-            selectedMountainId: task.mountainId,
-            selectedSubtaskId: task.id,
-            sessionId: latest.id,
-          }
-        : s.selection,
+    selection: task
+      ? {
+          selectedMountainId: task.mountainId,
+          selectedSubtaskId: task.id,
+          sessionId:
+            latest?.id ??
+            sessions.findLast((x) => x.subtaskId === task.id)?.id ??
+            null,
+        }
+      : s.selection,
   };
 }

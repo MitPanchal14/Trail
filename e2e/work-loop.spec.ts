@@ -10,11 +10,25 @@ async function create(page: Page, name = "Field guide") {
     page.getByRole("button", { name: "＋ New task", exact: true }),
   ).toBeEnabled();
   await page.getByRole("button", { name: "＋ New task", exact: true }).click();
+  await page
+    .getByLabel("Describe the work")
+    .fill("Make a fictional field guide.");
+  await page
+    .getByRole("button", { name: "Write manually", exact: true })
+    .click();
   await page.getByLabel("Mountain name").fill(name);
-  await page.getByLabel("Finish condition").fill("A printable checked guide");
-  await page.getByLabel("First action").fill("Sketch an oak leaf");
-  await page.getByLabel("Suggested session (minutes)").fill("1");
-  await page.getByRole("button", { name: "Create task", exact: true }).click();
+  await page
+    .getByLabel("Finish condition", { exact: true })
+    .fill("A printable checked guide");
+  await page.getByLabel("Action 1 title").fill("Sketch an oak leaf");
+  await page.getByLabel("Action 1 instruction").fill("Sketch an oak leaf");
+  await page.getByLabel("Action 1 session minutes").fill("1");
+  await page
+    .getByLabel("I reviewed the goal, finish condition and every action")
+    .check();
+  await page
+    .getByRole("button", { name: "Accept breakdown", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Sketch an oak leaf", exact: true }),
   ).toBeVisible();
@@ -117,7 +131,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   expect(s.completions.filter((c) => !c.undoneAt)).toHaveLength(1);
   expect(s.sessions[0].creditedMs).toBe(23000);
   expect(s.mountains[0].status).toBe("active");
-  await returned.locator("summary").click();
+  await returned.locator(".checkpoints summary").click();
   await expect(
     returned.getByText("Oak outline ready; add the veins next.", {
       exact: true,

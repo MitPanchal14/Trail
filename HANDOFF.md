@@ -4,13 +4,34 @@ Updated: October 15, 2026.
 
 ## Actual status
 
-Slice 1's Dusk + bento + original pixel-world direction was accepted. Slice 2 now implements the real browser-local manual task → focus → Save → close/return → explicit Resume → complete/Undo loop. Mechanical verification passes; slice 2 is awaiting user hands-on review and remains unchecked. Fast mode. Branch: `MitPanchal14/feat/persistent-work-return-loop`. Slice 1 checkpoint: `92da564`. No slice 3 work, live AI, push or deployment.
+Slice 3 implementation is ready for hands-on review after explicit user execution approval. It adds reviewed breakdowns, retained drafts, optional browser voice, the server Gemini adapter and daily drafts/commitments around the slice 2 loop. Latest checks: 26 unit/API tests and 45 desktop/tablet/mobile browser tests pass, plus lint/typecheck/build. Live Gemini remains unverified: no credentials configured. Fast mode; branch `MitPanchal14/feat/persistent-work-return-loop`. No push, deployment or slice 4 work. User acceptance boxes remain unchecked.
 
 Existing design-lab is a standalone illustrative HTML prototype with synthetic records and in-memory interactions. It is visual research, not the implemented kernel. Do not mistake it for persistent production behavior.
 
 ## Next action
 
-Open http://localhost:3000 (development) or http://localhost:3001 (local production build); both servers left running. Keep the same origin/browser for a saved task. Try the learner check below, resolve feedback and obtain approval before marking slice 2 complete. Do not begin slice 3 yet. No repeat discovery/mode interview.
+Open http://localhost:3000 (current development build). Do not use the possibly stale localhost:3001 process for review. Keep the same origin/browser for saved work. Try the slice 3 learner check below; resolve feedback before slice 4. Do not restart discovery or infer acceptance from execution approval.
+
+## Slice 3 — current implementation evidence
+
+- `lib/planning.ts`: bounded request/response and creation-draft schemas, context composition, cancellation/stale-request gate. `lib/gemini.server.ts` and `app/api/plan/route.ts`: configured server model/key, JSON schema output, strict response validation, 32 KB request/64 KB response bounds, 25s timeout, cancellation, no retry loop, sanitized failures, loopback/same-host origin guard and unconditional production lockout. Missing credentials preserve input and manual editing. Key never enters browser code.
+- Official sources checked: https://ai.google.dev/gemini-api/docs/structured-output.md.txt, https://ai.google.dev/api/generate-content and https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite . Current GenerateContent reference documents `generationConfig.responseFormat.text` (APPLICATION_JSON/schema); older schema fields are deprecated. Default example model is configurable, not a claim of project access or a successful live call.
+- `components/TaskCreation.tsx`: description plus optional already-done/blocker/constraint context, retained clarification, full manual/AI review, ordered titles/instructions/session minutes, explicit checked acceptance. Native voice start/stop, editable transcript, service disclosure, denied/unsupported typing fallback and abort on close/unmount/ownership loss. Accepted edits retain IDs/checkpoint slots; removed actions are archived with restore and saved-session context. Existing unfinished creation drafts are not overwritten by Edit breakdown. AI regeneration is intentionally limited to pre-acceptance drafts; accepted revisions use the manual identity-preserving editor.
+- `lib/domain.ts`, `lib/plan-actions.ts`, `lib/actions.ts`: backward-compatible version-1 snapshot extension, explicit idempotent acceptance, stable slots, daily draft versus commitment separation, retained removed/deferred records, no artificial completion. Saved/interrupted unfinished work wins on reload; otherwise committed order wins. Draft reordering alone never changes commitment order. Archived actions leave active planning but retain underlying history.
+- `components/DailyPlanner.tsx`, `TodayView.tsx`: optional availability/time, ordered selection, totals/over-budget warning, explicit commit, remove/defer, genuine saved notes and concrete next-action instruction. The focus-layout repair and original artwork are retained; no new terrain redesign, reports or summit workflow.
+- Final commands: `npm run lint`, `npm run typecheck`, `npm test` (**26 passed**), `npm run build` all pass; `npm run test:e2e` **45 passed**, Chromium desktop 1440×1000, tablet 1024×900 and mobile 390×844. Full slice 2 regressions retained. Tests cover missing config/production lockout, timeout/cancellation/quota/invalid/oversize output, unknown/duplicate candidates, over-budget AI, stale replies, reload persistence, manual and mocked full review, draft/commit distinction, remove/defer and saved priority/date rollover.
+- Real endpoint missing-config fallback verified in browser (not mocked); successful AI/clarification/day responses are explicitly mocked. No live Gemini call or personal-content smoke test occurred. Voice denial/unsupported tests use browser doubles; actual microphone/provider transcription is unverified.
+- Evidence: `devpost/evidence/slice3-{desktop,tablet,mobile}-{review,plan,focus}.png`, fictional isolated browser records only. Inspected mobile review, desktop plan and tablet focus; corrected oversized review checkbox. Existing screenshots regenerated by existing tests are not user records. No user storage cleared. Physical Safari, real voice, and live model behavior remain outstanding.
+
+### Slice 3 learner check / stop point
+
+1. At localhost:3000, describe one real task in your own words. Without credentials choose **Write manually**; AI unavailable must not erase the description.
+2. Give it a visible finish condition and two small actions with concrete instructions. Reorder/edit, check the full-review box, then **Accept breakdown**.
+3. Choose **Plan today**, enter realistic minutes, select/order actions and **Commit today’s plan**. Remove/defer one and inspect its retained status; no checkpoint should be awarded.
+4. Start the remaining action, write a genuine return note, **Save my place**, close/reopen the same URL and explicitly **Resume**. Confirm the right action, note and remaining time.
+5. Report what felt wrong. Hands-on acceptance and a credentialed fictional live smoke check remain pending. Stop before slice 4; no push/deploy.
+
+The sections below record earlier slices chronologically; older “not started” statements are historical, superseded by this section.
 
 ### Current focus-layout repair review
 
