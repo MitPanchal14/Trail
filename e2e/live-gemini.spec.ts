@@ -1,6 +1,7 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import { parsePlanResponse, planRequestSchema } from "../lib/planning";
 import type { Snapshot } from "../lib/domain";
+import { writeFile } from "node:fs/promises";
 
 // Explicit opt-in only. One desktop run, at most three paid generation requests,
 // no retries; a provider failure stops the test rather than substituting a mock.
@@ -12,8 +13,10 @@ async function requestDraft(page: Page, button: string, info: TestInfo, label: s
   await page.getByRole("button", { name: button, exact: true }).click();
   const response = await reply;
   const body = await response.json();
+  const evidencePath = info.outputPath(`${label}-actual-provider-result.json`);
+  await writeFile(evidencePath, JSON.stringify({ status: response.status(), body }, null, 2));
   await info.attach(`${label}-actual-provider-result`, {
-    body: JSON.stringify({ status: response.status(), body }, null, 2),
+    path: evidencePath,
     contentType: "application/json",
   });
   expect(response.ok(), `Live request failed: ${JSON.stringify(body)}`).toBe(true);
