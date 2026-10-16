@@ -46,7 +46,7 @@ test("accepted edits preserve IDs, archived history and another goal's saved pla
   await accept(page);
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await page.getByText("Return note (optional)", { exact: true }).click();
-  await page.getByLabel("Where did you stop?").fill("Guide A: outline ready; next draw three veins.");
+  await page.getByLabel("Where I stopped").fill("Guide A: outline ready; next draw three veins.");
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
   const original = await records(page);
 
@@ -292,7 +292,7 @@ test("mocked clarification retains context; reviewed AI plan is editable and pre
   );
   await page.getByText("Return note (optional)", { exact: true }).click();
   await page
-    .getByLabel("Where did you stop?")
+    .getByLabel("Where I stopped")
     .fill("My outline is ready; next add the veins.");
   await page
     .getByRole("button", { name: "Save my place", exact: true })

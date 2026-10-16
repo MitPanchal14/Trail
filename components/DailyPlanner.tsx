@@ -125,8 +125,7 @@ export default function DailyPlanner({
         </button>
       </div>
       <p className="session-time">
-        {date} · {s.calendarTimeZone}. Unfinished work stays available across
-        days.
+        {date} · {plan?.committedAt ? "Committed plan" : "Not committed"}
       </p>
       {editing && (
         <div className="daily-editor">
@@ -201,7 +200,7 @@ export default function DailyPlanner({
           <div className="selected-plan">
           <h3>Your plan</h3>
           <p className="plan-total">{total} minutes suggested.</p>
-          <p className="session-time">Edit any suggestion, then commit when ready. AI never commits automatically.</p>
+          <p className="session-time" id="commit-help">{ids.length ? "Review the order, then commit. Suggestions stay editable." : plan?.commitments.length ? "Commit this empty selection to clear the remaining plan. History is kept." : "Choose work to continue, or let AI choose from your unfinished actions."}</p>
           {plan?.availableMinutes && total > plan.availableMinutes ? (
             <p className="notice">
               This is more than your {plan.availableMinutes} available minutes.
@@ -245,6 +244,7 @@ export default function DailyPlanner({
           <div className="button-row">
             <button
               className="secondary"
+              aria-describedby="ai-plan-help"
               disabled={disabled || pending || !candidates.length}
               onClick={suggest}
             >
@@ -252,7 +252,8 @@ export default function DailyPlanner({
             </button>
             <button
               className="primary"
-              disabled={disabled || !plan}
+              disabled={disabled || !plan || !ids.length && !plan.commitments.length}
+              aria-describedby="commit-help"
               onClick={() => {
                 gate.current.cancel();
                 setPending(false);
@@ -267,6 +268,7 @@ export default function DailyPlanner({
               Commit today’s plan
             </button>
           </div>
+          <p className="session-time" id="ai-plan-help">{candidates.length ? "AI can choose and order unfinished actions; selecting them first is optional." : "Add an unfinished action to use AI planning."}</p>
           {pending && (
             <button
               className="secondary"
@@ -345,10 +347,9 @@ export default function DailyPlanner({
           </li>
         ))}
       </ul>
-      {!plan?.commitments.length && (
+      {!editing && !plan?.commitments.length && (
         <p className="empty-plan">
-          No actions committed today. Plan a manageable selection; drafting
-          alone creates no commitments.
+          No work committed today.
         </p>
       )}
       <details>

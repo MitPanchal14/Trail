@@ -82,7 +82,8 @@ describe("work timer and completion domain", () => {
     s = transition(s, { type: "start", minutes: 1 }, now + 13000);
     s = transition(s, { type: "complete" }, now + 14000);
     expect(s.completions.filter((x) => !x.undoneAt)).toHaveLength(1);
-    expect(s.sessions).toHaveLength(2);
+    // Undo restores the original unfinished commitment; Start resumes it.
+    expect(s.sessions).toHaveLength(1);
     expect(() => snapshotSchema.parse(s)).not.toThrow();
   });
   it("Undo only removes the intended achievement", () => {

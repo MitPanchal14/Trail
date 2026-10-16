@@ -22,6 +22,7 @@ export default function TodayView() {
     [focus, setFocus] = useState(false),
     [creationOpen, setCreationOpen] = useState(false),
     [minutes, setMinutes] = useState<string | null>(null);
+  const [celebration, setCelebration] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null),
     form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -45,6 +46,8 @@ export default function TodayView() {
     readOnly = !owned,
     duration = minutes ?? String(task?.suggestedMinutes ?? 20),
     remaining = session?.remainingMs ?? Number(duration) * 60000;
+  const returning = !!session && !completion && !focused;
+  const returnStep = returning ? session.returnStep.trim() : "";
   const earned = s.completions.filter(
     (c) =>
       !c.undoneAt &&
@@ -66,6 +69,14 @@ export default function TodayView() {
       if (dispatch({ type: "start", minutes: Number(duration) }))
         setFocus(true);
     } else if (dispatch({ type: "resume" })) setFocus(true);
+  };
+  const complete = () => {
+    if (task && dispatch({ type: "complete" })) {
+      setCelebration(task.id);
+      setFocus(false);
+      heading.current?.focus({ preventScroll: true });
+      heading.current?.scrollIntoView({ block: "start", behavior: "instant" });
+    }
   };
   const openCreate = () => {
     if (!s.creationDraft && !dispatch({ type: "draft", draft: newDraft() }))
@@ -175,20 +186,7 @@ export default function TodayView() {
           <a className="nav-active" href="#main" aria-current="page">
             ◉ Today
           </a>
-          <span className="future-nav">
-            ♧ Mountains <small>Later</small>
-          </span>
-          <span className="future-nav">
-            ▦ Progress <small>Later</small>
-          </span>
         </nav>
-        <div className="side-bottom">
-          <p>
-            Private to this browser.
-            <br />
-            No account or sync.
-          </p>
-        </div>
       </aside>
       <main id="main">
         {storageNotice}
@@ -199,7 +197,7 @@ export default function TodayView() {
               ? "Changes not saved"
               : readOnly
                 ? "Read-only"
-                : "Browser-local records"}
+                : ""}
           </span>
         </header>
         <div className="heading">
@@ -210,18 +208,18 @@ export default function TodayView() {
                 : completion
                   ? "A checkpoint earned."
                   : session
-                    ? "Your place is waiting."
+                     ? "Continue your work"
                     : task
-                      ? "Your next stretch."
+                       ? "Next up"
                       : "Every path starts here."}
             </h1>
-            <p>
+            <p role={completion ? "status" : undefined} className={completion ? "earned-confirmation" : undefined}>
               {focused
                 ? "Time records your commitment, not proof of attention."
                 : completion
-                  ? "Your action is complete. The larger goal is not automatically finished."
+                   ? `✓ ${task?.title} earned checkpoint ${task ? task.checkpointSlot + 1 : ""}. Local trail light restored. The larger goal is not automatically finished.`
                   : task
-                    ? "Pick up your next action."
+                     ? mountain?.title
                     : "Make room for one thing you want to move forward."}
             </p>
           </div>
@@ -235,7 +233,7 @@ export default function TodayView() {
             </button>
           )}
         </div>
-        <div className="bento">
+        <div className={`bento work-bento ${returning ? "has-saved-work" : ""}`}>
           <section className="world" aria-labelledby="world-title">
             <div className="world-heading">
               <div>
@@ -243,9 +241,7 @@ export default function TodayView() {
                   {mountain?.title ?? "An open landscape"}
                 </p>
                 <h2 id="world-title">
-                  {earned.length
-                    ? "A little more light."
-                    : "A world of possibility."}
+                  {earned.length ? `${earned.length} checkpoint${earned.length === 1 ? "" : "s"} earned` : "Your trail starts here"}
                 </h2>
               </div>
             </div>
@@ -256,6 +252,8 @@ export default function TodayView() {
               currentSlot={task?.checkpointSlot}
               saved={!!session && !completion}
               running={focused && session?.status === "running"}
+              celebration={!!completion && celebration === task?.id}
+              completed={!!completion}
             />
             <div className="world-footer">
               <span className="pill">
@@ -263,14 +261,10 @@ export default function TodayView() {
                   ? `✦ ${earned.length} earned checkpoint${earned.length === 1 ? "" : "s"}`
                   : "○ No checkpoints yet"}
               </span>
-              <span>
-                {session && !completion
-                  ? "Blue frame: current / saved place"
-                  : "No summit confirmation"}
+              <span className={returning ? "saved-label" : ""}>
+                {returning ? "⚑ Saved campsite" : focused ? "Walking in place · no progress earned" : completion ? "✦ Action complete" : "○ Next checkpoint ahead"}
               </span>
-              <span className="trail-key">
-                Gold: completed · Grey path: ahead
-              </span>
+              <details className="trail-key"><summary>Trail key</summary><p>Amber lanterns: completed work. Blue frame and tent: saved place. Pale path: work ahead.</p></details>
             </div>
           </section>
           <section
@@ -294,26 +288,18 @@ export default function TodayView() {
                     : "Your next action"}
               </span>
               <h2 id="action-title">
-                {task?.title ?? "What would you like to move forward?"}
+                {returnStep || task?.title || "What would you like to move forward?"}
               </h2>
-              {task && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
-              {mountain && <p>Finish condition: {mountain.finishCondition}</p>}
+              {returnStep && <p className="original-action">Action: {task?.title}</p>}
+              {task && !completion && !returning && <p className="destination">Destination: checkpoint {task.checkpointSlot + 1}</p>}
+              {task && !returnStep && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
+              {mountain && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
             </div>
-            {session && !completion && !focused && (
-              <div className="context">
-                <span aria-hidden="true">⚑</span>
-                <div>
-                  <strong>Where you left off</strong>
-                  <p>
-                    {session.note ||
-                      "No note saved. Your action and remaining commitment are retained."}
-                  </p>
-                  <p>
-                    Last recorded:{" "}
-                    {new Date(session.lastHeartbeatAt).toLocaleString()}
-                  </p>
-                </div>
-              </div>
+            {returning && session.note.trim() && (
+              <details className="context" open={session.note.length <= 200}>
+                <summary>Where I stopped</summary>
+                <p>{session.note}</p>
+              </details>
             )}
             {focused && session ? (
               <>
@@ -338,7 +324,7 @@ export default function TodayView() {
                 <details className="return-note">
                   <summary>Return note (optional)</summary>
                   <label className="note-label" htmlFor="context-note">
-                    Where did you stop? <span>(optional)</span>
+                    Where I stopped <span>(optional)</span>
                     <textarea
                       id="context-note"
                       maxLength={2000}
@@ -349,6 +335,12 @@ export default function TodayView() {
                       }
                       placeholder="A thought that will help you return…"
                     />
+                  </label>
+                  <label className="note-label" htmlFor="return-step">
+                    First thing when I return <span>(optional)</span>
+                    <textarea id="return-step" rows={2} maxLength={500} value={session.returnStep} disabled={readOnly}
+                      onChange={(e) => dispatch({ type: "return-step", value: e.target.value })}
+                      placeholder="Open the draft and write the next example." />
                   </label>
                 </details>
                 <div className="button-row">
@@ -383,9 +375,7 @@ export default function TodayView() {
                 <button
                   className="secondary"
                   disabled={readOnly}
-                  onClick={() => {
-                    if (dispatch({ type: "complete" })) setFocus(false);
-                  }}
+                  onClick={complete}
                 >
                   Complete action
                 </button>
@@ -398,7 +388,7 @@ export default function TodayView() {
                 <button
                   className="secondary"
                   disabled={readOnly}
-                  onClick={() => dispatch({ type: "undo", id: completion.id })}
+                  onClick={() => { setCelebration(null); dispatch({ type: "undo", id: completion.id }); }}
                 >
                   Undo completion
                 </button>
@@ -445,10 +435,6 @@ export default function TodayView() {
                         Remaining commitment:{" "}
                         <strong>{clock(remaining)}</strong>
                       </p>
-                      <p className="session-time">
-                        Recorded session time:{" "}
-                        {Math.floor(session.creditedMs / 1000)} seconds
-                      </p>
                     </>
                   )}
                   <button
@@ -485,7 +471,7 @@ export default function TodayView() {
                       <button
                         className="secondary"
                         disabled={readOnly}
-                        onClick={() => dispatch({ type: "complete" })}
+                        onClick={complete}
                       >
                         Complete action
                       </button>
@@ -507,6 +493,10 @@ export default function TodayView() {
                 </button>
               </>
             )}
+            {!focused && <div className="task-tools">
+              {returning && <details className="session-details"><summary>Session details</summary><p>Last saved: {new Date(session.lastHeartbeatAt).toLocaleString()}</p><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p></details>}
+              {mountain && <button className="quiet edit-breakdown" disabled={readOnly} onClick={editBreakdown}>Edit breakdown</button>}
+            </div>}
           </section>
         </div>
         {!focused && (
@@ -520,15 +510,6 @@ export default function TodayView() {
                 setMinutes(null);
               }}
             />
-            {mountain && (
-              <button
-                className="secondary"
-                disabled={readOnly}
-                onClick={editBreakdown}
-              >
-                Edit breakdown
-              </button>
-            )}
             {meaningfulDraft(s.creationDraft) && (
               <button
                 className="secondary"
@@ -576,10 +557,9 @@ export default function TodayView() {
             )}
             <footer className="preview-controls">
               <div>
-                <strong>Your records stay on this device</strong>
+                <strong>Private to this browser · no account or sync</strong>
                 <p>
-                  No sync. Download a private recovery copy before clearing
-                  browser data.
+                  Download a recovery copy before clearing browser data.
                 </p>
               </div>
               <button
@@ -597,10 +577,7 @@ export default function TodayView() {
                 Explore sample previews
               </button>
             </footer>
-            <p className="recovery-copy">
-              Closed-tab recovery uses the last durable heartbeat. Throttling or
-              a crash may leave an older snapshot; time away is never credited.
-            </p>
+            <details className="recovery-copy"><summary>About saved work</summary><p>Work is saved regularly while this tab is open. After a crash or slow browser update, your saved place may be slightly older. Time away is never counted as work.</p></details>
           </>
         )}
         <dialog

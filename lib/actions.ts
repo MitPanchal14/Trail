@@ -20,6 +20,7 @@ export type Action =
   | { type: "start"; minutes: number }
   | { type: "tick" | "pause" | "resume" | "save" | "complete" | "interrupt" }
   | { type: "note"; note: string }
+  | { type: "return-step"; value: string }
   | { type: "extend"; minutes: number }
   | { type: "undo"; id: string };
 export function transition(
@@ -122,6 +123,7 @@ export function transition(
         ).toISOString(),
         lastAccountedAt: stamp,
         note: "",
+        returnStep: "",
         dailyElapsed: {},
       };
       s.sessions.push(session);
@@ -160,6 +162,10 @@ export function transition(
       if (session && session.status !== "completed")
         session.note = action.note.slice(0, 2000);
       break;
+    case "return-step":
+      if (session && session.status !== "completed")
+        session.returnStep = action.value.slice(0, 500);
+      break;
     case "extend":
       if (session && session.status !== "completed") {
         const minutes = durationSchema.parse(action.minutes);
@@ -195,7 +201,14 @@ export function transition(
       break;
     case "undo": {
       const completion = s.completions.find((x) => x.id === action.id);
-      if (completion && !completion.undoneAt) completion.undoneAt = stamp;
+      if (completion && !completion.undoneAt) {
+        completion.undoneAt = stamp;
+        const restored = s.sessions.findLast((x) => x.subtaskId === completion.subtaskId);
+        if (restored?.status === "completed") {
+          restored.status = "saved";
+          restored.runningDeadlineAt = null;
+        }
+      }
       break;
     }
     case "tick":

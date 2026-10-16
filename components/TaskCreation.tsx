@@ -206,11 +206,11 @@ export default function TaskCreation({
     });
   return (
     <div className="creation-flow">
-      <h2 id="create-title">
+      <div className="creation-heading"><h2 id="create-title">
         {d.editingMountainId
           ? "Review your breakdown"
-          : "Give the work a starting place."}
-      </h2>
+           : "New task"}
+      </h2><button type="button" className="quiet" onClick={close}>{meaningfulDraft(d) ? "Close · keep draft" : "Close"}</button></div>
       <p>
         A rough description is enough. Nothing becomes work until you review and
         accept.
@@ -226,6 +226,12 @@ export default function TaskCreation({
           onChange={(e) => change({ description: e.target.value })}
         />
       </label>
+      <div className="voice-capture">
+        <button className="quiet" type="button" disabled={disabled} onClick={startVoice}>
+          {recording ? "Stop recording" : "Use microphone"}
+        </button>
+        <p className="session-time">Optional voice may send audio to your platform’s recognition service. Check the transcript before using AI.</p>
+      </div>
       <details>
         <summary>Optional context</summary>
         {(["alreadyDone", "stuck", "constraints"] as const).map((field, i) => (
@@ -256,14 +262,6 @@ export default function TaskCreation({
       </details>
       <div className="button-row">
         <button
-          className="secondary"
-          type="button"
-          disabled={disabled}
-          onClick={startVoice}
-        >
-          {recording ? "Stop recording" : "Use microphone"}
-        </button>
-        <button
           type="button"
           className="primary"
           disabled={disabled || pending}
@@ -273,9 +271,7 @@ export default function TaskCreation({
         </button>
       </div>
       <p className="session-time">
-        Only submitted text/context goes to Gemini. Voice is optional and may
-        send audio to your platform’s recognition service. Correct the
-        transcript before requesting AI.
+        Build with AI sends the description and context to Gemini. Review and accept the draft before it becomes work.
       </p>
       {pending && (
         <button
@@ -516,11 +512,8 @@ export default function TaskCreation({
             ))}
         </details>
       )}
-      <button type="button" className="secondary" onClick={close}>
-        {meaningfulDraft(d) ? "Close · keep draft" : "Close"}
-      </button>
-      <button
-        className="secondary"
+      {meaningfulDraft(d) && <button
+        className="quiet"
         type="button"
         disabled={disabled}
         onClick={() => {
@@ -535,7 +528,7 @@ export default function TaskCreation({
         }}
       >
         Discard draft
-      </button>
+      </button>}
     </div>
   );
 }

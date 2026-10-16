@@ -60,6 +60,7 @@ const sessionSchema = z
     runningDeadlineAt: nullableTime,
     lastAccountedAt: time,
     note: z.string().max(2000),
+    returnStep: z.string().max(500).default(""),
     dailyElapsed: z.record(z.string().regex(/^\d{4}-\d{2}-\d{2}$/), ms),
   })
   .strict();

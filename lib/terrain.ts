@@ -43,6 +43,8 @@ export function drawTerrain(
   currentSlot = count,
   seed = "",
   bob = 0,
+  hideActor = false,
+  revealSlot?: number,
 ) {
   const segment = Math.floor(currentSlot / trail.length);
   const earned = slots
@@ -104,8 +106,10 @@ export function drawTerrain(
       ctx.fillStyle = "#3f5945";
       ctx.fillRect(x, y, 6, 7);
       const lit =
-        light > 0 &&
-        earned.some(([a, b]) => Math.hypot(u - a, v - b) < 6.5 * light);
+        earned.some(([a, b]) => {
+          const revealing = revealSlot !== undefined && checkpointPosition(revealSlot).join() === [a, b].join();
+          return Math.hypot(u - a, v - b) < 6.5 * (revealing ? light : 1);
+        });
       ctx.fillStyle = lit
         ? ["#bdaf70", "#a4ad69", "#dec47f"][Math.floor(n * 3)]
         : h > 91
@@ -190,14 +194,29 @@ export function drawTerrain(
     ctx.fillStyle = "#ffe5a0";
     ctx.fillRect(x - 3, y - 10, 6, 5);
   });
-  if (count || saved) {
-    const point = checkpointPosition(currentSlot);
-    const [x, restingY] = pos(point[0], point[1]);
+  if (!hideActor && (count || saved)) drawClimber(ctx, currentSlot, saved, bob);
+}
+
+export function drawClimber(ctx: CanvasRenderingContext2D, slot: number, resting: boolean, bob = 0, travel = 1) {
+    // Overlay output must not depend on whether a terrain reveal ran before it.
+    ctx.imageSmoothingEnabled = false;
+    ctx.lineJoin = "bevel";
+    const point = checkpointPosition(slot), from = checkpointPosition(Math.max(0, slot - 1));
+    const target = pos(point[0], point[1]), origin = slot === 0 ? [target[0] - 35, target[1] + 15] : pos(from[0], from[1]);
+    const x = Math.round(origin[0] + (target[0] - origin[0]) * travel);
+    const restingY = Math.round(origin[1] + (target[1] - origin[1]) * travel);
     const y = restingY + bob;
     // Cool outlined resting marker is distinct from warm completed lanterns.
-    ctx.strokeStyle = "#d2edf0";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#c4e3ee";
+    ctx.lineWidth = 3;
     ctx.strokeRect(x - 12, y - 5, 24, 10);
+    if (resting) {
+      // A cool canvas tent and seated pose, never a completed lantern.
+      ctx.fillStyle = "#c4e3ee";
+      ctx.beginPath(); ctx.moveTo(x + 14, y); ctx.lineTo(x + 25, y - 18); ctx.lineTo(x + 38, y); ctx.fill();
+      ctx.fillStyle = "#426e72"; ctx.fillRect(x + 24, y - 10, 6, 10);
+      ctx.save(); ctx.translate(0, 8);
+    }
     ctx.fillStyle = "#182b29";
     ctx.fillRect(x - 6, y - 33, 12, 30);
     ctx.fillStyle = "#f0e6c1";
@@ -210,9 +229,13 @@ export function drawTerrain(
     ctx.fillStyle = "#d7eaf0";
     ctx.fillRect(x - 9, y - 20, 5, 10);
     ctx.fillStyle = "#182b29";
-    ctx.fillRect(x - 5, y - 7, 4, 8);
-    ctx.fillRect(x + 2, y - 7, 4, 8);
+    ctx.fillRect(x - 5 - bob * 2, y - 7, 4, resting ? 3 : 8);
+    ctx.fillRect(x + 2 + bob * 2, y - 7, resting ? 9 : 4, resting ? 3 : 8);
     ctx.fillStyle = "#edf0db";
     ctx.fillRect(x + 9, y - 20, 2, 22);
-  }
+    if (resting) ctx.restore();
+    if (bob) {
+      ctx.fillStyle = "#b1d6ca";
+      ctx.fillRect(x - 29, restingY + 5 + bob * 2, 9, 2);
+    }
 }

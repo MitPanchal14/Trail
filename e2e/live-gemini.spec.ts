@@ -80,7 +80,7 @@ test("live Gemini: clear breakdown, budgeted day, clarification and complete ret
   await expect(page.getByRole("timer")).toBeVisible();
   await page.getByText("Return note (optional)", { exact: true }).click();
   const note = "Fictional outline saved. Next mark the three veins from the photograph.";
-  await page.getByLabel("Where did you stop?").fill(note);
+  await page.getByLabel("Where I stopped").fill(note);
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
   snapshot = await records(page);
   const saved = snapshot.sessions[0];

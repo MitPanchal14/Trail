@@ -128,7 +128,9 @@ test("Dusk contrast and localized earned light", async ({ page }) => {
   const one = await warmPixels();
   await page.getByLabel("Preview state").selectOption("saved");
   await page.waitForTimeout(50);
-  expect(await warmPixels()).toBe(one);
+  // The seated pose/tent occludes different pixels, not new terrain light.
+  expect(Math.abs(await warmPixels() - one)).toBeLessThan(one * 0.05);
+  await expect(page.locator("canvas")).toHaveAttribute("aria-label", /1 sample completed checkpoints/);
   await expect(page.locator("canvas")).toHaveAttribute(
     "aria-label",
     /saving earns no light/,

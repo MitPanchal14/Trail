@@ -50,7 +50,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   await page.clock.fastForward(10000);
   await page.getByText("Return note (optional)", { exact: true }).click();
   await page
-    .getByLabel("Where did you stop?")
+    .getByLabel("Where I stopped")
     .fill("Oak outline ready; add the veins next.");
   await page
     .getByRole("button", { name: "Save my place", exact: true })
@@ -199,7 +199,8 @@ test("running heartbeat recovery, expiry and second-tab protection", async ({
   await page
     .getByRole("button", { name: "Save my place", exact: true })
     .click();
-  await expect(page.getByText(/No note saved/)).toBeVisible();
+  await expect(page.getByText(/No note saved/)).toHaveCount(0);
+  await expect(page.getByText("Place saved", { exact: true })).toBeVisible();
 });
 
 test("corrupt storage is retained and recoverable work stays in memory", async ({

@@ -27,9 +27,9 @@ async function create(page: Page, name: string) {
     .click();
 }
 async function save(page: Page, note: string) {
-  if (!(await page.getByLabel("Where did you stop?").isVisible()))
+  if (!(await page.getByLabel("Where I stopped").isVisible()))
     await page.getByText("Return note (optional)", { exact: true }).click();
-  await page.getByLabel("Where did you stop?").fill(note);
+  await page.getByLabel("Where I stopped").fill(note);
   await page
     .getByRole("button", { name: "Save my place", exact: true })
     .click();
@@ -68,7 +68,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
   await expect(
     page.getByRole("heading", { name: "One action at a time." }),
   ).toBeFocused();
-  await expect(page.getByLabel("Where did you stop?")).not.toBeVisible();
+  await expect(page.getByLabel("Where I stopped")).not.toBeVisible();
   await page.screenshot({
     path: info.outputPath("focus-repair.png"),
     fullPage: true,
