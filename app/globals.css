@@ -510,8 +510,8 @@ main {
   display: flex;
   gap: 11px;
   padding: 17px 14px;
-  background: var(--saved);
-  border-left: 3px solid var(--saved-ink);
+  background: var(--soft);
+  border-left: 3px solid var(--action);
   border-radius: 10px;
 }
 .context > span {
@@ -523,7 +523,7 @@ main {
 }
 .context p {
   font-size: 15px;
-  color: var(--saved-ink);
+  color: var(--ink);
   margin-top: 5px;
 }
 .primary {
@@ -984,10 +984,11 @@ dialog p {
 .work-bento .real-action .primary { margin-top: 8px; }
 .work-bento .context { padding: 12px 16px; }
 .work-bento details.context { display: block; }
-.work-bento .context summary { min-height: 44px; padding-block: 10px; color: var(--saved-ink); }
+.work-bento .context summary { min-height: 44px; padding-block: 10px; color: var(--ink); }
 .work-bento .context > div { min-width: 0; }
 .work-bento .context p { white-space: pre-wrap; overflow-wrap: anywhere; }
-.work-bento .context strong, .saved-label { color: var(--saved-ink); }
+.work-bento .context strong { color: var(--ink); }
+.saved-label { color: var(--saved-ink); }
 .work-bento .finish-condition { font-size: 14px; }
 .session-details, .recovery-copy { font-size: 14px; color: var(--muted); }
 .session-details summary, .recovery-copy summary, .trail-key summary { min-height: 44px; padding-block: 10px; }

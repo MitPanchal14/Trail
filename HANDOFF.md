@@ -4,6 +4,10 @@ Updated: October 16, 2026.
 
 ## Actual status
 
+### October 17 colour follow-up
+
+The user requested the “Where I stopped” panel match the green website UI rather than blue. It now uses the existing soft-green surface, cream text and pale-lime border; the landscape's saved-position indicator is unchanged. This supersedes the blue return-panel description below. Lint and the six targeted UI-audit browser checks passed after the colour change; sampled return-note text contrast is 8.12:1. The review documents record remaining product findings, not implemented fixes or user acceptance.
+
 ### UI/UX audit refinement — October 16
 
 - Implemented the 13 findings in `devpost/ui-ux-audit-2026-10-16.md` within Today, daily planning, creation and scoped styles. No additional pages or terrain geometry changes. This pass does not modify domain actions, timer accounting, ownership, checkpoint rewards, Undo or persistence. Those files already had the preceding authorized return-loop work described below; they were preserved.
