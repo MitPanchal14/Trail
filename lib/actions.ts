@@ -18,6 +18,8 @@ export type Action =
     }
   | { type: "select"; id: string }
   | { type: "start"; minutes: number }
+  | { type: "start-next"; id: string; minutes: number }
+  | { type: "edit-draft"; draft: NonNullable<Snapshot["creationDraft"]> }
   | { type: "tick" | "pause" | "resume" | "save" | "complete" | "interrupt" }
   | { type: "note"; note: string }
   | { type: "return-step"; value: string }
@@ -28,6 +30,16 @@ export function transition(
   action: Action,
   now = Date.now(),
 ): Snapshot {
+  if (action.type === "edit-draft") return transition(previous, { type: "draft", draft: action.draft }, now);
+  if (action.type === "start-next") {
+    const target = previous.subtasks.find((t) => t.id === action.id);
+    if (!target || target.archivedAt || activeCompletion(previous, target.id) ||
+      previous.sessions.some((x) => ["running", "paused"].includes(x.status))) return previous;
+    durationSchema.parse(action.minutes);
+    const selected = transition(previous, { type: "select", id: target.id }, now);
+    const started = transition(selected, { type: "start", minutes: action.minutes }, now);
+    return currentSession(started)?.status === "running" ? started : previous;
+  }
   const s = structuredClone(previous),
     stamp = new Date(now).toISOString();
   let session = currentSession(s);

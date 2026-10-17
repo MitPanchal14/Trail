@@ -73,10 +73,15 @@ export function useWorkTrail() {
         );
       }
       const next = transition(s, action, now);
+      if (action.type === "start-next" || action.type === "edit-draft") {
+        if (blocked.current || next === s) return false;
+        persist(next);
+        if (blocked.current || !guard.current?.valid()) return false;
+      }
       wall.current = now;
       steady.current = monotonic;
       publish(next);
-      persist(next);
+      if (action.type !== "start-next" && action.type !== "edit-draft") persist(next);
       return true;
     } catch (error) {
       setNotice(

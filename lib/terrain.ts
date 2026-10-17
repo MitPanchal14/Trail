@@ -197,12 +197,16 @@ export function drawTerrain(
   if (!hideActor && (count || saved)) drawClimber(ctx, currentSlot, saved, bob);
 }
 
-export function drawClimber(ctx: CanvasRenderingContext2D, slot: number, resting: boolean, bob = 0, travel = 1) {
+export function climberPosition(slot: number | null): number[] {
+  if (slot === null) { const start = pos(...checkpointPosition(0) as [number, number]); return [start[0] - 45, start[1] + 22]; }
+  const point = checkpointPosition(slot);
+  return pos(point[0], point[1]);
+}
+export function drawClimber(ctx: CanvasRenderingContext2D, slot: number | null, resting: boolean, bob = 0, travel = 1, fromSlot: number | null = null) {
     // Overlay output must not depend on whether a terrain reveal ran before it.
     ctx.imageSmoothingEnabled = false;
     ctx.lineJoin = "bevel";
-    const point = checkpointPosition(slot), from = checkpointPosition(Math.max(0, slot - 1));
-    const target = pos(point[0], point[1]), origin = slot === 0 ? [target[0] - 35, target[1] + 15] : pos(from[0], from[1]);
+    const target = climberPosition(slot), origin = climberPosition(fromSlot);
     const x = Math.round(origin[0] + (target[0] - origin[0]) * travel);
     const restingY = Math.round(origin[1] + (target[1] - origin[1]) * travel);
     const y = restingY + bob;

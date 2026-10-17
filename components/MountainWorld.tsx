@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useMemo } from "react";
-import { drawTerrain, drawClimber } from "@/lib/terrain";
+import { drawTerrain, drawClimber, climberPosition } from "@/lib/terrain";
 export default function MountainWorld({
   count,
   saved,
@@ -10,6 +10,7 @@ export default function MountainWorld({
   running = false,
   celebration = false,
   completed = count > 0,
+  positionSlot,
 }: {
   count: number;
   saved: boolean;
@@ -19,6 +20,7 @@ export default function MountainWorld({
   running?: boolean;
   celebration?: boolean;
   completed?: boolean;
+  positionSlot?: number | null;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const slotKey = slots?.join(",");
@@ -32,6 +34,8 @@ export default function MountainWorld({
     [slotKey],
   );
   const previousCount = useRef(count);
+  const actorSlot = positionSlot === undefined ? (currentSlot ?? count) : positionSlot;
+  const previousPosition = useRef({ seed, slot: actorSlot });
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
@@ -42,9 +46,12 @@ export default function MountainWorld({
     backdrop.width = 700;
     backdrop.height = 430;
     const base = backdrop.getContext("2d")!;
-    drawTerrain(base, count, false, 1, stableSlots, currentSlot, seed, 0, true);
+    const sceneSlot = actorSlot ?? 0;
+    drawTerrain(base, count, false, 1, stableSlots, sceneSlot, seed, 0, true);
     const start = performance.now();
-    const earnedNewLight = celebration && count > previousCount.current;
+    const from = previousPosition.current;
+    const earnedNewLight = celebration && seed === from.seed && count > previousCount.current;
+    previousPosition.current = { seed, slot: actorSlot };
     previousCount.current = count;
     const render = (now: number) => {
       const progress =
@@ -54,12 +61,13 @@ export default function MountainWorld({
       if (now - lastDraw >= 100 || (progress === 1 && !running)) {
         lastDraw = now;
         if (progress < 1)
-          drawTerrain(ctx, count, false, progress, stableSlots, currentSlot, seed, 0, true, currentSlot);
+          drawTerrain(ctx, count, false, progress, stableSlots, sceneSlot, seed, 0, true, sceneSlot);
         else ctx.drawImage(backdrop, 0, 0);
         drawClimber(
-          ctx, currentSlot ?? count, saved && !running,
+          ctx, actorSlot, saved && !running,
           running && !preference.matches ? (Math.floor(now / 250) % 2 ? 1 : -1) : 0,
           progress,
+          from.slot,
         );
       }
       if (progress < 1 || (running && !preference.matches))
@@ -68,7 +76,7 @@ export default function MountainWorld({
     const finish = () => {
       cancelAnimationFrame(frame);
       ctx.drawImage(backdrop, 0, 0);
-      drawClimber(ctx, currentSlot ?? count, saved && !running);
+      drawClimber(ctx, actorSlot, saved && !running);
     };
     preference.addEventListener("change", finish);
     render(performance.now());
@@ -76,13 +84,15 @@ export default function MountainWorld({
       cancelAnimationFrame(frame);
       preference.removeEventListener("change", finish);
     };
-  }, [count, saved, stableSlots, currentSlot, seed, running, celebration]);
+  }, [count, saved, stableSlots, currentSlot, seed, running, celebration, actorSlot]);
   return (
     <canvas
       ref={canvas}
       width={700}
       height={430}
       role="img"
+      data-position={climberPosition(actorSlot).join(",")}
+      data-segment={Math.floor((actorSlot ?? 0) / 11)}
       data-state={running ? "working" : saved ? "saved" : completed ? "completed" : "ready"}
       aria-label={`Dusk pixel mountain. ${count} ${slots ? "recorded" : "sample"} completed checkpoints have warm local light. ${running ? "Working: climber walking in place; activity earns no light." : saved ? "Saved: climber resting beside a campsite; saving earns no light." : "Climber at the current trail checkpoint."}`}
     />

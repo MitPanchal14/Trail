@@ -1,8 +1,66 @@
 # Work Trail — Current Handoff
 
-Updated: October 16, 2026.
+Updated: October 17, 2026.
+
+## Start here — handoff to the next chat
+
+This section and “Next action” supersede older dated status/stop-point statements below. Historical verification is retained for evidence; do not interpret earlier “not started” or “live unverified” statements as current status.
+
+### Working arrangement and product direction
+
+- Product: Trail / Work Trail, a Build with AI hackathon entry. Local root remains `/Users/mitku/Documents/Hackathons/Devpost/Build_With_AI`; do not nest or move the app just to match its GitHub name.
+- This Codex chat has primarily reviewed/planned and supplied implementation prompts; the user builds in OpenCode using another account, usually 6.1 Sol medium. Continue with concise, candid guidance and scoped OpenCode prompts unless the user asks this chat to implement.
+- Approved direction: Dusk, bento, pixel mountain world. User explicitly praised the latest focus UI as stunning on October 17. Preserve that layout; prioritize task continuation and visible earned movement before further cosmetic work or additional pages.
+- One mountain represents a larger goal across days; accepted actions occupy stable checkpoints. Working animation signals activity. Completing an action earns a checkpoint and local natural colour/light. Saving/pausing/time away never earns progress. Whole-mountain completion is separate from one action's completion.
+- Keep review/edit/explicit acceptance of AI breakdowns, editable suggested session durations, optional return notes and a concrete “First thing when I return,” explicit Resume and local persistence. Tracking should take roughly 20–30 seconds or less.
+
+### Current code and Git snapshot
+
+- Local branch: `MitPanchal14/feat/persistent-work-return-loop`.
+- Latest local commit checked: `ddfddbb` — `fix: Match return notes to the Dusk UI`, following `1d87331` (hierarchy/return-loop refinement) and `0ebfa8f` (creation/planning usability).
+- GitHub repository was deleted and recreated by the user: `https://github.com/MitPanchal14/Trail.git`. `origin` points there. The newly created remote was observed empty before the user was given the push command. The latest local branch inspection now shows upstream `origin/MitPanchal14/feat/persistent-work-return-loop` at the same commit; remote contents were not freshly queried during this handoff update. Verify remote state if relevant; do not claim a merge into main or deployment.
+- Pre-existing working-tree changes: tracked review/evidence PNGs, generated `next-env.d.ts`, and untracked `devpost/evidence/current-site-review.png`. Preserve these and review them separately rather than blanket staging. This handoff update itself is a documentation change, not a new implementation checkpoint.
+- `.env.local` and `devpost/learner-profile.md` were checked ignored and untracked. Only `.env.example` is tracked among environment files. Never print or commit the real key/private profile.
+
+### User-confirmed blockers — fix next
+
+October 17 implementation update: the three findings below now have a focused local fix and fresh automated evidence (see “Continuation checkpoint” under Actual status). They remain user-review items, not accepted product outcomes.
+
+1. **No clear continuation after a completed action.** User completed a real first action and saw only Undo completion / Add another task, with no obvious second action. Code review confirms the completion branch in `components/TodayView.tsx` always promotes `openCreate`. This does not prove the mountain was marked complete: the screenshot explicitly says the larger goal is not automatically finished. Inspect the accepted stored breakdown safely to establish whether more actions exist; do not invent missing steps or transmit the user's records to AI. If actions remain, present the next same-mountain action prominently with an explicit Start next action control, project progress (actual completed/total counts), and retained Undo. A different project's next daily commitment should be clearly identified as a separate choice. Do not automatically start a timer or create another mountain. When no accepted actions remain, distinguish “all planned actions completed” from confirmed achievement of the larger goal.
+2. **Climber advancement is not perceptible.** User screenshots show checkpoint light earned while the avatar appears at essentially the same base position. Historical tests passing do not establish convincing movement. Inspect `MountainWorld.tsx` / `lib/terrain.ts` and their mapping of starting position, action destination and completion position, particularly slot zero. Make movement from the prior position to the earned checkpoint visibly clear, keep stable existing checkpoint positions, persist the resulting meaningful position, and avoid replaying celebration after reload. Reduced motion must show the final position immediately. Preserve previous achievements through later completions and Undo.
+3. **Unrelated draft interception.** `TodayView.tsx` `editBreakdown` opens any existing `creationDraft` without checking its editing mountain. Offer explicit context/choice while retaining the draft instead of silently opening a different project's draft.
+
+The immediate blockers are functional/product feedback issues, not authorization for another terrain redesign. Campsite/resting cues should clearly indicate saved unfinished work, distinct from earned completion.
+
+### Verification already performed
+
+- Independent October 17 review: lint, TypeScript, **32 unit/API/domain tests**, production build and **69 browser tests (50.3s)** passed on the then-current code/CSS. Browser tests used an isolated self-starting server, fictional records and mocked/disabled AI, across desktop/tablet/mobile Chromium emulation. Sandbox port binding initially failed; permissioned rerun passed. No tests were rerun for this documentation-only handoff update.
+- Tests cover individual completion/Undo, return fields, interrupted recovery, ownership, storage errors, reviewed planning, draft retention and responsive layouts. They did not demonstrate an obvious user-facing three-action continuation journey; add that regression when fixing the blocker.
+- User's real-use screenshots now confirm that focus layout is liked and local completion light appears, while continuation and perceived ascent fail. Do not mark slice 3 accepted based only on automated checks.
+- Earlier exactly three authorized fictional Gemini generations passed against `gemini-3.5-flash-lite`. First-run response artifacts were not retained, so qualitative wording usefulness remains unverified. Harness now supports artifact retention. That three-request allowance is exhausted; fresh agent requests need renewed authorization. User may deliberately submit their own task via the app.
+- Actual voice transcription, physical mobile/Safari, screen-reader review and full production browser journey remain pending. Production build passing is not deployment acceptance.
+
+### Scope remaining and references
+
+- Slice 3 is implemented but not accepted. Core local create/review/plan/focus/save/resume/complete/Undo exists. Resolve the blockers before extending scope.
+- Later scope: Mountains page, summit confirmation/reopen/correction, yearly completion grid/reports; then import/recovery completion, public-AI protection, deployment and submission. Confirm against `devpost/spec.md` and checklist before starting each slice.
+- Public AI is unconditionally disabled in production in `lib/gemini.server.ts`; API origin handling also currently restricts to localhost. These are known shipping blockers for a public AI-enabled demo, not something to fix by simply removing safeguards. Provider key remains server-only; local-only records have no account/cloud sync.
+- Read `AGENTS.md`, `BUILD_PROMPT.md` and this handoff once; inspect only relevant source. Installed Next.js docs must be read before changing framework code, per AGENTS.md.
+- Detailed findings/testing: `devpost/code-review-2026-10-17.md`; prior visual audit: `devpost/ui-ux-audit-2026-10-16.md`. Canonical scope/PRD/spec are under `devpost/`. Keep unrelated evidence/generated files and personal records intact.
 
 ## Actual status
+
+### Continuation checkpoint — October 17
+
+- Preserved approved focus layout, responsive ordering, green return-note surfaces, seeded artwork and all eleven checkpoint coordinates. No stylesheet, provider or storage-schema changes. No user records were accessed for tests; all new browser data is fictional in isolated contexts, with the managed AI-disabled server.
+- Completion now shows the next nonarchived unfinished action in the same mountain's accepted order, useful instruction, its own editable suggested duration and completed/current-accepted counts. Saved next actions instead expose both retained return fields/time and explicit Resume. Start next is a single domain transition through existing select/start contracts; invalid/expired/archived targets leave selection unchanged. New continuation starts and edit-draft replacements persist before publishing/opening UI, so rejected storage writes do not show a partially selected or started task. Existing timer accounting is unchanged. Deferred/removed choices require explicit opt-in and do not recommit daily history. Undo stays in the acknowledgement and existing checkpoint history after advancing. All-planned-complete explicitly does not confirm the larger goal and routes to that mountain's existing editor.
+- Deterministic position policy: before any achievement, the climber stands at a distinct start offset from checkpoint zero. Afterwards it stands at the checkpoint of the latest non-undone completion for the selected mountain (timestamp, then durable completion-array order for ties). It does not use selected action, highest slot or slot-minus-one. Archived actions' historical achievements remain real; project counts use only current accepted nonarchived actions. Undo reconstructs the latest remaining achievement or trail start. Selection/start/save/pause/absence cannot move this earned position or add light; a resting tent indicates saved context at that earned position, not a newly earned destination. The existing eleven-point segment model filters visible light by the earned-position segment; coordinates wrap exactly as before rather than adding terrain. Cross-segment travel uses those existing projected coordinates, not a physically continuous new mountain.
+- Reveal remains bounded to 850ms and only a newly observed local completion on the same terrain seed interpolates from the prior displayed position. Switching mountains/reload do not animate between records; reduced motion draws the same final scene immediately. Base terrain remains cached during working animation; no expensive continuous terrain redraw was introduced.
+- Edit breakdown resumes only a matching mountain draft. Meaningful new-project/other-mountain drafts receive a native named dialog: resume existing draft, keep/cancel, or explicitly confirm discard and edit the selected mountain. Escape/cancel/reload retain the draft. Empty disposable drafts may be replaced. No simultaneous draft storage is promised.
+- Fresh verification: `npm run lint`, `npm run typecheck`, `npm test` (**34 passed**) and `npm run build` pass. `npm run test:e2e` using the self-starting isolated server: **84 passed (1.0m)**. Final targeted rerun after waiting for ownership before saved-return screenshots: `npm run test:e2e -- e2e/continuation.spec.ts`: **15 passed (18.7s)**. Existing ownership, timer integrity, normal/reduced-motion rendering and responsive focus regressions passed without assertion relaxation.
+- New evidence covers manual three-action acceptance, own next-duration input, save both fields, close/reopen same isolated browser context, explicit Resume, second completion, exact final canvas pixel equality after reload and Undo preserving the first reward. Also new/same/other draft choices with Escape/reload retention, saved-next preview, explicit deferred opt-in, failed-write nonadvance, no automatic mountain completion, noncontiguous segment 13, invalid/expired/archived starts, reordered chronological checkpoints and fixed geometry checks. Screenshots inspected at matching desktop/mobile canvas sizes: `test-results/continuation-three-accepte-3d7af-ext-and-earn-visible-ascent-{desktop,mobile}/{before-first,after-first,after-second,continuation,saved-return}.png` (ignored).
+- Initial verification failures: lint rejected render-time Date.now (moved to effect-updated state); fixtures initially used wrong planner field names and a label excluding the mountain subtitle; a reopened page retained an old-page canvas locator and did not inherit reduced-motion emulation. Corrected fixtures/page setup, retaining strict final pixel equality. Recovery intentionally prioritizes saved work on reload; tests now exercise that existing rule rather than alter it. No unresolved failing checks at this checkpoint. Physical Safari/mobile and screen-reader checks remain unperformed. Removed commitments use the same gate as deferred ones; only deferred is directly exercised in the new browser test, with existing removed-history regressions retained.
+- Stop for the user's real-project review: can they find their return step within about 20 seconds, and does completion feel like visible progress? Automated pixel/position evidence does not establish that subjective acceptance. No slice acceptance, later-page work, live AI requests, push, merge or deployment.
 
 ### October 17 colour follow-up
 
@@ -47,7 +105,9 @@ Existing design-lab is a standalone illustrative HTML prototype with synthetic r
 
 ## Next action
 
-Open http://localhost:3000 in the same browser/origin used for your real records. The user deliberately submits their own task, reviews the returned draft and realistic daily selection, then tries Start → Save → close/reopen → Resume → complete/Undo. Ask whether the first action was clear, planning reduced uncertainty, editing was proportionate, and returning preserved context. Project quota/spending limits remain a user check in AI Studio. The three fictional generation requests are exhausted; no further agent generation without renewed authorization. Stop for feedback before slice 4; no acceptance is inferred.
+Focused continuation/ascent/draft fix is implemented and mechanically verified; stop for user review. Preserve the approved focus UI and let the user repeat the journey with their real project. Do not operate on their records yourself or begin later slices automatically.
+
+Required acceptance journey: create three actions → complete first → explicitly start second from the main card → save both return fields → close/reopen → explicitly Resume second → complete second → verify two earned checkpoints → Undo second → verify first achievement remains. Check reload persistence, no timer/absence/saving reward, reduced-motion final state and desktop/mobile controls. Then let the user repeat with their real project and assess whether returning makes the next step clear within about 20 seconds and completion visibly feels like progress. Stop for this review before later feature slices. No new agent Gemini calls, push, merge or deployment is authorized by this handoff alone.
 
 ## Slice 3 follow-up — provider contract and integrated verification
 

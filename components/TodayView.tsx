@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
 import { useWorkTrail } from "@/lib/use-work-trail";
-import { activeCompletion, currentSession } from "@/lib/domain";
+import { activeCompletion, currentSession, dateKey } from "@/lib/domain";
+import { earnedPosition } from "@/lib/trail-position";
 import { downloadPrivate } from "@/lib/storage";
 import TaskCreation from "./TaskCreation";
 import DailyPlanner from "./DailyPlanner";
@@ -23,6 +24,14 @@ export default function TodayView() {
     [creationOpen, setCreationOpen] = useState(false),
     [minutes, setMinutes] = useState<string | null>(null);
   const [celebration, setCelebration] = useState<string | null>(null);
+  const [nextDuration, setNextDuration] = useState({ id: "", value: "" });
+  const [deliberate, setDeliberate] = useState(false);
+  const [todayNow, setTodayNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setTodayNow(Date.now()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+  const conflict = useRef<HTMLDialogElement>(null);
   const dialog = useRef<HTMLDialogElement>(null),
     form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -48,6 +57,12 @@ export default function TodayView() {
     remaining = session?.remainingMs ?? Number(duration) * 60000;
   const returning = !!session && !completion && !focused;
   const returnStep = returning ? session.returnStep.trim() : "";
+  const accepted = s.subtasks.filter(t => t.mountainId === mountain?.id && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
+  const next = accepted.find(t => !activeCompletion(s, t.id));
+  const nextSession = s.sessions.findLast(x => x.subtaskId === next?.id && x.status !== "completed");
+  const nextMinutes = nextDuration.id === next?.id ? nextDuration.value : String(next?.suggestedMinutes ?? 20);
+  const disposition = s.dayPlans.find(p => p.dateKey === dateKey(todayNow, s.calendarTimeZone))?.commitments.find(c => c.subtaskId === next?.id)?.disposition;
+  const needsChoice = disposition === "deferred" || disposition === "removed";
   const earned = s.completions.filter(
     (c) =>
       !c.undoneAt &&
@@ -92,14 +107,19 @@ export default function TodayView() {
     dialog.current?.close();
   };
   const editBreakdown = () => {
-    if (!mountain) return;
-    if (s.creationDraft) {
+    if (!mountain || readOnly || warning) return;
+    if (s.creationDraft?.editingMountainId === mountain.id) {
       openCreate();
       return;
     }
+    if (meaningfulDraft(s.creationDraft)) { conflict.current?.showModal(); return; }
+    beginEdit();
+  };
+  const beginEdit = () => {
+    if (!mountain || readOnly || warning) return;
     const draft = newDraft();
-    dispatch({
-      type: "draft",
+    if (!dispatch({
+      type: "edit-draft",
       draft: {
         ...draft,
         editingMountainId: mountain.id,
@@ -117,7 +137,7 @@ export default function TodayView() {
             suggestedMinutes: t.suggestedMinutes,
           })),
       },
-    });
+    })) return;
     setCreationOpen(true);
     dialog.current?.showModal();
   };
@@ -254,6 +274,7 @@ export default function TodayView() {
               running={focused && session?.status === "running"}
               celebration={!!completion && celebration === task?.id}
               completed={!!completion}
+              positionSlot={earnedPosition(s, mountain?.id)}
             />
             <div className="world-footer">
               <span className="pill">
@@ -392,13 +413,21 @@ export default function TodayView() {
                 >
                   Undo completion
                 </button>
-                <button
-                  className="primary"
-                  disabled={readOnly}
-                  onClick={openCreate}
-                >
-                  Add another task
-                </button>
+                <p>{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>
+                {next ? <section className="task-form" aria-label="Next accepted action">
+                  <h3>{next.title}</h3>
+                  {distinctInstruction(next.title, next.nextAction) && <p>{next.nextAction}</p>}
+                  {nextSession ? <>
+                    {nextSession.returnStep && <p>First thing when I return: {nextSession.returnStep}</p>}
+                    {nextSession.note && <p>Where I stopped: {nextSession.note}</p>}
+                    <p>Remaining commitment: {clock(nextSession.remainingMs)}</p>
+                  </> : <label>Next session length<input aria-label="Next session length" type="number" min={1} max={120} value={nextMinutes} onChange={e => setNextDuration({ id: next.id, value: e.target.value })} /></label>}
+                  {needsChoice && <label className="check-label"><input type="checkbox" checked={deliberate} onChange={e => setDeliberate(e.target.checked)} />Work on this {disposition} action now; keep today’s plan unchanged</label>}
+                  <button className="primary" disabled={readOnly || !!warning || (needsChoice && !deliberate) || (nextSession ? !nextSession.remainingMs : !Number.isInteger(Number(nextMinutes)) || Number(nextMinutes) < 1 || Number(nextMinutes) > 120)} onClick={() => {
+                    if (dispatch({ type: "start-next", id: next.id, minutes: nextSession ? next.suggestedMinutes : Number(nextMinutes) })) { setMinutes(null); setDeliberate(false); setFocus(true); }
+                  }}>{nextSession ? "Resume next action" : "Start next action"}</button>
+                  {nextSession?.remainingMs === 0 && <button className="secondary" disabled={readOnly} onClick={() => { if (dispatch({ type: "select", id: next.id })) setMinutes(null); }}>Open saved action</button>}
+                </section> : <><p>All planned actions completed. The larger goal has not been confirmed complete.</p><button className="primary" disabled={readOnly} onClick={editBreakdown}>Edit or add actions</button></>}
               </>
             ) : task ? (
               <>
@@ -580,6 +609,16 @@ export default function TodayView() {
             <details className="recovery-copy"><summary>About saved work</summary><p>Work is saved regularly while this tab is open. After a crash or slow browser update, your saved place may be slightly older. Time away is never counted as work.</p></details>
           </>
         )}
+        <dialog
+          ref={conflict}
+          aria-labelledby="draft-conflict-title"
+        >
+          <h2 id="draft-conflict-title">Keep your existing draft?</h2>
+          <p>You have {s.creationDraft?.editingMountainId ? `an edit for ${s.mountains.find(m => m.id === s.creationDraft?.editingMountainId)?.title}` : `a new-project draft: ${s.creationDraft?.goal || s.creationDraft?.description || "Untitled"}`}. This is not the editor for {mountain?.title}.</p>
+          <button className="secondary" disabled={readOnly} onClick={() => { conflict.current?.close(); openCreate(); }}>Resume existing draft</button>
+          <button className="secondary" onClick={() => conflict.current?.close()}>Keep draft and cancel edit</button>
+          <button className="quiet" disabled={readOnly} onClick={() => { if (window.confirm(`Discard the existing draft and edit ${mountain?.title}?`)) { conflict.current?.close(); beginEdit(); } }}>Discard draft and edit this mountain</button>
+        </dialog>
         <dialog
           className="creation-dialog"
           ref={dialog}
