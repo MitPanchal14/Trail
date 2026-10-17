@@ -7,7 +7,9 @@ import {
 } from "./domain";
 import { account, recover, resume } from "./timer";
 import { applyPlanning, type PlanningAction } from "./plan-actions";
+import { applySummit, type SummitAction } from "./summit";
 export type Action =
+  | SummitAction
   | PlanningAction
   | {
       type: "create";
@@ -24,7 +26,7 @@ export type Action =
   | { type: "note"; note: string }
   | { type: "return-step"; value: string }
   | { type: "extend"; minutes: number }
-  | { type: "undo"; id: string };
+  | { type: "undo"; id: string; correctSummit?: boolean };
 export function transition(
   previous: Snapshot,
   action: Action,
@@ -49,6 +51,11 @@ export function transition(
   }
   const task = s.subtasks.find((x) => x.id === s.selection.selectedSubtaskId);
   switch (action.type) {
+    case "confirm-summit":
+    case "reopen-goal":
+    case "correct-summit":
+      applySummit(s, action, now);
+      break;
     case "draft":
     case "accept":
     case "day-draft":
@@ -214,6 +221,9 @@ export function transition(
     case "undo": {
       const completion = s.completions.find((x) => x.id === action.id);
       if (completion && !completion.undoneAt) {
+        const linked = s.summitConfirmations.filter(c => !c.revokedAt && c.relatedCompletionIds.includes(completion.id));
+        if (linked.length && action.correctSummit === undefined) throw Error("Choose whether the linked summit confirmation was also mistaken.");
+        if (action.correctSummit) for (const c of linked) applySummit(s, { type: "correct-summit", id: c.id }, now);
         completion.undoneAt = stamp;
         const restored = s.sessions.findLast((x) => x.subtaskId === completion.subtaskId);
         if (restored?.status === "completed") {

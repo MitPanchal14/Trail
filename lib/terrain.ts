@@ -197,12 +197,13 @@ export function drawTerrain(
   if (!hideActor && (count || saved)) drawClimber(ctx, currentSlot, saved, bob);
 }
 
-export function climberPosition(slot: number | null): number[] {
+export function climberPosition(slot: number | null | "summit"): number[] {
+  if (slot === "summit") return pos(28, 20);
   if (slot === null) { const start = pos(...checkpointPosition(0) as [number, number]); return [start[0] - 45, start[1] + 22]; }
   const point = checkpointPosition(slot);
   return pos(point[0], point[1]);
 }
-export function drawClimber(ctx: CanvasRenderingContext2D, slot: number | null, resting: boolean, bob = 0, travel = 1, fromSlot: number | null = null) {
+export function drawClimber(ctx: CanvasRenderingContext2D, slot: number | null | "summit", resting: boolean, bob = 0, travel = 1, fromSlot: number | null | "summit" = null) {
     // Overlay output must not depend on whether a terrain reveal ran before it.
     ctx.imageSmoothingEnabled = false;
     ctx.lineJoin = "bevel";
@@ -242,4 +243,23 @@ export function drawClimber(ctx: CanvasRenderingContext2D, slot: number | null, 
       ctx.fillStyle = "#b1d6ca";
       ctx.fillRect(x - 29, restingY + 5 + bob * 2, 9, 2);
     }
+}
+
+/** Separate goal anchor: never rescale or relocate accepted checkpoints. */
+export function drawSummit(ctx: CanvasRenderingContext2D, historical: boolean, pending: boolean, fromSlot: number | null) {
+  const [x, y] = climberPosition("summit");
+  ctx.save();
+  if (pending) {
+    const [a, b] = climberPosition(fromSlot);
+    ctx.strokeStyle = "#edf0db"; ctx.lineWidth = 2; ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(x - 15, y + 10); ctx.lineTo(x, y); ctx.stroke();
+    ctx.setLineDash([]); ctx.strokeRect(x - 5, y - 3, 10, 6);
+  }
+  if (historical) {
+    ctx.fillStyle = "#ffe5a033"; ctx.beginPath(); ctx.ellipse(x, y, 26, 12, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#dec47f"; ctx.fillRect(x - 12, y - 2, 24, 4);
+    ctx.fillStyle = "#edf0db"; ctx.fillRect(x + 16, y - 35, 2, 36);
+    ctx.fillStyle = "#ffe5a0"; ctx.fillRect(x + 18, y - 35, 16, 9); ctx.fillRect(x + 18, y - 26, 10, 4);
+  }
+  ctx.restore();
 }

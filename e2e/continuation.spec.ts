@@ -130,7 +130,7 @@ test("saved next work resumes unchanged; deferred choice, rejected writes and fi
   await page.getByRole("button", { name: "Resume", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Second", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Complete action", exact: true }).click();
-  await expect(page.getByText("All planned actions completed.", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "All planned steps complete", exact: true }).first()).toBeVisible();
   await expect(page.getByText("2 / 2 accepted actions completed", { exact: true })).toBeVisible();
   await expect(page.locator("canvas")).toHaveAttribute("data-segment", "1");
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!));

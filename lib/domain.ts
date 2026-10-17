@@ -76,7 +76,10 @@ const completionSchema = z
     undoneAt: nullableTime,
   })
   .strict();
-// Later-slice collections are explicitly empty, not permissive unvalidated JSON.
+const summitSchema = z.object({
+  id, mountainId: id, confirmedAt: time,
+  relatedCompletionIds: z.array(id).min(1).max(10000), revokedAt: nullableTime,
+}).strict();
 export const snapshotSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -87,7 +90,7 @@ export const snapshotSchema = z
     subtasks: z.array(subtaskSchema).max(10000),
     sessions: z.array(sessionSchema).max(10000),
     completions: z.array(completionSchema).max(10000),
-    summitConfirmations: z.array(z.never()),
+    summitConfirmations: z.array(summitSchema).max(10000),
     dayPlans: z
       .array(
         z
@@ -133,7 +136,7 @@ export const snapshotSchema = z
   .strict()
   .superRefine((s, ctx) => {
     const fail = (message: string) => ctx.addIssue({ code: "custom", message });
-    for (const items of [s.mountains, s.subtasks, s.sessions, s.completions])
+    for (const items of [s.mountains, s.subtasks, s.sessions, s.completions, s.summitConfirmations])
       if (new Set(items.map((x) => x.id)).size !== items.length)
         fail("Duplicate IDs");
     const mountains = new Map(s.mountains.map((x) => [x.id, x])),
@@ -141,6 +144,16 @@ export const snapshotSchema = z
       sessions = new Map(s.sessions.map((x) => [x.id, x]));
     const slots = new Set<string>(),
       active = new Set<string>();
+    for (const summit of s.summitConfirmations) {
+      if (!mountains.has(summit.mountainId) || new Set(summit.relatedCompletionIds).size !== summit.relatedCompletionIds.length ||
+        summit.relatedCompletionIds.some(id => {
+          const c = s.completions.find(c => c.id === id);
+          return !c || tasks.get(c.subtaskId)?.mountainId !== summit.mountainId;
+        }) || (summit.revokedAt && summit.revokedAt < summit.confirmedAt)) fail("Invalid summit history");
+    }
+    for (const m of s.mountains) {
+      if (m.status === "completed" && !s.summitConfirmations.some(c => c.mountainId === m.id && !c.revokedAt)) fail("Completed mountain requires a summit confirmation");
+    }
     if (new Set(s.dayPlans.map((p) => p.dateKey)).size !== s.dayPlans.length)
       fail("Duplicate day plans");
     for (const plan of s.dayPlans) {

@@ -73,7 +73,9 @@ export function useWorkTrail() {
         );
       }
       const next = transition(s, action, now);
-      if (action.type === "start-next" || action.type === "edit-draft") {
+      const linkedUndo = action.type === "undo" && s.summitConfirmations.some(c => !c.revokedAt && c.relatedCompletionIds.includes(action.id));
+      const transactional = linkedUndo || ["start-next", "edit-draft", "confirm-summit", "reopen-goal", "correct-summit"].includes(action.type);
+      if (transactional) {
         if (blocked.current || next === s) return false;
         persist(next);
         if (blocked.current || !guard.current?.valid()) return false;
@@ -81,7 +83,7 @@ export function useWorkTrail() {
       wall.current = now;
       steady.current = monotonic;
       publish(next);
-      if (action.type !== "start-next" && action.type !== "edit-draft") persist(next);
+      if (!transactional) persist(next);
       return true;
     } catch (error) {
       setNotice(

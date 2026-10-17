@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useMemo } from "react";
-import { drawTerrain, drawClimber, climberPosition } from "@/lib/terrain";
+import { drawTerrain, drawClimber, climberPosition, drawSummit } from "@/lib/terrain";
 export default function MountainWorld({
   count,
   saved,
@@ -11,6 +11,9 @@ export default function MountainWorld({
   celebration = false,
   completed = count > 0,
   positionSlot,
+  summit = false,
+  historicalSummit = false,
+  summitPending = false,
 }: {
   count: number;
   saved: boolean;
@@ -21,6 +24,9 @@ export default function MountainWorld({
   celebration?: boolean;
   completed?: boolean;
   positionSlot?: number | null;
+  summit?: boolean;
+  historicalSummit?: boolean;
+  summitPending?: boolean;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const slotKey = slots?.join(",");
@@ -34,8 +40,9 @@ export default function MountainWorld({
     [slotKey],
   );
   const previousCount = useRef(count);
-  const actorSlot = positionSlot === undefined ? (currentSlot ?? count) : positionSlot;
-  const previousPosition = useRef({ seed, slot: actorSlot });
+  const earnedSlot = positionSlot === undefined ? (currentSlot ?? count) : positionSlot;
+  const actorSlot = summit ? "summit" : earnedSlot;
+  const previousPosition = useRef<{ seed: string | undefined; slot: number | null | "summit" }>({ seed, slot: actorSlot });
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
@@ -46,11 +53,12 @@ export default function MountainWorld({
     backdrop.width = 700;
     backdrop.height = 430;
     const base = backdrop.getContext("2d")!;
-    const sceneSlot = actorSlot ?? 0;
+    const sceneSlot = earnedSlot ?? 0;
     drawTerrain(base, count, false, 1, stableSlots, sceneSlot, seed, 0, true);
+    drawSummit(base, historicalSummit, summitPending, earnedSlot);
     const start = performance.now();
     const from = previousPosition.current;
-    const earnedNewLight = celebration && seed === from.seed && count > previousCount.current;
+    const earnedNewLight = seed === from.seed && ((celebration && count > previousCount.current) || (summit && from.slot !== "summit"));
     previousPosition.current = { seed, slot: actorSlot };
     previousCount.current = count;
     const render = (now: number) => {
@@ -60,9 +68,10 @@ export default function MountainWorld({
           : Math.min(1, (now - start) / 850);
       if (now - lastDraw >= 100 || (progress === 1 && !running)) {
         lastDraw = now;
-        if (progress < 1)
+        if (progress < 1 && !summit) {
           drawTerrain(ctx, count, false, progress, stableSlots, sceneSlot, seed, 0, true, sceneSlot);
-        else ctx.drawImage(backdrop, 0, 0);
+          drawSummit(ctx, historicalSummit, summitPending, earnedSlot);
+        } else ctx.drawImage(backdrop, 0, 0);
         drawClimber(
           ctx, actorSlot, saved && !running,
           running && !preference.matches ? (Math.floor(now / 250) % 2 ? 1 : -1) : 0,
@@ -84,7 +93,7 @@ export default function MountainWorld({
       cancelAnimationFrame(frame);
       preference.removeEventListener("change", finish);
     };
-  }, [count, saved, stableSlots, currentSlot, seed, running, celebration, actorSlot]);
+  }, [count, saved, stableSlots, currentSlot, seed, running, celebration, actorSlot, earnedSlot, summit, historicalSummit, summitPending]);
   return (
     <canvas
       ref={canvas}
@@ -92,9 +101,10 @@ export default function MountainWorld({
       height={430}
       role="img"
       data-position={climberPosition(actorSlot).join(",")}
-      data-segment={Math.floor((actorSlot ?? 0) / 11)}
+      data-segment={Math.floor((earnedSlot ?? 0) / 11)}
+      data-summit={summit ? "reached" : summitPending ? "pending" : historicalSummit ? "historical" : "none"}
       data-state={running ? "working" : saved ? "saved" : completed ? "completed" : "ready"}
-      aria-label={`Dusk pixel mountain. ${count} ${slots ? "recorded" : "sample"} completed checkpoints have warm local light. ${running ? "Working: climber walking in place; activity earns no light." : saved ? "Saved: climber resting beside a campsite; saving earns no light." : "Climber at the current trail checkpoint."}`}
+      aria-label={`Dusk pixel mountain. ${count} ${slots ? "recorded" : "sample"} completed checkpoints have warm local light. ${summit ? "Summit reached after goal confirmation." : summitPending ? "All planned steps complete; summit awaits finish-condition confirmation." : historicalSummit ? "Reopened goal; summit flag records a previous achievement." : running ? "Working: climber walking in place; activity earns no light." : saved ? "Saved: climber resting beside a campsite; saving earns no light." : "Climber at the current trail checkpoint."}`}
     />
   );
 }

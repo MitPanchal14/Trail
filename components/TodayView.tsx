@@ -9,6 +9,7 @@ import { downloadPrivate } from "@/lib/storage";
 import TaskCreation from "./TaskCreation";
 import DailyPlanner from "./DailyPlanner";
 import CheckpointJournal from "./CheckpointJournal";
+import SummitPanel from "./SummitPanel";
 import { newDraft, meaningfulDraft, distinctInstruction } from "@/lib/planning";
 
 const clock = (ms: number) =>
@@ -33,6 +34,8 @@ export default function TodayView() {
     return () => clearInterval(timer);
   }, []);
   const conflict = useRef<HTMLDialogElement>(null);
+  const undoChoice = useRef<HTMLDialogElement>(null);
+  const [undoId, setUndoId] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null),
     form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -60,6 +63,14 @@ export default function TodayView() {
   const returnStep = returning ? session.returnStep.trim() : "";
   const accepted = s.subtasks.filter(t => t.mountainId === mountain?.id && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
   const next = accepted.find(t => !activeCompletion(s, t.id));
+  const summitReached = mountain?.status === "completed";
+  const summitHistory = s.summitConfirmations.some(c => c.mountainId === mountain?.id && !c.revokedAt);
+  const summitPending = accepted.length > 0 && !next && !summitReached;
+  const undo = (id: string) => {
+    if (s.summitConfirmations.some(c => !c.revokedAt && c.relatedCompletionIds.includes(id))) {
+      setUndoId(id); undoChoice.current?.showModal();
+    } else dispatch({ type: "undo", id });
+  };
   const nextSession = s.sessions.findLast(x => x.subtaskId === next?.id && x.status !== "completed");
   const nextMinutes = nextDuration.id === next?.id ? nextDuration.value : String(next?.suggestedMinutes ?? 20);
   const disposition = s.dayPlans.find(p => p.dateKey === dateKey(todayNow, s.calendarTimeZone))?.commitments.find(c => c.subtaskId === next?.id)?.disposition;
@@ -226,7 +237,7 @@ export default function TodayView() {
             <h1 ref={heading} tabIndex={-1}>
               {focused
                 ? "One action at a time."
-                : completion
+                : summitReached ? "Summit reached" : summitPending ? "All planned steps complete" : completion
                   ? "A checkpoint earned."
                   : session
                      ? "Continue your work"
@@ -237,7 +248,7 @@ export default function TodayView() {
             <p role={completion ? "status" : undefined} className={completion ? "earned-confirmation" : undefined}>
               {focused
                 ? "Time records your commitment, not proof of attention."
-                : completion
+                : summitReached ? mountain?.title : completion
                    ? `✓ ${task?.title} earned checkpoint ${task ? task.checkpointSlot + 1 : ""}. Local trail light restored. The larger goal is not automatically finished.`
                   : task
                      ? mountain?.title
@@ -276,6 +287,9 @@ export default function TodayView() {
               celebration={!!completion && celebration === task?.id}
               completed={!!completion}
               positionSlot={earnedPosition(s, mountain?.id)}
+              summit={summitReached}
+              historicalSummit={summitHistory}
+              summitPending={summitPending}
             />
             <div className="world-footer">
               <span className="pill">
@@ -284,7 +298,7 @@ export default function TodayView() {
                   : "○ No checkpoints yet"}
               </span>
               <span className={returning ? "saved-label" : ""}>
-                {returning ? "⚑ Saved campsite" : focused ? "Walking in place · no progress earned" : completion ? "✦ Action complete" : "○ Next checkpoint ahead"}
+                {summitReached ? "⚑ Summit reached" : summitPending ? "○ Summit awaiting confirmation" : returning ? "⚑ Saved campsite" : focused ? "Walking in place · no progress earned" : completion ? "✦ Action complete" : "○ Next checkpoint ahead"}
               </span>
               <details className="trail-key"><summary>Trail key</summary><p>Amber lanterns: completed work. Blue frame and tent: saved place. Pale path: work ahead.</p></details>
             </div>
@@ -316,6 +330,7 @@ export default function TodayView() {
               {task && !completion && !returning && <p className="destination">Destination: checkpoint {task.checkpointSlot + 1}</p>}
               {task && !returnStep && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
               {mountain && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
+              {mountain && !focused && !completion && <p className="session-time">{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>}
             </div>
             {returning && session.note.trim() && (
               <details className="context" open={session.note.length <= 200}>
@@ -410,7 +425,7 @@ export default function TodayView() {
                 <button
                   className="secondary"
                   disabled={readOnly}
-                  onClick={() => { setCelebration(null); dispatch({ type: "undo", id: completion.id }); }}
+                  onClick={() => { setCelebration(null); undo(completion.id); }}
                 >
                   Undo completion
                 </button>
@@ -428,7 +443,7 @@ export default function TodayView() {
                     if (dispatch({ type: "start-next", id: next.id, minutes: nextSession ? next.suggestedMinutes : Number(nextMinutes) })) { setMinutes(null); setDeliberate(false); setFocus(true); }
                   }}>{nextSession ? "Resume next action" : "Start next action"}</button>
                   {nextSession?.remainingMs === 0 && <button className="secondary" disabled={readOnly} onClick={() => { if (dispatch({ type: "select", id: next.id })) setMinutes(null); }}>Open saved action</button>}
-                </section> : <><p>All planned actions completed. The larger goal has not been confirmed complete.</p><button className="primary" disabled={readOnly} onClick={editBreakdown}>Edit or add actions</button></>}
+                </section> : null}
               </>
             ) : task ? (
               <>
@@ -523,6 +538,7 @@ export default function TodayView() {
                 </button>
               </>
             )}
+            {!focused && <SummitPanel snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} dispatch={dispatch} onAdd={editBreakdown} />}
             {!focused && <div className="task-tools">
               {returning && <details className="session-details"><summary>Session details</summary><p>Last saved: {new Date(session.lastHeartbeatAt).toLocaleString()}</p><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p></details>}
               {mountain && <button className="quiet edit-breakdown" disabled={readOnly} onClick={editBreakdown}>Edit breakdown</button>}
@@ -549,7 +565,7 @@ export default function TodayView() {
                 Continue creation draft
               </button>
             )}
-            <CheckpointJournal snapshot={s} mountainId={mountain?.id} disabled={readOnly} onUndo={id => dispatch({ type: "undo", id })} />
+            <CheckpointJournal snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} onUndo={undo} />
             <footer className="preview-controls">
               <div>
                 <strong>Private to this browser · no account or sync</strong>
@@ -575,6 +591,13 @@ export default function TodayView() {
             <details className="recovery-copy"><summary>About saved work</summary><p>Work is saved regularly while this tab is open. After a crash or slow browser update, your saved place may be slightly older. Time away is never counted as work.</p></details>
           </>
         )}
+        <dialog ref={undoChoice} aria-labelledby="undo-summit-title">
+          <h2 id="undo-summit-title">Was the summit confirmation also mistaken?</h2>
+          <p>This action supports an existing summit confirmation. Undo removes only this checkpoint unless you also correct the summit.</p>
+          <button className="secondary" onClick={() => undoChoice.current?.close()}>Cancel Undo</button>
+          <button className="secondary" disabled={readOnly || !!warning} onClick={() => { if (undoId && dispatch({ type: "undo", id: undoId, correctSummit: false })) undoChoice.current?.close(); }}>Undo action, keep summit</button>
+          <button className="primary" disabled={readOnly || !!warning} onClick={() => { if (undoId && dispatch({ type: "undo", id: undoId, correctSummit: true })) undoChoice.current?.close(); }}>Undo action and correct summit</button>
+        </dialog>
         <dialog
           ref={conflict}
           aria-labelledby="draft-conflict-title"

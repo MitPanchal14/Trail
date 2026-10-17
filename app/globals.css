@@ -30,6 +30,11 @@
 .checkpoint-journal summary { min-height: 44px; padding-block: 12px; font-size: 14px; }
 .latest-label { display: inline-block; color: #ffe5a0; margin-left: 8px; }
 .journal-note { white-space: pre-wrap; }
+.summit-panel { padding: 16px; border: 1px solid #a58d53; border-radius: 12px; display: grid; gap: 12px; min-width: 0; overflow-wrap: anywhere; }
+.summit-panel h3, .summit-panel p { margin: 0; }
+.summit-pending { background: #dec47f0a; border-style: dashed; }
+.summit-reached { background: #dec47f15; border-style: solid; }
+.summit-panel summary { min-height: 44px; padding-block: 12px; }
 .creation-dialog {
   max-width: 760px;
   max-height: calc(100dvh - 32px);

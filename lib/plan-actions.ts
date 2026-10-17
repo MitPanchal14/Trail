@@ -58,6 +58,13 @@ export function applyPlanning(
     )
       throw Error("Duplicate draft actions");
     let mountain = s.mountains.find((m) => m.id === d.editingMountainId);
+    if (mountain?.status === "completed") {
+      const mountainId = mountain.id;
+      const current = s.subtasks.filter(t => t.mountainId === mountainId && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
+      if (mountain.title !== reviewed.goal || mountain.finishCondition !== reviewed.finishCondition ||
+        current.length !== d.steps.length || current.some((t, i) => t.id !== d.steps[i].existingId ||
+          t.title !== reviewed.steps[i].title || t.nextAction !== reviewed.steps[i].nextAction || t.suggestedMinutes !== reviewed.steps[i].suggestedMinutes)) mountain.status = "reopened";
+    }
     if (!mountain) {
       const id = crypto.randomUUID();
       mountain = {
