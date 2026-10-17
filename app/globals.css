@@ -11,6 +11,25 @@
   --border: #648074;
   --soft: #304c3d;
 }
+.creation-flow .step-editor { background: #304c3d; border-color: #819880; margin: 0; }
+.creation-flow .step-editor legend { padding: 4px 8px; font-weight: 700; color: var(--ink); }
+.creation-flow .step-editor input:not([type="checkbox"]), .creation-flow .step-editor textarea { background: #10221f; color: #edf0db; border: 1px solid #819880; caret-color: var(--action); }
+.creation-flow .step-editor :is(input, textarea):focus-visible { outline: 3px solid var(--action); outline-offset: 3px; }
+.step-editor .button-row { flex-wrap: wrap; gap: 8px; }
+.step-editor .button-row > button { flex: 0 1 auto; min-height: 44px; }
+.checkpoint-journal { margin-block: 24px; }
+.checkpoint-journal header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.checkpoint-journal h2 { font-size: 20px; }
+.checkpoint-journal ol { padding: 0; margin: 16px 0 0 8px; list-style: none; border-left: 1px solid #8c784c; }
+.checkpoint-journal li { position: relative; padding: 0 0 12px 24px; }
+.checkpoint-journal li::before { content: ""; position: absolute; top: 18px; left: -5px; width: 8px; height: 12px; background: #e7c77d; border: 1px solid #ffe5a0; box-shadow: 0 0 0 4px #e7c77d12; }
+.checkpoint-journal article { padding: 12px 16px; border-radius: 10px; min-width: 0; overflow-wrap: anywhere; }
+.checkpoint-journal .latest-checkpoint article { background: #e7c77d0c; border: 1px solid #8c784c; }
+.checkpoint-journal h3 { margin: 0; font-size: 16px; }
+.checkpoint-journal .checkpoint-meta { font-size: 14px; margin: 8px 0; color: var(--muted); }
+.checkpoint-journal summary { min-height: 44px; padding-block: 12px; font-size: 14px; }
+.latest-label { display: inline-block; color: #ffe5a0; margin-left: 8px; }
+.journal-note { white-space: pre-wrap; }
 .creation-dialog {
   max-width: 760px;
   max-height: calc(100dvh - 32px);

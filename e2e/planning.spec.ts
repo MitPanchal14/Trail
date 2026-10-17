@@ -86,8 +86,8 @@ test("accepted edits preserve IDs, archived history and another goal's saved pla
   await page.getByRole("button", { name: "Resume", exact: true }).click();
   await page.getByRole("button", { name: "Complete action", exact: true }).click();
   await expect(page.getByText("✦ 1 earned checkpoint", { exact: true })).toBeVisible();
-  await page.locator(".checkpoints summary").click();
-  await expect(page.locator(".checkpoints")).toContainText(original.sessions[0].note);
+  await page.locator(".checkpoint-journal summary").click();
+  await expect(page.locator(".checkpoint-journal")).toContainText(original.sessions[0].note);
   await page.getByRole("button", { name: "Undo completion", exact: true }).first().click();
   const undone = await records(page);
   expect(undone.completions[0].undoneAt).not.toBeNull();
@@ -180,7 +180,7 @@ test("missing-AI fallback, draft reload, full manual review and daily commitment
     .getByLabel("Action 1 instruction", { exact: true })
     .fill("Draw one oak leaf and label three veins.");
   await page.getByLabel("Action 1 session minutes", { exact: true }).fill("15");
-  await page.getByRole("button", { name: "Add action", exact: true }).click();
+  await page.getByRole("button", { name: "+ Add another action", exact: true }).click();
   await page
     .getByLabel("Action 2 title", { exact: true })
     .fill("Review labels");

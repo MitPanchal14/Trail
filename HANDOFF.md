@@ -50,6 +50,13 @@ The immediate blockers are functional/product feedback issues, not authorization
 
 ## Actual status
 
+### Editor/journal and summit follow-up — Part A
+
+- Action cards consistently use a lighter forest-green surface and dark inset fields, lime focus rings, short visible labels with unique accessible names, numbered Editable headings and quiet keyboard-operable reorder/remove controls. Add another action focuses/scrolls its new unaccepted title. Optional draft-only `minutesText` preserves empty/intermediate input across close/reload; acceptance parses it through the existing bounded 1–120 schema. Old drafts without it remain valid; accepted task/session schemas are unchanged.
+- Existing-mountain edits open directly at goal/finish condition and action cards. Creation-only description/voice/AI/manual entry remain available only for new projects. Draft ownership choices and explicit acceptance remain.
+- Replaced Today’s earned accordion with a compact connected amber-lantern journal, actual titles/date/status, meaningful recorded duration, restrained Latest marker and keyboard-expandable real context/Undo. No map-selection effect, fabricated notes or empty filler. The focus shell and terrain are unchanged.
+- Part A checks: lint, typecheck, 34 unit tests and production build pass. Targeted `npm run test:e2e -- e2e/editor-journal.spec.ts e2e/planning.spec.ts e2e/continuation.spec.ts`: **36 passed (37.1s)** across desktop/tablet/mobile. New screenshots in ignored `test-results/editor-journal-*/`: action-editor, existing-editor and checkpoint-journal. Part B (persistent summit) follows separately; no acceptance is inferred. Pending user-requested Trail. display-name edits are retained; incidental screenshots/generated files remain separate.
+
 ### Continuation checkpoint — October 17
 
 - Preserved approved focus layout, responsive ordering, green return-note surfaces, seeded artwork and all eleven checkpoint coordinates. No stylesheet, provider or storage-schema changes. No user records were accessed for tests; all new browser data is fictional in isolated contexts, with the managed AI-disabled server.

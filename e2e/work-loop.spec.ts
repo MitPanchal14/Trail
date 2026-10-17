@@ -131,7 +131,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   expect(s.completions.filter((c) => !c.undoneAt)).toHaveLength(1);
   expect(s.sessions[0].creditedMs).toBe(23000);
   expect(s.mountains[0].status).toBe("active");
-  await returned.locator(".checkpoints summary").click();
+  await returned.locator(".checkpoint-journal summary").click();
   await expect(
     returned.getByText("Oak outline ready; add the veins next.", {
       exact: true,

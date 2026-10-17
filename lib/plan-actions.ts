@@ -45,10 +45,10 @@ export function applyPlanning(
       kind: "breakdown",
       goal: d.goal,
       finishCondition: d.finishCondition,
-      steps: d.steps.map(({ title, nextAction, suggestedMinutes }) => ({
+      steps: d.steps.map(({ title, nextAction, suggestedMinutes, minutesText }) => ({
         title,
         nextAction,
-        suggestedMinutes,
+        suggestedMinutes: minutesText === undefined ? suggestedMinutes : Number(minutesText),
       })),
     });
     if (

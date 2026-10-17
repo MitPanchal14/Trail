@@ -42,6 +42,14 @@ export default function TaskCreation({
   const gate = useRef(new RequestGate()),
     speech = useRef<Recognition | null>(null),
     draftRef = useRef(d);
+  const addedTitle = useRef<string | null>(null);
+  useEffect(() => {
+    if (!addedTitle.current) return;
+    const input = document.getElementById(`title-${addedTitle.current}`);
+    input?.focus();
+    input?.scrollIntoView({ block: "nearest" });
+    addedTitle.current = null;
+  }, [d?.steps.length]);
   useEffect(() => {
     if (disabled) {
       gate.current.cancel();
@@ -211,7 +219,7 @@ export default function TaskCreation({
           ? "Review your breakdown"
            : "New task"}
       </h2><button type="button" className="quiet" onClick={close}>{meaningfulDraft(d) ? "Close · keep draft" : "Close"}</button></div>
-      <p>
+      {!d.editingMountainId && <><p>
         A rough description is enough. Nothing becomes work until you review and
         accept.
       </p>
@@ -320,6 +328,7 @@ export default function TaskCreation({
       >
         Write manually
       </button>
+      </>}
       {(review || d.goal || d.steps.length > 0) && (
         <form
           className="task-form"
@@ -359,10 +368,13 @@ export default function TaskCreation({
           </label>
           {d.steps.map((step, i) => (
             <fieldset className="step-editor" key={step.key}>
-              <legend>Action {i + 1}</legend>
+              <legend>Action {String(i + 1).padStart(2, "0")} · Editable</legend>
               <label>
-                Action {i + 1} title
+                Title
                 <input
+                  id={`title-${step.key}`}
+                  aria-label={`Action ${i + 1} title`}
+                  placeholder="Draft the opening section"
                   required
                   maxLength={500}
                   value={step.title}
@@ -371,37 +383,40 @@ export default function TaskCreation({
                 />
               </label>
               <label htmlFor={`instruction-${step.key}`}>
-                Action {i + 1} instruction
+                What will you do?
                 <textarea
                   id={`instruction-${step.key}`}
                   aria-label={`Action ${i + 1} instruction`}
                   required
                   maxLength={500}
+                  placeholder="Write a rough first paragraph and list the points to cover"
                   value={step.nextAction}
                   disabled={disabled}
                   onChange={(e) => setStep(i, { nextAction: e.target.value })}
                 />
               </label>
               <label>
-                Action {i + 1} session minutes
+                Session length
                 <input
+                  aria-label={`Action ${i + 1} session minutes`}
                   type="number"
                   required
                   min={1}
                   max={120}
-                  value={step.suggestedMinutes}
+                  value={step.minutesText ?? step.suggestedMinutes}
+                  aria-describedby={`minutes-help-${step.key}`}
                   disabled={disabled}
                   onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (Number.isInteger(value) && value >= 1 && value <= 120)
-                      setStep(i, { suggestedMinutes: value });
+                    setStep(i, { minutesText: e.target.value });
                   }}
+                  onBlur={e => e.currentTarget.reportValidity()}
                 />
+                <span id={`minutes-help-${step.key}`} className="session-time">Enter 1–120 minutes.</span>
               </label>
               <div className="button-row">
                 <button
                   type="button"
-                  className="secondary"
+                  className="quiet"
                   aria-label={`Move action ${i + 1} up`}
                   disabled={disabled || i === 0}
                   onClick={() => move(i, -1)}
@@ -410,7 +425,7 @@ export default function TaskCreation({
                 </button>
                 <button
                   type="button"
-                  className="secondary"
+                  className="quiet"
                   aria-label={`Move action ${i + 1} down`}
                   disabled={disabled || i === d.steps.length - 1}
                   onClick={() => move(i, 1)}
@@ -418,7 +433,7 @@ export default function TaskCreation({
                   Move down
                 </button>
                 <button
-                  className="secondary"
+                  className="quiet"
                   type="button"
                   disabled={disabled}
                   aria-label={`Remove action ${i + 1}`}
@@ -435,22 +450,24 @@ export default function TaskCreation({
             className="secondary"
             type="button"
             disabled={disabled || d.steps.length >= 20}
-            onClick={() =>
+            onClick={() => {
+              const key = crypto.randomUUID();
+              addedTitle.current = key;
               change({
                 steps: [
                   ...d.steps,
                   {
-                    key: crypto.randomUUID(),
+                    key,
                     existingId: null,
                     title: "",
                     nextAction: "",
                     suggestedMinutes: 20,
                   },
                 ],
-              })
-            }
+              });
+            }}
           >
-            Add action
+            + Add another action
           </button>
           <label className="check-label">
             <input

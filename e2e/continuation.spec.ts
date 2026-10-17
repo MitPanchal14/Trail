@@ -11,7 +11,7 @@ test("three accepted actions continue, retain return context and earn visible as
   await page.getByLabel("Mountain name", { exact: true }).fill("Fictional leaf guide");
   await page.getByLabel("Finish condition", { exact: true }).fill("Three checked drawings");
   for (let i = 1; i <= 3; i++) {
-    if (i > 1) await page.getByRole("button", { name: "Add action", exact: true }).click();
+    if (i > 1) await page.getByRole("button", { name: "+ Add another action", exact: true }).click();
     await page.getByLabel(`Action ${i} title`, { exact: true }).fill(`Draw leaf ${i}`);
     await page.getByLabel(`Action ${i} instruction`, { exact: true }).fill(`Outline specimen ${i}`);
     await page.getByLabel(`Action ${i} session minutes`, { exact: true }).fill(String(i * 3));
@@ -78,7 +78,7 @@ for (const context of ["new", "other", "same"] as const) {
     await page.goto("/");
     await page.getByRole("button", { name: "Edit breakdown", exact: true }).click();
     if (context === "same") {
-      await expect(page.getByLabel("Describe the work")).toHaveValue("Retained fictional draft");
+      await expect(page.getByLabel("Mountain name", { exact: true })).toHaveValue("Retained name");
       return;
     }
     const choice = page.getByRole("dialog", { name: "Keep your existing draft?" });
@@ -87,7 +87,8 @@ for (const context of ["new", "other", "same"] as const) {
     await page.reload();
     await page.getByRole("button", { name: "Edit breakdown", exact: true }).click();
     await page.getByRole("button", { name: "Resume existing draft", exact: true }).click();
-    await expect(page.getByLabel("Describe the work")).toHaveValue("Retained fictional draft");
+    if (context === "new") await expect(page.getByLabel("Describe the work")).toHaveValue("Retained fictional draft");
+    else await expect(page.getByLabel("Mountain name", { exact: true })).toHaveValue("Retained name");
     await page.getByRole("button", { name: "Close · keep draft", exact: true }).click();
     await page.getByRole("button", { name: "Edit breakdown", exact: true }).click();
     await page.getByRole("button", { name: "Keep draft and cancel edit", exact: true }).click();

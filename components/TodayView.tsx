@@ -8,6 +8,7 @@ import { earnedPosition } from "@/lib/trail-position";
 import { downloadPrivate } from "@/lib/storage";
 import TaskCreation from "./TaskCreation";
 import DailyPlanner from "./DailyPlanner";
+import CheckpointJournal from "./CheckpointJournal";
 import { newDraft, meaningfulDraft, distinctInstruction } from "@/lib/planning";
 
 const clock = (ms: number) =>
@@ -200,7 +201,7 @@ export default function TodayView() {
           <span className="brand-mark" aria-hidden="true">
             ▟
           </span>
-          work trail.
+          Trail.
         </a>
         <nav aria-label="Main">
           <a className="nav-active" href="#main" aria-current="page">
@@ -548,42 +549,7 @@ export default function TodayView() {
                 Continue creation draft
               </button>
             )}
-            {earned.length > 0 && (
-              <section
-                className="checkpoints"
-                aria-label="Recorded checkpoint details"
-              >
-                <h2>On this trail</h2>
-                {earned.map((c) => (
-                  <details key={c.id}>
-                    <summary>
-                      ✓ {s.subtasks.find((t) => t.id === c.subtaskId)?.title}
-                    </summary>
-                    <p>
-                      Completed {new Date(c.completedAt).toLocaleString()} ·{" "}
-                      {c.localDate} ({c.calendarTimeZone})
-                    </p>
-                    <p>{c.note || "No context note recorded."}</p>
-                    <p>
-                      Recorded session time:{" "}
-                      {Math.floor(
-                        s.sessions
-                          .filter((x) => c.sessionIds.includes(x.id))
-                          .reduce((sum, x) => sum + x.creditedMs, 0) / 1000,
-                      )}{" "}
-                      seconds
-                    </p>
-                    <button
-                      className="secondary"
-                      disabled={readOnly}
-                      onClick={() => dispatch({ type: "undo", id: c.id })}
-                    >
-                      Undo completion
-                    </button>
-                  </details>
-                ))}
-              </section>
-            )}
+            <CheckpointJournal snapshot={s} mountainId={mountain?.id} disabled={readOnly} onUndo={id => dispatch({ type: "undo", id })} />
             <footer className="preview-controls">
               <div>
                 <strong>Private to this browser · no account or sync</strong>

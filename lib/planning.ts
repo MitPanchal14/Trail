@@ -102,6 +102,7 @@ export const draftSchema = z
             title: z.string().max(500),
             nextAction: z.string().max(500),
             suggestedMinutes: z.number().int().min(1).max(120),
+            minutesText: z.string().max(10).optional(),
           })
           .strict(),
       )
@@ -113,7 +114,7 @@ export function meaningfulDraft(d: CreationDraft | null): boolean {
   return !!d && ([d.description, d.alreadyDone, d.stuck, d.constraints,
     d.clarification, d.goal, d.finishCondition].some((value) => value.trim()) ||
     d.steps.some((step) => step.title.trim() || step.nextAction.trim() ||
-      step.suggestedMinutes !== 20));
+      step.suggestedMinutes !== 20 || step.minutesText !== undefined));
 }
 export function distinctInstruction(title: string, instruction: string): boolean {
   const normalize = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();

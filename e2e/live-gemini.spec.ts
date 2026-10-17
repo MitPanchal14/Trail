@@ -35,7 +35,7 @@ test("live Gemini: clear breakdown, budgeted day, clarification and complete ret
     await route.continue();
   });
   await page.goto("/");
-  await expect(page).toHaveTitle("Work Trail — Today");
+  await expect(page).toHaveTitle("Trail. — Today");
   await expect(page.getByRole("button", { name: "＋ New task", exact: true })).toBeEnabled();
   await page.getByRole("button", { name: "＋ New task", exact: true }).click();
   const description = "Create a one-page printable oak-leaf observation guide for a fictional school nature club. Finish when the page has a drawing, three observation prompts and a checked printable layout. Suggest a few small actions I can begin immediately.";
@@ -93,8 +93,8 @@ test("live Gemini: clear breakdown, budgeted day, clarification and complete ret
   await returned.getByRole("button", { name: "Resume", exact: true }).click();
   await returned.getByRole("button", { name: "Complete action", exact: true }).click();
   await expect(returned.getByText("✦ 1 earned checkpoint", { exact: true })).toBeVisible();
-  await returned.locator(".checkpoints summary").click();
-  await expect(returned.locator(".checkpoints")).toContainText(note);
+  await returned.locator(".checkpoint-journal summary").click();
+  await expect(returned.locator(".checkpoint-journal")).toContainText(note);
   await returned.getByRole("button", { name: "Undo completion", exact: true }).first().click();
   expect((await records(returned)).completions.filter((c) => !c.undoneAt)).toHaveLength(0);
   await returned.getByRole("button", { name: "＋ New task", exact: true }).click();
