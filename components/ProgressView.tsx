@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Snapshot } from "@/lib/domain";
 import { comparisonPeriods, completionBand, displayDate, formatRecordedTime, progressProjection, yearDates } from "@/lib/progress";
 import { overviewTime } from "@/lib/progress-display";
@@ -41,8 +41,6 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
   const year = Number(selected.slice(0,4));
   const dates = yearDates(year);
   const day = p.day(selected);
-  const offset = (new Date(`${dates[0]}T00:00:00Z`).getUTCDay() + 6) % 7;
-  const weeks = Math.ceil((offset + dates.length) / 7);
   useEffect(() => {
     const scroll = heatmap.current;
     const cell = scroll?.querySelector<HTMLElement>(`[data-date="${selected}"]`);
@@ -100,15 +98,17 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
         <button className="quiet" onClick={() => choose(p.today, false)}>Today’s record</button>
       </div>
       {fullYear ? (<div className="progress-heatmap-scroll" ref={heatmap} role="region" aria-label={`${year} completion calendar. Use arrow keys to explore dates, Enter to select. Scroll horizontally for the full year.`}>
-    <div className="progress-heatmap" style={{ "--weeks": weeks } as CSSProperties}>
-      <div className="heatmap-months" aria-hidden="true">{months.map((label, index) => {
-        const start = dates.findIndex(date => Number(date.slice(5, 7)) === index + 1);
-        return <span key={label} style={{ gridColumn: Math.floor((start + offset) / 7) + 1 }}>{label.slice(0, 3)}</span>;
-      })}</div>
+    <div className="progress-heatmap">
       <div className="heatmap-weekdays" aria-hidden="true"><span>Mon</span><span>Wed</span><span>Fri</span></div>
-      <div className="heatmap-dates">
-        {Array.from({ length: offset }, (_, i) => <span key={`padding-${i}`} aria-hidden="true" />)}
-        {dates.map((date, index) => {
+      {months.map((monthLabel, monthIndex) => {
+        const days = dates.filter(date => Number(date.slice(5, 7)) === monthIndex + 1);
+        const monthOffset = (new Date(`${days[0]}T00:00:00Z`).getUTCDay() + 6) % 7;
+        return <div className="heatmap-month-group" key={monthLabel}>
+          <span className="heatmap-month-label" aria-hidden="true">{monthLabel.slice(0, 3)}</span>
+          <div className="heatmap-dates">
+          {Array.from({ length: monthOffset }, (_, i) => <span key={`padding-${i}`} aria-hidden="true" />)}
+          {days.map(date => {
+          const index = dates.indexOf(date);
           const d = p.day(date);
           const label = `${displayDate(date)}: ${d.count} completed actions; ${d.planComplete ? "all commitments completed that day" : d.commitments.length ? "not all commitments completed that day" : "no committed plan"}; ${d.state === "future" ? "future date" : d.state === "before-first-use" ? "before first use" : "recorded period"}`;
           return <button key={date} type="button" data-date={date} data-band={completionBand(d.count)} data-date-state={d.state} data-plan-complete={d.planComplete} aria-label={label} title={label} aria-pressed={date === selected} aria-current={date === p.today ? "date" : undefined} aria-controls="progress-day-detail" tabIndex={date === (focusedDate && dates.includes(focusedDate) ? focusedDate : selected) ? 0 : -1} onFocus={() => setFocusedDate(date)} onClick={() => choose(date)} onKeyDown={event => {
@@ -119,7 +119,9 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
             heatmap.current?.querySelector<HTMLElement>(`[data-date="${dates[target]}"]`)?.focus();
           }} />;
         })}
-      </div>
+          </div>
+        </div>;
+      })}
     </div>
   </div>) : <div className="progress-current-month">{renderMonth(month)}</div>}
       <div className="progress-activity-footer"><span className="session-time">{fullYear ? "Each square is a day. Select one to look closer." : "Select a date to see its record."}</span><div className="progress-legend" aria-label="Completed actions legend"><span>Less</span>{["0", "1", "2–3", "4–5", "6+"].map((label, i) => <span key={label} title={`${label} completed actions`}><i aria-hidden="true" data-band={i} /><span className="sr-only">{label} completed actions</span></span>)}<span>More</span></div></div>

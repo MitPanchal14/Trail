@@ -6,6 +6,10 @@ Updated: October 19, 2026.
 
 This section and “Next action” supersede older dated status/stop-point statements below. Historical verification is retained for evidence; do not interpret earlier “not started” or “live unverified” statements as current status.
 
+### October 19 — smaller, separated months
+
+User found the initial heatmap too large and month boundaries unclear. Follow-up uses fixed 10px cells, 3px cell gaps and separately labelled month groups with 10px gaps; it no longer stretches to fill desktop width. Larger month view and date/keyboard behavior retained. Fresh lint/typecheck/build and all 36 Progress browser checks pass. Desktop screenshot inspected in ignored `test-results/progress-month-groups/`. User visual review pending.
+
 ### October 19 — compact Progress revision
 
 User explicitly asked Codex to change Progress to a simpler GitHub-style view. Implemented seven-row year heatmap by default, three unboxed metrics, quiet continuation link and collapsed optional records. Larger month view retains easier touch targets. Calendar remains based on actual completions, with selected/today/future/pre-use distinctions and plan markers; arrow keys explore dates and Enter selects. No domain, storage, timer, Today/focus or Mountains changes.
