@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import MountainsView from "./MountainsView";
+import ProgressView from "./ProgressView";
 import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
@@ -80,6 +81,7 @@ export default function TodayView() {
     remaining = session?.remainingMs ?? Number(duration) * 60000;
   const returning = !!session && !completion && !focused;
   const isMountains = pathname === "/mountains" && !focused;
+  const isProgress = pathname === "/progress" && !focused;
   const returnStep = session && !completion ? session.returnStep.trim() : "";
   const accepted = s.subtasks.filter(t => t.mountainId === mountain?.id && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
   const next = accepted.find(t => !activeCompletion(s, t.id));
@@ -256,7 +258,7 @@ export default function TodayView() {
   return (
     <div className={`shell ${focused ? "is-focusing" : ""}`}>
       <a className="skip" href="#main">
-        Skip to {isMountains ? "Mountains" : "Today"}
+        Skip to {isProgress ? "Progress" : isMountains ? "Mountains" : "Today"}
       </a>
       <aside className="sidebar">
         <a className="brand" href="#main">
@@ -265,17 +267,18 @@ export default function TodayView() {
           </span>
           Trail.
         </a>
-        <nav aria-label="Main">
-          <Link className={!isMountains ? "nav-active" : ""} href="/" aria-current={!isMountains ? "page" : undefined}>
+        <nav className="trail-navigation" aria-label="Main">
+          <Link className={!isMountains && !isProgress ? "nav-active" : ""} href="/" aria-current={!isMountains && !isProgress ? "page" : undefined}>
             ◉ Today
           </Link>
           <Link className={isMountains ? "nav-active" : ""} href="/mountains" aria-current={isMountains ? "page" : undefined}>△ Mountains</Link>
+          <Link className={isProgress ? "nav-active" : ""} href="/progress" aria-current={isProgress ? "page" : undefined}>▦ Progress</Link>
         </nav>
       </aside>
       <main id="main">
         {storageNotice}
         <header className="topline">
-          <span>{focused ? "Focus" : isMountains ? "Mountains" : "Today"}</span>
+          <span>{focused ? "Focus" : isProgress ? "Progress" : isMountains ? "Mountains" : "Today"}</span>
           <span>
             {warning
               ? "Changes not saved"
@@ -285,7 +288,8 @@ export default function TodayView() {
           </span>
         </header>
         {pathname === "/mountains" && focused && <p className="notice">Your focus session is still accessible here. Save your place before browsing Mountains.</p>}
-        {isMountains ? <>
+        {pathname === "/progress" && focused && <p className="notice">Your focus session is still accessible here. Save your place before browsing Progress.</p>}
+        {isProgress ? <ProgressView snapshot={s} now={todayNow} /> : isMountains ? <>
           {reopened && <section ref={undoRecovery} tabIndex={-1} className="undo-recovery card" aria-label="Undo recovery"><p role="status">{s.subtasks.find(t => t.id === reopened)?.title} reopened. Current work is unchanged.</p><button className="primary" disabled={readOnly || !!warning} onClick={() => returnTo(reopened)}>Return to {s.subtasks.find(t => t.id === reopened)?.title}</button><button className="secondary" onClick={() => setReopened(null)}>Stay with current work</button></section>}
           <MountainsView snapshot={s} disabled={readOnly || !!warning} dispatch={dispatch} onCreate={openCreate} onEdit={editBreakdownFor} onContinue={returnTo} onUndo={undo} />
         </> : <>
