@@ -1,0 +1,5 @@
+# Intended Progress presentation edits
+
+- Preserve `progressProjection`, calendar/history rules and their existing unit tests. Add only a compact overview-time formatter with presentation-specific tests; exact seconds remain inspectable.
+- Reorder Progress into selected-year period + three Dusk metric cards, factual encouragement/navigation-only Continue link, one synchronized visible month, optional full year, concise day summary, independently closed record disclosures, optional comparisons and About these numbers. No new controller, work transitions, schema, provider or route changes.
+- Scope visual changes to Progress; keep Today/focus/Mountains and unrelated work separate. Retain every Progress browser history/timezone/Undo/read-only check by explicitly opening its disclosures. Add first-screen/default-month/period-sync/disclosure/320px checks, inspect empty/ordinary/long-name desktop/mobile renders and run the full appropriate regression/check suite. Update HANDOFF, review/stage intended files and commit; stop for review, no backup/deployment/live AI/push.

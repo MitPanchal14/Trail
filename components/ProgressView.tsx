@@ -3,21 +3,23 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Snapshot } from "@/lib/domain";
 import { comparisonPeriods, completionBand, displayDate, formatRecordedTime, progressProjection, yearDates } from "@/lib/progress";
+import { overviewTime } from "@/lib/progress-display";
 
 const weekdays = ["M", "T", "W", "T", "F", "S", "S"];
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 type Totals = ReturnType<ReturnType<typeof progressProjection>["totals"]>;
 function Measures({ totals }: { totals: Totals }) {
   return <dl className="progress-measures">
-    <div><dt>Completed actions</dt><dd>{totals.completions}</dd></div>
+    <div><dt>Actions completed</dt><dd>{totals.completions}</dd></div>
     <div><dt>Days with completions</dt><dd>{totals.days}</dd></div>
-    <div><dt>Recorded session time</dt><dd>{formatRecordedTime(totals.recordedMs)}</dd></div>
+    <div><dt>Recorded time</dt><dd>{overviewTime(totals.recordedMs)}</dd></div>
   </dl>;
 }
 
 export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot; now: number }) {
   const p = useMemo(() => progressProjection(s, now), [s, now]);
   const [selected, setSelected] = useState(p.today);
+  const [fullYear, setFullYear] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const details = useRef<HTMLHeadingElement>(null);
   const allowedYears = p.years.join(",");
@@ -25,7 +27,10 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
     const restore = () => {
       const date = window.location.hash.slice(1);
       const year = Number(date.slice(0,4));
-      if (allowedYears.split(",").includes(String(year)) && yearDates(year).includes(date)) setSelected(date);
+      if (allowedYears.split(",").includes(String(year)) && yearDates(year).includes(date)) {
+        setSelected(date);
+        setFullYear(false);
+      }
     };
     restore();
     heading.current?.focus();
@@ -37,8 +42,12 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
   const day = p.day(selected);
   const end = `${year}-12-31` < p.today ? `${year}-12-31` : p.today;
   const periods = comparisonPeriods(s, now);
+  const month = Number(selected.slice(5,7)) - 1;
+  const totals = p.totals(`${year}-01-01`, end);
+  const periodLabel = year === Number(p.today.slice(0,4)) ? `${year} so far` : String(year);
   const choose = (date: string, reveal = true) => {
     setSelected(date);
+    setFullYear(false);
     window.history.replaceState(window.history.state, "", `/progress#${date}`);
     if (reveal) requestAnimationFrame(() => {
       details.current?.focus({ preventScroll: true });
@@ -47,56 +56,67 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
   };
   const taskTitle = (id: string) => p.tasks.get(id)?.title ?? "Recorded action";
   const project = (id: string) => p.mountains.get(p.tasks.get(id)?.mountainId ?? "")?.title ?? "Recorded goal";
-  return <div className="progress-view">
-    <header className="heading"><div><h1 ref={heading} tabIndex={-1}>Progress</h1><p>A record of work, not a rating of your days.</p></div></header>
-    <section className="card progress-year" aria-labelledby="progress-year-title">
-      <div className="progress-controls"><h2 id="progress-year-title">Your year in checkpoints</h2>
-        <div className="progress-year-picker"><label htmlFor="progress-year">Calendar year</label><select id="progress-year" value={year} onChange={e => choose(Number(e.target.value) === Number(p.today.slice(0,4)) ? p.today : `${e.target.value}-01-01`, false)}>{p.years.map(y => <option key={y} value={y}>{y}</option>)}</select></div>
-        <button className="secondary" onClick={() => choose(p.today)}>Today’s record</button>
-      </div>
-      <p>Calendar timezone: <strong>{s.calendarTimeZone}</strong>. First use: {displayDate(p.firstUse)}.</p>
-      <p className="session-time">Squares count completed actions only. Time, saves and summit confirmations do not add completions. Quiet days keep your earned mountain scenery.</p>
-      <div className="progress-legend" aria-label="Completed actions legend">{["0", "1", "2–3", "4–5", "6+"].map((label, i) => <span key={label}><i aria-hidden="true" data-band={i} />{label}</span>)}<span>✓ All commitments completed that day</span></div>
-      <p className="progress-key">· No recorded completions &nbsp; — Before first use &nbsp; ○ Future date &nbsp; [ ] Selected date. Choose a date for details.</p>
-      <div className="progress-calendar" aria-label={`${year} completion calendar`}>
-        {months.map((month, index) => {
-          const days = dates.filter(d => Number(d.slice(5,7)) === index + 1);
-          const offset = (new Date(`${days[0]}T00:00:00Z`).getUTCDay() + 6) % 7;
-          return <section className="progress-month" key={month} aria-label={`${month} ${year}`}>
-            <h3>{month}</h3><div className="progress-weekdays" aria-hidden="true">{weekdays.map((w, i) => <span key={i}>{w}</span>)}</div>
-            <div className="progress-dates">
-              {Array.from({ length: offset }, (_, i) => <span className="date-padding" aria-hidden="true" key={`pad-${i}`} />)}
-              {days.map(date => {
-                const d = p.day(date);
-                const marker = d.planComplete ? "all commitments completed that day" : d.commitments.length ? "not all commitments completed that day" : "no committed plan";
-                const state = d.state === "future" ? "future date" : d.state === "before-first-use" ? "before first use" : "recorded period";
-                return <button type="button" key={date} data-date={date} data-band={completionBand(d.count)} data-date-state={d.state} aria-pressed={date === selected} aria-current={date === p.today ? "date" : undefined} aria-controls="progress-day-detail" aria-label={`${displayDate(date)}: ${d.count} completed actions; ${marker}; ${state}${date === p.today ? "; today" : ""}`} onClick={() => choose(date)}>
-                  <span>{Number(date.slice(8))}</span><small aria-hidden="true">{d.planComplete ? "✓" : d.state === "future" ? "○" : d.state === "before-first-use" ? "—" : d.count ? d.count : "·"}</small>
-                </button>;
-              })}
-            </div>
-          </section>;
+  const renderMonth = (index: number) => {
+    const days = dates.filter(d => Number(d.slice(5,7)) === index + 1);
+    const offset = (new Date(`${days[0]}T00:00:00Z`).getUTCDay() + 6) % 7;
+    return <section className="progress-month" key={index} aria-label={`${months[index]} ${year}`}>
+      <h3>{months[index]} {year}</h3>
+      <div className="progress-weekdays" aria-hidden="true">{weekdays.map((w, i) => <span key={i}>{w}</span>)}</div>
+      <div className="progress-dates">
+        {Array.from({ length: offset }, (_, i) => <span className="date-padding" aria-hidden="true" key={`pad-${i}`} />)}
+        {days.map(date => {
+          const d = p.day(date);
+          const marker = d.planComplete ? "all commitments completed that day" : d.commitments.length ? "not all commitments completed that day" : "no committed plan";
+          const state = d.state === "future" ? "future date" : d.state === "before-first-use" ? "before first use" : "recorded period";
+          return <button type="button" key={date} data-date={date} data-band={completionBand(d.count)} data-date-state={d.state} aria-pressed={date === selected} aria-current={date === p.today ? "date" : undefined} aria-controls="progress-day-detail" aria-label={`${displayDate(date)}: ${d.count} completed actions; ${marker}; ${state}${date === p.today ? "; today" : ""}`} onClick={() => choose(date)}>
+            <span>{Number(date.slice(8))}</span><small aria-hidden="true">{d.planComplete ? "✓" : d.state === "future" ? "○" : d.state === "before-first-use" ? "—" : d.count ? d.count : "·"}</small>
+          </button>;
         })}
       </div>
-      <section className="progress-year-summary" aria-label="Selected year summary"><h3>{year} recorded totals</h3><p>{displayDate(`${year}-01-01`)} – {displayDate(end)}{year === Number(p.today.slice(0,4)) ? " · Includes today’s partial record" : ""}</p><Measures totals={p.totals(`${year}-01-01`, end)} /></section>
-    </section>
-
-    <section className="card progress-day" id="progress-day-detail" aria-labelledby="progress-day-title">
-      <header><h2 id="progress-day-title" tabIndex={-1} ref={details}>{displayDate(selected)}</h2><p>{day.state === "future" ? "Future date — not a missing day of work." : day.state === "before-first-use" ? "Before first use — no activity is inferred." : "Only recorded activity is shown; an empty record is not a judgment."}</p></header>
-      <Measures totals={{ completions: day.count, days: day.count ? 1 : 0, recordedMs: day.recordedMs }} />
-      <p className="progress-plan-status">{day.commitments.length ? `${day.committedCompleted} / ${day.commitments.length} historical commitments completed on this date after commitment.` : "No committed plan for this date. Unaccepted drafts do not create commitment history."} {day.planComplete ? "✓ All commitments completed that day." : day.commitments.length ? "No all-commitments marker for this date." : ""}</p>
-      <div className="progress-detail-columns">
-        <section aria-label="Completed actions on selected date"><h3>Completed actions</h3>{!day.count ? <p>No recorded completions on this date.</p> : <ol>{day.completed.map(c => <li key={c.id}><h4>{taskTitle(c.subtaskId)}</h4><p>{project(c.subtaskId)}{p.tasks.get(c.subtaskId)?.archivedAt ? " · Archived action" : ""}</p><p>{day.unplanned.some(x => x.id === c.id) ? "Not committed for this date" : "In this date’s commitment history"} · Completed {new Date(c.completedAt).toLocaleTimeString("en", { timeZone: c.calendarTimeZone })} ({c.calendarTimeZone})</p>{c.note && <p className="progress-note">{c.note}</p>}</li>)}</ol>}</section>
-        <section aria-label="Commitment history"><h3>Commitment history</h3>{!day.commitments.length ? <p>No historical commitments for this date.</p> : <ol>{day.commitments.map(({ record, completion, completedOnDate }) => <li key={record.id}><h4>{record.titleSnapshot}</h4><p>{project(record.subtaskId)} · {record.disposition === "removed" ? "Removed" : record.disposition === "deferred" ? "Deferred" : "Committed"}</p><p>{completedOnDate ? "Completed on this date after commitment" : completion ? `Completion recorded ${displayDate(completion.localDate)}${completion.localDate === selected ? " before this commitment" : " on another date"}` : "No active completion recorded"}</p><p className="session-time">Committed {new Date(record.committedAt).toLocaleString("en", { timeZone: s.calendarTimeZone })}{record.dispositionAt ? ` · Latest plan change ${new Date(record.dispositionAt).toLocaleString("en", { timeZone: s.calendarTimeZone })}` : ""}</p></li>)}</ol>}</section>
-        <section aria-label="Recorded session time"><h3>Recorded session time</h3><p>Elapsed session time, not proof of attention. Each session’s contribution to this date is counted once.</p>{!day.sessions.length ? <p>No session time recorded on this date.</p> : <ul>{day.sessions.map(({ session, ms }) => <li key={session.id}><h4>{taskTitle(session.subtaskId)}</h4><p>{project(session.subtaskId)} · {formatRecordedTime(ms)} recorded on this date</p></li>)}</ul>}</section>
-        <section aria-label="Latest recorded saves"><h3>Latest recorded saves</h3><p>Only each mountain’s latest save date is retained. Notes below are current context, not a historical copy of that save. Heartbeats, pauses and interruptions are not save events.</p>{!day.saves.length ? <p>No latest saved place is recorded for this date; earlier saves may have been replaced.</p> : <ul>{day.saves.map(({ mountain, session }) => <li key={mountain.id}><h4>{mountain.title}</h4><p>{taskTitle(mountain.savedSubtaskId!)}</p>{session?.returnStep && <p className="progress-note">Current first return step: {session.returnStep}</p>}{session?.note && <p className="progress-note">Current stopping note: {session.note}</p>}<Link href={`/mountains#${mountain.id}`}>Inspect this mountain</Link></li>)}</ul>}</section>
+    </section>;
+  };
+  return <div className={`progress-view${fullYear ? " progress-year-expanded" : ""}`}>
+    <header className="heading"><div><h1 ref={heading} tabIndex={-1}>Progress</h1></div></header>
+    <section className="progress-overview" aria-labelledby="progress-period-title">
+      <div className="progress-controls"><h2 id="progress-period-title">{periodLabel}</h2>
+        <div className="progress-year-picker"><label htmlFor="progress-year">Calendar year</label><select id="progress-year" value={year} onChange={e => choose(Number(e.target.value) === Number(p.today.slice(0,4)) ? p.today : `${e.target.value}-01-01`, false)}>{p.years.map(y => <option key={y} value={y}>{y}</option>)}</select></div>
       </div>
-      <div className="button-row"><Link className="secondary" href="/">Go to Today</Link><Link className="secondary" href="/mountains">Explore Mountains</Link></div>
+      <Measures totals={totals} />
+      <div className="progress-encouragement"><p>{totals.completions ? `${totals.completions} action${totals.completions === 1 ? "" : "s"} completed ${year === Number(p.today.slice(0,4)) ? "this year" : `in ${year}`}. Choose your next step.` : s.completions.some(c => !c.undoneAt) ? "No actions completed in this period. Choose your next step." : "Your first checkpoint starts with one action."}</p><Link className="primary" href="/">Continue your work</Link></div>
     </section>
 
-    <section className="card progress-comparison" aria-labelledby="comparison-title"><h2 id="comparison-title">Two complete weeks of records</h2><p>Last 7 complete local dates versus the preceding 7. Today is excluded; these are counts, not productivity scores.</p>
-      {periods.sufficient ? <div className="progress-detail-columns">{[{ label: "Last 7 complete dates", range: periods.recent }, { label: "Preceding 7 complete dates", range: periods.previous }].map(({ label, range }) => <section key={label}><h3>{label}</h3><p>{displayDate(range.start)} – {displayDate(range.end)}</p><Measures totals={p.totals(range.start, range.end)} /></section>)}</div> : <p>Insufficient history for two complete 7-day periods after first use. Today and the partial first-use date are excluded.</p>}
-      <p className="session-time">Coverage begins at first use. Zero means no activity recorded here, not observed inactivity or lost progress.</p>
+    <section className="progress-activity" aria-labelledby="progress-activity-title">
+      <div className="progress-controls"><h2 id="progress-activity-title">Activity</h2>
+        <label className="progress-month-picker">Month<select aria-label="Month" value={month} onChange={e => choose(`${year}-${String(Number(e.target.value) + 1).padStart(2,"0")}-01`, false)}>{months.map((label, i) => <option key={label} value={i}>{label}</option>)}</select></label>
+        <button className="quiet" onClick={() => choose(p.today, false)}>Today’s record</button>
+      </div>
+      <div className="progress-legend" aria-label="Completed actions legend">{["0", "1", "2–3", "4–5", "6+"].map((label, i) => <span key={label}><i aria-hidden="true" data-band={i} />{label}</span>)}<span>✓ Plan completed that day</span></div>
+      {!fullYear && <div className="progress-current-month">{renderMonth(month)}</div>}
+      <details className="progress-full-year" open={fullYear} onToggle={e => setFullYear(e.currentTarget.open)}><summary>View full year</summary>{fullYear && <div className="progress-calendar" aria-label={`${year} completion calendar`}>{months.map((_, i) => renderMonth(i))}</div>}</details>
     </section>
+
+    <section className="progress-day" id="progress-day-detail" aria-labelledby="progress-day-title">
+      <header><h2 id="progress-day-title" tabIndex={-1} ref={details}>{displayDate(selected)}</h2>{day.state === "future" ? <p>Future date — not a missing day of work.</p> : day.state === "before-first-use" ? <p>Before first use — no activity is inferred.</p> : !day.count && <p>No recorded completions on this date.</p>}</header>
+      <dl className="progress-day-measures"><div><dt>Actions completed</dt><dd>{day.count}</dd></div><div><dt>Recorded time</dt><dd>{overviewTime(day.recordedMs)}</dd></div></dl>
+      {!!day.commitments.length && <p className="progress-plan-status">{day.committedCompleted} of {day.commitments.length} planned actions completed.{day.planComplete ? " ✓ Plan completed that day." : ""}</p>}
+      <details className="progress-day-disclosure" key={selected}><summary>View day details</summary><div className="progress-records">
+        <details><summary>Completed actions · {day.count}</summary><section aria-label="Completed actions on selected date">{!day.count ? <p>No recorded completions on this date.</p> : <ol>{day.completed.map(c => <li key={c.id}><h4>{taskTitle(c.subtaskId)}</h4><p>{project(c.subtaskId)}{p.tasks.get(c.subtaskId)?.archivedAt ? " · Archived action" : ""}</p><p>{day.unplanned.some(x => x.id === c.id) ? "Not committed for this date" : "In this date’s commitment history"} · Completed {new Date(c.completedAt).toLocaleTimeString("en", { timeZone: c.calendarTimeZone })} ({c.calendarTimeZone})</p>{c.note && <p className="progress-note">{c.note}</p>}</li>)}</ol>}</section></details>
+        <details><summary>Plan history · {day.commitments.length}</summary><section aria-label="Commitment history"><p>Only active completions on this date at or after commitment count toward its plan. Removed or deferred unfinished actions remain in its history; completions on another date do not finish this date’s plan.</p>{!day.commitments.length ? <p>No historical commitments for this date. Unaccepted drafts do not create commitment history.</p> : <ol>{day.commitments.map(({ record, completion, completedOnDate }) => <li key={record.id}><h4>{record.titleSnapshot}</h4><p>{project(record.subtaskId)} · {record.disposition === "removed" ? "Removed" : record.disposition === "deferred" ? "Deferred" : "Committed"}</p><p>{completedOnDate ? "Completed on this date after commitment" : completion ? `Completion recorded ${displayDate(completion.localDate)}${completion.localDate === selected ? " before this commitment" : " on another date"}` : "No active completion recorded"}</p><p className="session-time">Committed {new Date(record.committedAt).toLocaleString("en", { timeZone: s.calendarTimeZone })}{record.dispositionAt ? ` · Latest plan change ${new Date(record.dispositionAt).toLocaleString("en", { timeZone: s.calendarTimeZone })}` : ""}</p></li>)}</ol>}</section></details>
+        <details><summary>Recorded time · {overviewTime(day.recordedMs)}</summary><section aria-label="Recorded session time"><p>{formatRecordedTime(day.recordedMs)} ({day.recordedMs / 1000} seconds) recorded on this date. Elapsed session time, not proof of attention; each session’s daily contribution is counted once.</p>{!day.sessions.length ? <p>No session time recorded on this date.</p> : <ul>{day.sessions.map(({ session, ms }) => <li key={session.id}><h4>{taskTitle(session.subtaskId)}</h4><p>{project(session.subtaskId)} · {formatRecordedTime(ms)} ({ms / 1000} seconds) recorded on this date</p></li>)}</ul>}</section></details>
+        <details><summary>Saved places · {day.saves.length}</summary><section aria-label="Latest recorded saves"><p>Only each mountain’s latest save date is retained. Notes below are current context, not a historical copy of that save. Heartbeats, pauses and interruptions are not save events.</p>{!day.saves.length ? <p>No latest saved place is recorded for this date; earlier saves may have been replaced.</p> : <ul>{day.saves.map(({ mountain, session }) => <li key={mountain.id}><h4>{mountain.title}</h4><p>{taskTitle(mountain.savedSubtaskId!)}</p>{session?.returnStep && <p className="progress-note">Current first return step: {session.returnStep}</p>}{session?.note && <p className="progress-note">Current stopping note: {session.note}</p>}<Link href={`/mountains#${mountain.id}`}>Inspect this mountain</Link></li>)}</ul>}</section></details>
+      </div></details>
+    </section>
+
+    <details className="progress-comparison"><summary>Compare recent weeks</summary><p>Last 7 complete local dates versus the preceding 7. Today is excluded; these are counts, not productivity scores.</p>
+      {periods.sufficient ? <div className="progress-detail-columns">{[{ label: "Last 7 days", range: periods.recent }, { label: "Previous 7 days", range: periods.previous }].map(({ label, range }) => { const t = p.totals(range.start, range.end); return <section key={label}><h3>{label}</h3><p>{displayDate(range.start)} – {displayDate(range.end)}</p><Measures totals={t} /><p className="session-time">Exact recorded time: {formatRecordedTime(t.recordedMs)} ({t.recordedMs / 1000} seconds).</p></section>; })}</div> : <p>Insufficient history for two complete 7-day periods after first use. Today and the partial first-use date are excluded.</p>}
+      <p className="session-time">Coverage begins at first use. Zero means no activity recorded here, not observed inactivity or lost progress.</p>
+    </details>
+    <details className="progress-about"><summary>About these numbers</summary>
+      <p>{periodLabel}: {displayDate(`${year}-01-01`)} – {displayDate(end)}{year === Number(p.today.slice(0,4)) ? ". Includes today’s partial record." : "."} Exact recorded time: {formatRecordedTime(totals.recordedMs)} ({totals.recordedMs / 1000} seconds).</p>
+      <p>Calendar timezone: <strong>{s.calendarTimeZone}</strong>. First use: {displayDate(p.firstUse)}.</p>
+      <p>Squares count active completed actions on their recorded dates, including archived work. Undo removes only corrected credit. Time, saves and summit confirmations do not add completions.</p>
+      <p>· No recorded completions · — Before first use · ○ Future date · Outlined square: selected date · Underlined square: today. Colours use fixed bands: 0, 1, 2–3, 4–5, 6+.</p>
+      <p>✓ requires a nonempty commitment history and every action actively completed on that date after commitment. Removing or deferring unfinished actions does not earn it. Quiet days retain your earned mountain scenery.</p>
+    </details>
   </div>;
 }
