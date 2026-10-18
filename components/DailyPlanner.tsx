@@ -184,10 +184,10 @@ export default function DailyPlanner({
                     )
                   }
                 />
-                {t.title} — {t.suggestedMinutes} min{" "}
+                <span>{t.title} — {t.suggestedMinutes} min{" "}
                 <small>
                   ({s.mountains.find((m) => m.id === t.mountainId)?.title})
-                </small>
+                </small></span>
               </label>
             ))}
             {!candidates.length && (
@@ -212,6 +212,7 @@ export default function DailyPlanner({
             {ids.map((id, i) => (
               <li key={id}>
                 {s.subtasks.find((t) => t.id === id)?.title}
+                <small className="project-context">{s.mountains.find(m => m.id === s.subtasks.find(t => t.id === id)?.mountainId)?.title}</small>
                 <div className="button-row">
                   <button
                     className="secondary"
@@ -300,6 +301,7 @@ export default function DailyPlanner({
               >
                 {activeCompletion(s, c.subtaskId) ? "✓ " : ""}
                 {c.titleSnapshot}
+                <small className="project-context">{s.mountains.find(m => m.id === s.subtasks.find(t => t.id === c.subtaskId)?.mountainId)?.title}</small>
               </button>
               <span>
                 {c.disposition === "planned"

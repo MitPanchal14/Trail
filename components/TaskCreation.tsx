@@ -43,6 +43,7 @@ export default function TaskCreation({
     speech = useRef<Recognition | null>(null),
     draftRef = useRef(d);
   const addedTitle = useRef<string | null>(null);
+  const manualHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (!addedTitle.current) return;
     const input = document.getElementById(`title-${addedTitle.current}`);
@@ -312,6 +313,10 @@ export default function TaskCreation({
           gate.current.cancel();
           setPending(false);
           setReview(true);
+          requestAnimationFrame(() => {
+            manualHeading.current?.focus({ preventScroll: true });
+            manualHeading.current?.scrollIntoView({ block: "start" });
+          });
           if (!d.steps.length)
             change({
               steps: [
@@ -341,7 +346,7 @@ export default function TaskCreation({
             }
           }}
         >
-          <h3>Review the entire breakdown</h3>
+          <h3 ref={manualHeading} tabIndex={-1}>Review the entire breakdown</h3>
           <p>
             Suggested minutes are bounded sessions, not promises of finishing.
             Edit or remove anything that does not fit.
@@ -477,7 +482,7 @@ export default function TaskCreation({
               disabled={disabled}
               onChange={(e) => setChecked(e.target.checked)}
             />
-            I reviewed the goal, finish condition and every action
+            <span>I reviewed the goal, finish condition and every action</span>
           </label>
           <button className="primary" disabled={disabled || !d.steps.length}>
             Accept breakdown

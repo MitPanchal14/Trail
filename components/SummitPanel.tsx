@@ -4,9 +4,10 @@ import type { Snapshot } from "@/lib/domain";
 import { activeCompletion } from "@/lib/domain";
 import type { Action } from "@/lib/actions";
 
-export default function SummitPanel({ snapshot: s, mountainId, disabled, dispatch, onAdd }: {
+export default function SummitPanel({ snapshot: s, mountainId, disabled, dispatch, onAdd, onReveal }: {
   snapshot: Snapshot; mountainId?: string; disabled: boolean;
   dispatch: (a: Action) => boolean; onAdd: () => void;
+  onReveal: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const m = s.mountains.find(m => m.id === mountainId);
@@ -37,14 +38,19 @@ export default function SummitPanel({ snapshot: s, mountainId, disabled, dispatc
         }}>Correct mistaken goal completion</button>}
       </div>)}
     </details>}
-    <dialog ref={dialog} aria-labelledby="summit-confirm-title">
-      <h2 id="summit-confirm-title">Have you met this finish condition?</h2>
+    <dialog className="decision-dialog" ref={dialog} aria-labelledby="summit-confirm-title">
+      <div className="decision-content"><h2 id="summit-confirm-title">Have you met this finish condition?</h2>
       <p>{m.title}</p><p>{m.finishCondition}</p>
       <p>Completing planned steps alone does not confirm the goal.</p>
-      <button className="secondary" onClick={() => dialog.current?.close()}>Not yet</button>
+      </div><div className="decision-actions">
+      <button autoFocus className="secondary" onClick={() => dialog.current?.close()}>Not yet</button>
       <button className="primary" disabled={disabled} onClick={() => {
-        if (dispatch({ type: "confirm-summit", mountainId: m.id })) dialog.current?.close();
+        if (dispatch({ type: "confirm-summit", mountainId: m.id })) {
+          dialog.current?.close();
+          requestAnimationFrame(onReveal);
+        }
       }}>Yes, finish condition met</button>
+      </div>
     </dialog>
   </section>;
 }

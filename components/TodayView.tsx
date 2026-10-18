@@ -34,6 +34,7 @@ export default function TodayView() {
     return () => clearInterval(timer);
   }, []);
   const conflict = useRef<HTMLDialogElement>(null);
+  const cancelConflict = useRef<HTMLButtonElement>(null);
   const undoChoice = useRef<HTMLDialogElement>(null);
   const [undoId, setUndoId] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null),
@@ -124,7 +125,7 @@ export default function TodayView() {
       openCreate();
       return;
     }
-    if (meaningfulDraft(s.creationDraft)) { conflict.current?.showModal(); return; }
+    if (meaningfulDraft(s.creationDraft)) { conflict.current?.showModal(); cancelConflict.current?.focus(); return; }
     beginEdit();
   };
   const beginEdit = () => {
@@ -245,7 +246,7 @@ export default function TodayView() {
                        ? "Next up"
                       : "Every path starts here."}
             </h1>
-            <p role={completion ? "status" : undefined} className={completion ? "earned-confirmation" : undefined}>
+            <p role={completion && !summitReached ? "status" : undefined} className={completion && !summitReached ? "earned-confirmation" : undefined}>
               {focused
                 ? "Time records your commitment, not proof of attention."
                 : summitReached ? mountain?.title : completion
@@ -265,7 +266,7 @@ export default function TodayView() {
             </button>
           )}
         </div>
-        <div className={`bento work-bento ${returning ? "has-saved-work" : ""}`}>
+        <div className={`bento work-bento ${returning ? "has-saved-work" : ""} ${summitReached && !focused ? "show-summit-reward" : ""}`}>
           <section className="world" aria-labelledby="world-title">
             <div className="world-heading">
               <div>
@@ -329,7 +330,7 @@ export default function TodayView() {
               {returnStep && <p className="original-action">Action: {task?.title}</p>}
               {task && !completion && !returning && <p className="destination">Destination: checkpoint {task.checkpointSlot + 1}</p>}
               {task && !returnStep && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
-              {mountain && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
+              {mountain && !summitPending && !summitReached && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
               {mountain && !focused && !completion && <p className="session-time">{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>}
             </div>
             {returning && session.note.trim() && (
@@ -430,7 +431,7 @@ export default function TodayView() {
                   Undo completion
                 </button>
                 <p>{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>
-                {next ? <section className="task-form" aria-label="Next accepted action">
+                {next ? <section className="task-form continuation" aria-label="Next accepted action">
                   <h3>{next.title}</h3>
                   {distinctInstruction(next.title, next.nextAction) && <p>{next.nextAction}</p>}
                   {nextSession ? <>
@@ -538,7 +539,7 @@ export default function TodayView() {
                 </button>
               </>
             )}
-            {!focused && <SummitPanel snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} dispatch={dispatch} onAdd={editBreakdown} />}
+            {!focused && <SummitPanel snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} dispatch={dispatch} onAdd={editBreakdown} onReveal={() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: "start", behavior: "instant" }); }} />}
             {!focused && <div className="task-tools">
               {returning && <details className="session-details"><summary>Session details</summary><p>Last saved: {new Date(session.lastHeartbeatAt).toLocaleString()}</p><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p></details>}
               {mountain && <button className="quiet edit-breakdown" disabled={readOnly} onClick={editBreakdown}>Edit breakdown</button>}
@@ -591,22 +592,28 @@ export default function TodayView() {
             <details className="recovery-copy"><summary>About saved work</summary><p>Work is saved regularly while this tab is open. After a crash or slow browser update, your saved place may be slightly older. Time away is never counted as work.</p></details>
           </>
         )}
-        <dialog ref={undoChoice} aria-labelledby="undo-summit-title">
+        <dialog className="decision-dialog" ref={undoChoice} aria-labelledby="undo-summit-title">
+          <div className="decision-content">
           <h2 id="undo-summit-title">Was the summit confirmation also mistaken?</h2>
           <p>This action supports an existing summit confirmation. Undo removes only this checkpoint unless you also correct the summit.</p>
-          <button className="secondary" onClick={() => undoChoice.current?.close()}>Cancel Undo</button>
+          </div><div className="decision-actions">
+          <button autoFocus className="secondary" onClick={() => undoChoice.current?.close()}>Cancel Undo</button>
           <button className="secondary" disabled={readOnly || !!warning} onClick={() => { if (undoId && dispatch({ type: "undo", id: undoId, correctSummit: false })) undoChoice.current?.close(); }}>Undo action, keep summit</button>
           <button className="primary" disabled={readOnly || !!warning} onClick={() => { if (undoId && dispatch({ type: "undo", id: undoId, correctSummit: true })) undoChoice.current?.close(); }}>Undo action and correct summit</button>
+          </div>
         </dialog>
         <dialog
+          className="decision-dialog"
           ref={conflict}
           aria-labelledby="draft-conflict-title"
         >
-          <h2 id="draft-conflict-title">Keep your existing draft?</h2>
+          <div className="decision-content"><h2 id="draft-conflict-title">Keep your existing draft?</h2>
           <p>You have {s.creationDraft?.editingMountainId ? `an edit for ${s.mountains.find(m => m.id === s.creationDraft?.editingMountainId)?.title}` : `a new-project draft: ${s.creationDraft?.goal || s.creationDraft?.description || "Untitled"}`}. This is not the editor for {mountain?.title}.</p>
+          </div><div className="decision-actions">
           <button className="secondary" disabled={readOnly} onClick={() => { conflict.current?.close(); openCreate(); }}>Resume existing draft</button>
-          <button className="secondary" onClick={() => conflict.current?.close()}>Keep draft and cancel edit</button>
+          <button ref={cancelConflict} autoFocus className="secondary" onClick={() => conflict.current?.close()}>Keep draft and cancel edit</button>
           <button className="quiet" disabled={readOnly} onClick={() => { if (window.confirm(`Discard the existing draft and edit ${mountain?.title}?`)) { conflict.current?.close(); beginEdit(); } }}>Discard draft and edit this mountain</button>
+          </div>
         </dialog>
         <dialog
           className="creation-dialog"

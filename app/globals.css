@@ -11,6 +11,30 @@
   --border: #648074;
   --soft: #304c3d;
 }
+/* October 18: scoped content containment; never hide document overflow. */
+.heading > div, .world-heading > div, .plan-row > *, .check-label > span { min-width: 0; }
+.heading :is(h1, p), .world-heading :is(h2, .eyebrow), .decision-content, .project-context,
+.real-action, .plan-list, .check-label { overflow-wrap: anywhere; }
+.world-heading { min-width: 0; }
+.creation-flow .check-label, .daily-editor .check-label { display: grid !important; grid-template-columns: 24px minmax(0, 1fr); align-items: start; gap: 12px; padding-block: 8px; }
+.creation-flow .check-label input, .daily-editor .check-label input { margin: 2px 0 0; width: 20px; height: 20px; }
+.check-label small, .project-context { display: block; color: var(--muted); font-size: 13px; margin-top: 4px; }
+.plan .plan-row > button:first-child { display: block; text-align: left; min-width: 0; white-space: normal; }
+.work-bento .continuation { margin-top: 4px; gap: 12px; }
+.work-bento .continuation :is(h3, p) { margin: 0; }
+.decision-dialog { max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
+.decision-content { display: grid; gap: 16px; min-width: 0; }
+.decision-dialog .decision-content :is(h2, p) { margin: 0; }
+.decision-actions { display: grid; gap: 12px; margin-top: 24px; }
+.decision-actions button { width: 100%; white-space: normal; overflow-wrap: anywhere; min-height: 44px; }
+@media (max-width: 800px) {
+  .shell:not(.is-focusing) .heading { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .shell:not(.is-focusing) .heading > button { justify-self: end; grid-row: 1; padding-block: 8px; }
+  .shell:not(.is-focusing) .heading > div { grid-row: 2; }
+  .work-bento.show-summit-reward .world { grid-row: 1; }
+  .work-bento.show-summit-reward .real-action { grid-row: auto; }
+  .decision-dialog { padding: 20px; }
+}
 .creation-flow .step-editor { background: #304c3d; border-color: #819880; margin: 0; }
 .creation-flow .step-editor legend { padding: 4px 8px; font-weight: 700; color: var(--ink); }
 .creation-flow .step-editor input:not([type="checkbox"]), .creation-flow .step-editor textarea { background: #10221f; color: #edf0db; border: 1px solid #819880; caret-color: var(--action); }

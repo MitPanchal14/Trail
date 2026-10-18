@@ -1,6 +1,6 @@
 # Work Trail — Current Handoff
 
-Updated: October 17, 2026.
+Updated: October 18, 2026.
 
 ## Start here — handoff to the next chat
 
@@ -49,6 +49,18 @@ The immediate blockers are functional/product feedback issues, not authorization
 - Detailed findings/testing: `devpost/code-review-2026-10-17.md`; prior visual audit: `devpost/ui-ux-audit-2026-10-16.md`. Canonical scope/PRD/spec are under `devpost/`. Keep unrelated evidence/generated files and personal records intact.
 
 ## Actual status
+
+### October 18 bounded live-review polish
+
+- Implemented the October 18 review's wrapping, header/continuation spacing, decision grouping, checkbox grouping, project labels and small manual-review entry fix. Only Today, SummitPanel, TaskCreation, DailyPlanner and scoped CSS changed; timer/domain/storage/ownership/provider/terrain implementations are untouched.
+- Long unbroken project names now wrap within shrinking text-owning flex/grid children, including heading/world, notes, planner and decision content. No hidden document overflow or ellipsis substitutes for the full name. Mobile nonfocus feedback spans a full row; New task is a separate secondary row. Confirmed project subtitles no longer inherit amber success decoration.
+- Decision dialogs share scoped content/action grids with 12px button gaps, full-width wrapping controls, bounded native scrolling and safe initial cancellation focus. Escape restores the trigger. Creation-dialog spacing/native behavior is not globally overridden. Starting manual review focuses its heading and brings it into view rather than opening a mobile keyboard; adding an action still focuses its title.
+- Continuation uses its own compact margin resets/gaps. The confirmed nonfocus mobile scene occupies the first bento row beneath the summit feedback; confirmation returns focus/scroll to that feedback only after the existing successful persistence result. It remains a single canvas with the same render/reward logic. Focus-screen ordering is unchanged. Redundant original finish-condition text is omitted when the summit panel already presents it.
+- Review and planner checkboxes use native input + text-wrapper columns, overriding the competing label display rule. Candidate title/minutes/project stay together. Ordered and committed plan rows show actual project ownership, without changing order/selection/commitment semantics. Committed buttons use block text layout to prevent a long project label squeezing the action title into a skinny adjacent column.
+- Initial targeted polish checks: 9 passed (8.4s). The first complete run passed 105 checks but visual inspection caught an inadequate reward-placement assertion: grid-row placement, not CSS order, controlled the scene. Fixed the explicit mobile grid rows, added world-before-task geometry checks and inspected the corrected normal/reduced-motion viewport captures. No timing or reward assertion was removed. Additional short-dialog cases cover confirmation, linked Undo and unrelated-draft decisions, safe focus, Escape restoration and reachability at 390×480.
+- New evidence: `e2e/polish-oct18.spec.ts`, isolated fictional records only; no real browser records/AI/microphone use. Screenshots use ignored, separate `test-results/polish-oct18-*` output roots. Physical mobile/Safari, assistive-technology behavior and full WCAG compliance remain unverified. Production AI lockout remains unchanged; no shipping mode is inferred from a passing local build. Stop for user review, with no push, deploy, new pages or slice acceptance.
+- Fresh final commands: `npm run lint`, `npm run typecheck`, `npm test` (**39 passed**) and `npm run build` pass. `npm run test:e2e -- --output=test-results/polish-oct18-complete`: **105 passed (1.2m)**. New review cases run at 1280×720, 1024×900, 390×844 and 390×480; existing focus regressions retain their original viewport checks. A preceding expanded run failed six new conflict-focus checks: React autoFocus alone did not focus the second cancellation button when the already-mounted native dialog opened. Added explicit focus at showModal, keeping the safe-focus assertion; final full run passed with no weakened ownership/timer/recovery checks.
+- Inspected long-name continuation (tablet/mobile), compact committed rows, mobile short Undo/conflict decisions, and normal-motion summit viewport; reduced-motion variant is also captured and tested. Final screenshots are under `test-results/polish-oct18-complete/polish-oct18-*`: long-title-continuation, two-project-plan, short-confirm-dialog, short-undo-dialog, short-conflict-dialog, summit-reduce and summit-no-preference. The single summit scene is visibly above the management card after confirmation. Modal controls remain scroll-reachable rather than shrinking touch targets. Existing screenshot/evidence binaries, pending branding metadata and the supplied review file remain separate from the local polish checkpoint.
 
 ### Persistent summit workflow — Part B (October 17)
 
