@@ -20,7 +20,7 @@ test("unbroken names wrap, continuation stays compact and plan ownership stays v
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Start next action", exact: true })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width);
-  const boxes = await page.evaluate(() => ({ text: document.querySelector(".heading > div")!.getBoundingClientRect().toJSON(), button: document.querySelector(".heading > button")!.getBoundingClientRect().toJSON() }));
+  const boxes = await page.evaluate(() => ({ text: document.querySelector(".heading h1")!.getBoundingClientRect().toJSON(), button: document.querySelector(".heading > button")!.getBoundingClientRect().toJSON() }));
   expect(boxes.text.right <= boxes.button.x || boxes.text.y >= boxes.button.bottom || boxes.text.bottom <= boxes.button.y).toBe(true);
   await page.screenshot({ path: info.outputPath("long-title-continuation.png"), fullPage: true });
   await page.getByRole("button", { name: "＋ New task", exact: true }).click();

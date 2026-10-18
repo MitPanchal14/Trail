@@ -40,6 +40,7 @@ export default function TodayView() {
   const dialog = useRef<HTMLDialogElement>(null),
     form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const actionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (focus) {
       heading.current?.focus({ preventScroll: true });
@@ -324,7 +325,7 @@ export default function TodayView() {
                             : "Focus commitment"
                     : "Your next action"}
               </span>
-              <h2 id="action-title">
+              <h2 id="action-title" ref={actionHeading} tabIndex={-1}>
                 {returnStep || task?.title || "What would you like to move forward?"}
               </h2>
               {returnStep && <p className="original-action">Action: {task?.title}</p>}
@@ -553,8 +554,13 @@ export default function TodayView() {
               dispatch={dispatch}
               disabled={readOnly}
               onSelect={(id) => {
-                dispatch({ type: "select", id });
-                setMinutes(null);
+                if (dispatch({ type: "select", id })) {
+                  setMinutes(null);
+                  requestAnimationFrame(() => {
+                    actionHeading.current?.focus({ preventScroll: true });
+                    actionHeading.current?.scrollIntoView({ block: "start", behavior: "instant" });
+                  });
+                }
               }}
             />
             {meaningfulDraft(s.creationDraft) && (

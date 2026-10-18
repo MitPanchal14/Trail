@@ -354,7 +354,7 @@ export default function DailyPlanner({
           No work committed today.
         </p>
       )}
-      <details>
+      <details className="other-work">
         <summary>Choose other work</summary>
         <ul className="plan-list">
           {s.subtasks

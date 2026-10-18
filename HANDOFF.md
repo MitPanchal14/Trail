@@ -17,7 +17,7 @@ This section and “Next action” supersede older dated status/stop-point state
 ### Current code and Git snapshot
 
 - Local branch: `MitPanchal14/feat/persistent-work-return-loop`.
-- Latest local commit checked: `ddfddbb` — `fix: Match return notes to the Dusk UI`, following `1d87331` (hierarchy/return-loop refinement) and `0ebfa8f` (creation/planning usability).
+- Latest prior local checkpoint checked: `5b60e6f` — `fix: Polish mobile feedback and decision layouts`, following `bfaf30d` (summit workflow). The task-selection review below is recorded by the local commit containing this handoff. Earlier `ddfddbb`/`1d87331`/`0ebfa8f` are historical checkpoints.
 - GitHub repository was deleted and recreated by the user: `https://github.com/MitPanchal14/Trail.git`. `origin` points there. The newly created remote was observed empty before the user was given the push command. The latest local branch inspection now shows upstream `origin/MitPanchal14/feat/persistent-work-return-loop` at the same commit; remote contents were not freshly queried during this handoff update. Verify remote state if relevant; do not claim a merge into main or deployment.
 - Pre-existing working-tree changes: tracked review/evidence PNGs, generated `next-env.d.ts`, and untracked `devpost/evidence/current-site-review.png`. Preserve these and review them separately rather than blanket staging. This handoff update itself is a documentation change, not a new implementation checkpoint.
 - `.env.local` and `devpost/learner-profile.md` were checked ignored and untracked. Only `.env.example` is tracked among environment files. Never print or commit the real key/private profile.
@@ -49,6 +49,16 @@ The immediate blockers are functional/product feedback issues, not authorization
 - Detailed findings/testing: `devpost/code-review-2026-10-17.md`; prior visual audit: `devpost/ui-ux-audit-2026-10-16.md`. Canonical scope/PRD/spec are under `devpost/`. Keep unrelated evidence/generated files and personal records intact.
 
 ## Actual status
+
+### October 18 live task-selection review
+
+- The user authorized this chat to inspect, fix and live-test remaining UI/UX issues, with an October 19 night deadline. Preserve the approved focus UI; no new pages/services or live agent AI requests were added.
+- Reproduced at 320×740: selecting other work left the selected action heading ~882px above the viewport; picker project labels squeezed action text into narrow adjacent columns; New task consumed its own mobile header row. Recorded intended changes first in `devpost/live-fixes-2026-10-18.md`.
+- Successful explicit selection now focuses/reveals the new action heading and resets its duration input only after dispatch succeeds. Same-task reselection also reveals it. It does not start/resume a timer. Other-work buttons stack title and project context; mobile nonfocus header pairs title/New task while giving feedback a full-width row. Focus shell and timer/domain/storage/ownership/provider/terrain source are unchanged.
+- Added `e2e/task-reveal.spec.ts` covering fresh/saved/same-task selection, retained notes/remaining time, no timer/completion creation, 320px overflow and title/button/status geometry across three projects. Updated the prior header assertion to measure the actual h1 rather than a wrapper now using `display: contents`. Initial new fixture incorrectly expected Start after loading another saved session; corrected it to respect existing saved-work recovery priority. No product recovery behavior was changed.
+- Fresh checks: lint, typecheck, **39 unit tests**, production build and **108 browser tests (1.2m)** pass. Full isolated suite command: `npm run test:e2e -- --output=test-results/live-core-complete`; no live AI or real user records. Browser tests use isolated managed port 3100, disabled/mocked AI and fictional records.
+- Live manual review used the previously created fictional `127.0.0.1:3000` records, leaving user's localhost storage untouched: selection/reselection, Start, both return fields, Save, reload with 00:51 retained, explicit Resume, completion and persisted goal confirmation. Inspected 320/390px, observed selected card focus and summit-before-management placement with no horizontal overflow. Ignored manual screenshots: `test-results/live-manual-review/` (`summit-320.png`, `summit-390.png`, `task-picker-390.png`); full suite retains desktop/tablet/mobile focus/recovery/ownership/Undo regressions. Viewport restored after review. Physical Safari/mobile, assistive technology and full production deployed journey remain unverified.
+- Next: user retry of selected-task navigation and return loop, then shipping-critical scope decision. Production AI lockout and deployment/submission remain outstanding; a passing local build is not deployment acceptance. Preserve unrelated branding/check-server/evidence/generated changes separately; no push/merge/deploy.
 
 ### October 18 bounded live-review polish
 
@@ -138,7 +148,7 @@ Existing design-lab is a standalone illustrative HTML prototype with synthetic r
 
 ## Next action
 
-Editor/journal and persistent summit follow-up are implemented; stop for user review of the two local parts. Preserve the approved focus UI and let the user repeat the journey with their real project, including explicit finish-condition confirmation, Reopen and correction. Do not operate on their records yourself or begin later slices automatically.
+Editor/journal, persistent summit, bounded mobile polish and task-selection reveal are implemented. Start with user review of the corrected task picker and return journey; the October 18 live task-selection section has the newest 108-test evidence. Preserve the approved focus UI and let the user repeat the journey with their real project, including explicit finish-condition confirmation, Reopen and correction. With the October 19 night deadline, prioritize the agreed demo/shipping scope next; do not operate on their records or begin later pages automatically.
 
 Required acceptance journey: create three actions → complete first → explicitly start second from the main card → save both return fields → close/reopen → explicitly Resume second → complete second → verify two earned checkpoints → Undo second → verify first achievement remains. Check reload persistence, no timer/absence/saving reward, reduced-motion final state and desktop/mobile controls. Then let the user repeat with their real project and assess whether returning makes the next step clear within about 20 seconds and completion visibly feels like progress. Stop for this review before later feature slices. No new agent Gemini calls, push, merge or deployment is authorized by this handoff alone.
 
