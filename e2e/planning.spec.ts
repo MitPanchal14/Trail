@@ -1,4 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/plan?availability=1", route => route.fulfill({ json: { available: true, message: "AI configured (mock); provider health unverified." } }));
+});
 const fixture = {
   kind: "breakdown",
   goal: "Fictional tree guide",
@@ -130,6 +133,7 @@ test("missing-AI fallback, draft reload, full manual review and daily commitment
     await page.route("**/api/plan", (route) => route.fulfill({ status: 503,
       json: { error: { code: "AI_UNAVAILABLE", message: "AI is unavailable. Use the manual editor." } },
     }));
+  await page.route("**/api/plan?availability=1", route => route.fulfill({ json: { available: false, message: "AI is unavailable. Your input is retained; use manual editing." } }));
   await page.addInitScript(() => {
     Object.defineProperty(window, "SpeechRecognition", { value: undefined });
     Object.defineProperty(window, "webkitSpeechRecognition", {
@@ -145,9 +149,7 @@ test("missing-AI fallback, draft reload, full manual review and daily commitment
     .getByRole("button", { name: "Use microphone", exact: true })
     .click();
   await expect(page.getByText(/Voice is unavailable/)).toBeVisible();
-  await page
-    .getByRole("button", { name: "Build with AI", exact: true })
-    .click();
+  await expect(page.getByRole("button", { name: "Build with AI", exact: true })).toBeDisabled();
   await expect(
     page.getByText(/AI is unavailable|Public AI is disabled/),
   ).toBeVisible();
@@ -423,7 +425,7 @@ test("mocked daily AI rejects unknown candidates and never commits its valid sug
     .getByRole("button", { name: "Suggest a plan with AI", exact: true })
     .click();
   await expect(
-    page.getByText("Invalid candidate IDs", { exact: true }),
+    page.getByText("AI returned an unusable draft. Your plan is retained; select manually or retry explicitly.", { exact: true }),
   ).toBeVisible();
   expect((await records(page)).dayPlans[0].draftSubtaskIds).toEqual(
     before.dayPlans[0].draftSubtaskIds,

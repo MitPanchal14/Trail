@@ -15,6 +15,15 @@ export class PlanningError extends Error {
     super(message);
   }
 }
+// Configuration readiness only: never probes Gemini or returns credentials.
+export function planningAvailability(env: Record<string, string | undefined> = process.env) {
+  if (env.NODE_ENV === "production") return { available: false, message: "Public AI is disabled until deployment protection is verified. Manual planning is available." };
+  if (env.ENABLE_AI_PLANNING !== "true" || !env.GEMINI_API_KEY || !env.GEMINI_MODEL)
+    return { available: false, message: "AI is unavailable: server configuration is incomplete or disabled. Your input is retained; use manual editing." };
+  if (!/^[a-zA-Z0-9._-]{1,100}$/.test(env.GEMINI_MODEL))
+    return { available: false, message: "AI is unavailable: the server model setting is invalid. Use manual editing." };
+  return { available: true, message: "AI is configured, not health-checked. Gemini quota and access may still prevent generation. Review every draft before accepting." };
+}
 // Project our small Zod schemas onto Gemini's documented JSON Schema subset.
 // String lengths/UUID syntax still have to pass the stricter runtime validator.
 function providerSchema(

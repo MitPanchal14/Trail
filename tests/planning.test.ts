@@ -7,8 +7,8 @@ import {
   combinedDescription,
   type PlanRequest,
 } from "../lib/planning";
-import { generatePlan } from "../lib/gemini.server";
-import { POST } from "../app/api/plan/route";
+import { generatePlan, planningAvailability } from "../lib/gemini.server";
+import { GET, POST } from "../app/api/plan/route";
 import { emptySnapshot, snapshotSchema, activeCompletion } from "../lib/domain";
 import { transition, recoverSnapshot } from "../lib/actions";
 const input = {
@@ -58,6 +58,20 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 describe("bounded Gemini adapter and route", () => {
+  it("reports configuration without provider calls, secrets or production bypass", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    expect(planningAvailability({}).available).toBe(false);
+    expect(planningAvailability(env).available).toBe(true);
+    expect(planningAvailability({ ...env, GEMINI_MODEL: "bad/model" }).available).toBe(false);
+    expect(planningAvailability({ ...env, NODE_ENV: "production", PUBLIC_AI_PROTECTION_ENABLED: "true" }).available).toBe(false);
+    vi.stubEnv("NODE_ENV", "production");
+    const reply = await GET();
+    expect(reply.headers.get("cache-control")).toBe("no-store");
+    expect(await reply.json()).toMatchObject({ available: false });
+    expect(JSON.stringify(planningAvailability(env))).not.toContain(env.GEMINI_API_KEY);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
   it("validates bounded request/response contracts and focused clarification", () => {
     expect(
       planRequestSchema.safeParse({ ...input, description: "x".repeat(6001) })

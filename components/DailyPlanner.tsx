@@ -1,4 +1,5 @@
 "use client";
+import AiAvailability, { useAiAvailability } from "./AiAvailability";
 import { useEffect, useRef, useState } from "react";
 import { activeCompletion, dateKey, type Snapshot } from "@/lib/domain";
 import {
@@ -21,6 +22,7 @@ export default function DailyPlanner({
   const [editing, setEditing] = useState(false),
     [pending, setPending] = useState(false),
     [message, setMessage] = useState("");
+  const ai = useAiAvailability();
   const gate = useRef(new RequestGate());
   useEffect(() => {
     if (disabled) gate.current.cancel();
@@ -59,7 +61,7 @@ export default function DailyPlanner({
     0,
   );
   const suggest = async () => {
-    if (pending) return;
+    if (pending || !ai.available) return;
     const request: PlanRequest = {
       kind: "day",
       availability: `${plan?.availableMinutes ? `Available minutes: ${plan.availableMinutes}\n` : ""}${plan?.availabilityText ?? ""}`,
@@ -85,11 +87,14 @@ export default function DailyPlanner({
         body: JSON.stringify(request),
         signal: attempt.signal,
       });
-      const body = await response.json();
+      const body = await response.json().catch(() => { throw Error("AI returned an unusable response. Your plan is retained; select manually or retry explicitly."); });
       if (!gate.current.current(attempt.id)) return;
       if (!response.ok)
         throw Error(body.error?.message ?? "Suggestion failed; edit manually.");
-      const result = parsePlanResponse(body, request);
+      const result = (() => {
+        try { return parsePlanResponse(body, request); }
+        catch { throw Error("AI returned an unusable draft. Your plan is retained; select manually or retry explicitly."); }
+      })();
       if (result.kind !== "day") throw Error("Unexpected plan");
       dispatch({
         type: "day-draft",
@@ -256,7 +261,7 @@ export default function DailyPlanner({
             <button
               className="secondary"
               aria-describedby="ai-plan-help"
-              disabled={disabled || pending || !candidates.length}
+              disabled={disabled || pending || !candidates.length || !ai.available}
               onClick={suggest}
             >
               {pending ? "Suggesting…" : "Suggest a plan with AI"}
@@ -279,7 +284,8 @@ export default function DailyPlanner({
               {plan?.committedAt ? "Save plan changes" : "Commit today’s plan"}
             </button>
           </div>
-          <p className="session-time" id="ai-plan-help">{candidates.length ? "AI can choose and order unfinished actions; selecting them first is optional." : "Add an unfinished action to use AI planning."}</p>
+           <p className="session-time" id="ai-plan-help">{candidates.length ? "AI can choose and order unfinished actions; selecting them first is optional." : "Add an unfinished action to use AI planning."}</p>
+           <AiAvailability message={ai.message} recheck={ai.recheck} />
           {pending && (
             <button
               className="secondary"

@@ -1,6 +1,9 @@
 import { planRequestSchema } from "@/lib/planning";
-import { boundedText, generatePlan, PlanningError } from "@/lib/gemini.server";
+import { boundedText, generatePlan, PlanningError, planningAvailability } from "@/lib/gemini.server";
 export const runtime = "nodejs";
+export async function GET() {
+  return Response.json(planningAvailability(), { headers: { "Cache-Control": "no-store" } });
+}
 export async function POST(request: Request) {
   const headers = { "Cache-Control": "no-store" };
   try {

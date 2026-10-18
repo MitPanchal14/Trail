@@ -29,7 +29,7 @@ test("saved hierarchy, compact world, planner prerequisites and measured Dusk co
   const commit = page.getByRole("button", { name: "Commit today’s plan", exact: true });
   await expect(commit).toBeDisabled();
   await expect(page.getByText(/Choose work to continue/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Suggest a plan with AI", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Suggest a plan with AI", exact: true })).toBeDisabled();
   await page.screenshot({ path: info.outputPath("planner-empty.png"), fullPage: true });
   await page.getByLabel("Time available today (optional)", { exact: true }).fill("30");
   await page.getByRole("checkbox", { name: /Sketch the leaf —/ }).check();

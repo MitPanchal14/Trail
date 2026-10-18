@@ -1,4 +1,5 @@
 "use client";
+import AiAvailability, { useAiAvailability } from "./AiAvailability";
 import { useEffect, useRef, useState } from "react";
 import {
   combinedDescription,
@@ -34,6 +35,7 @@ export default function TaskCreation({
   onClose: () => void;
 }) {
   const d = snapshot.creationDraft;
+  const ai = useAiAvailability();
   const [review, setReview] = useState(false),
     [pending, setPending] = useState(false),
     [error, setError] = useState(""),
@@ -81,6 +83,7 @@ export default function TaskCreation({
     onClose();
   };
   const request = async () => {
+    if (!ai.available) return;
     if (pending) return;
     if (d.editingMountainId) {
       setError(
@@ -109,13 +112,16 @@ export default function TaskCreation({
         body: JSON.stringify(input),
         signal: attempt.signal,
       });
-      const body = await response.json();
+      const body = await response.json().catch(() => { throw Error("AI returned an unusable response. Your input is retained; edit manually or retry explicitly."); });
       if (!gate.current.current(attempt.id)) return;
       if (!response.ok)
         throw Error(
           body.error?.message ?? "AI is unavailable. Edit manually or retry.",
         );
-      const result = parsePlanResponse(body, input);
+      const result = (() => {
+        try { return parsePlanResponse(body, input); }
+        catch { throw Error("AI returned an unusable draft. Your input is retained; edit manually or retry explicitly."); }
+      })();
       if (result.kind === "day") throw Error("Unexpected draft");
       if (result.kind === "clarification") {
         dispatch({
@@ -270,12 +276,13 @@ export default function TaskCreation({
         <button
           type="button"
           className="primary"
-          disabled={disabled || pending}
+           disabled={disabled || pending || !ai.available}
           onClick={request}
         >
           {pending ? "Preparing draft…" : "Build with AI"}
         </button>
       </div>
+      <AiAvailability message={ai.message} recheck={ai.recheck} />
       <p className="session-time">
         Build with AI sends the description and context to Gemini. Review and accept the draft before it becomes work.
       </p>

@@ -1,0 +1,3 @@
+# Intended AI readiness pass
+
+Inspect provider/schema/request-gate tests first. Add a no-provider-call availability check to the existing planning route and shared client status for task creation/daily planning; retain text and manual controls on unavailable/check failures. Review prompt/contracts and clarify suggested-session versus completion estimates without changing acceptance, storage, focus or terrain. Extend mocked provider/browser failure and cancellation checks. Document a concrete protected-deployment proposal; leave production lockout/origin protections unchanged until verified. No live requests or deployment. Record evidence and exact next step in HANDOFF; review/stage intended files only.
