@@ -11,6 +11,33 @@
   --border: #648074;
   --soft: #304c3d;
 }
+/* Mountains is separate from the approved Today/focus composition. */
+.mountains-view { min-width: 0; }
+.mountains-view .heading, .mountain-detail header { overflow-wrap: anywhere; }
+.mountain-range { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-block: 24px; }
+.mountain-preview { display: flex; flex-direction: column; padding: 0; text-align: left; overflow: hidden; border: 1px solid var(--border); border-radius: 16px; background: var(--card); color: var(--ink); min-width: 0; }
+.mountain-preview:hover, .mountain-preview[aria-pressed="true"] { outline: 2px solid var(--action); outline-offset: 3px; }
+.mountains-view canvas { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+.mountain-caption { display: grid; gap: 8px; padding: 16px; overflow-wrap: anywhere; font-size: 14px; }
+.mountain-caption strong { font-size: 18px; }
+.mountain-caption > span { color: var(--muted); }
+.mountain-detail, .mountains-empty { padding: 24px; margin-block: 24px; overflow-wrap: anywhere; }
+.mountain-detail h2 { font-size: 28px; }
+.mountain-detail-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.mountain-scene { overflow: hidden; border-radius: 12px; }
+.mountain-return { display: grid; gap: 12px; min-width: 0; padding: 16px; background: var(--input); border-radius: 12px; }
+.mountain-return > :is(h3, p) { margin: 0; }
+.mountain-return > button { justify-self: start; }
+.mountain-detail > header { margin-bottom: 24px; }
+.mountain-detail > h3 { margin-block: 24px 16px; }
+.mountain-actions li > p { margin-block: 8px; }
+.mountain-return button { white-space: normal; max-width: 100%; }
+.mountain-actions { padding-left: 24px; }
+.mountain-actions li { padding: 16px; margin-block: 12px; border: 1px solid var(--border); border-radius: 12px; }
+.mountain-actions button { white-space: normal; }
+.mountain-detail summary { min-height: 44px; padding-block: 12px; }
+@media(max-width: 1100px) { .mountain-range { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mountain-detail-grid { grid-template-columns: minmax(0, 1fr); } }
+@media(max-width: 600px) { .mountain-range { grid-template-columns: minmax(0, 1fr); } .mountain-detail { padding: 16px; } }
 /* Undo recovery and planning: no focus-screen or terrain overrides. */
 .undo-recovery { margin-block: 20px; padding: 20px; overflow-wrap: anywhere; }
 .undo-recovery .button-row { display: flex; flex-wrap: wrap; gap: 12px; }

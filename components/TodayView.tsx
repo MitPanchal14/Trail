@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import MountainsView from "./MountainsView";
 import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
@@ -20,6 +23,11 @@ const clock = (ms: number) =>
       "0",
     )}:${(Math.ceil(ms / 1000) % 60).toString().padStart(2, "0")}`;
 export default function TodayView() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const revealToday = useRef(false);
+  const editTarget = useRef<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const { snapshot: s, owned, warning, notice, dispatch, raw } = useWorkTrail();
   const [samples, setSamples] = useState(false),
     [focus, setFocus] = useState(false),
@@ -44,6 +52,13 @@ export default function TodayView() {
   const heading = useRef<HTMLHeadingElement>(null);
   const actionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
+    if (pathname === "/") {
+      const target = revealToday.current ? actionHeading : heading;
+      revealToday.current = false;
+      requestAnimationFrame(() => { target.current?.focus(); target.current?.scrollIntoView({ block: "start", behavior: "instant" }); });
+    }
+  }, [pathname]);
+  useEffect(() => {
     if (focus) {
       heading.current?.focus({ preventScroll: true });
       heading.current?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -64,6 +79,7 @@ export default function TodayView() {
     duration = minutes ?? String(task?.suggestedMinutes ?? 20),
     remaining = session?.remainingMs ?? Number(duration) * 60000;
   const returning = !!session && !completion && !focused;
+  const isMountains = pathname === "/mountains" && !focused;
   const returnStep = session && !completion ? session.returnStep.trim() : "";
   const accepted = s.subtasks.filter(t => t.mountainId === mountain?.id && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
   const next = accepted.find(t => !activeCompletion(s, t.id));
@@ -76,6 +92,7 @@ export default function TodayView() {
     if (dispatch({ type: "select", id })) {
       setMinutes(null);
       setReopened(null);
+      if (pathname === "/mountains") { revealToday.current = true; router.push("/"); }
       requestAnimationFrame(() => {
         actionHeading.current?.focus({ preventScroll: true });
         actionHeading.current?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -147,16 +164,21 @@ export default function TodayView() {
     setMinutes(null);
     dialog.current?.close();
   };
-  const editBreakdown = () => {
-    if (!mountain || readOnly || warning) return;
-    if (s.creationDraft?.editingMountainId === mountain.id) {
+  const editBreakdownFor = (id: string | undefined) => {
+    const target = s.mountains.find(m => m.id === id);
+    if (!target || readOnly || warning) return;
+    editTarget.current = target.id;
+    setEditId(target.id);
+    if (s.creationDraft?.editingMountainId === target.id) {
       openCreate();
       return;
     }
     if (meaningfulDraft(s.creationDraft)) { conflict.current?.showModal(); cancelConflict.current?.focus(); return; }
     beginEdit();
   };
+  const editBreakdown = () => editBreakdownFor(mountain?.id);
   const beginEdit = () => {
+    const mountain = s.mountains.find(m => m.id === editTarget.current);
     if (!mountain || readOnly || warning) return;
     const draft = newDraft();
     if (!dispatch({
@@ -234,7 +256,7 @@ export default function TodayView() {
   return (
     <div className={`shell ${focused ? "is-focusing" : ""}`}>
       <a className="skip" href="#main">
-        Skip to Today
+        Skip to {isMountains ? "Mountains" : "Today"}
       </a>
       <aside className="sidebar">
         <a className="brand" href="#main">
@@ -244,15 +266,16 @@ export default function TodayView() {
           Trail.
         </a>
         <nav aria-label="Main">
-          <a className="nav-active" href="#main" aria-current="page">
+          <Link className={!isMountains ? "nav-active" : ""} href="/" aria-current={!isMountains ? "page" : undefined}>
             ◉ Today
-          </a>
+          </Link>
+          <Link className={isMountains ? "nav-active" : ""} href="/mountains" aria-current={isMountains ? "page" : undefined}>△ Mountains</Link>
         </nav>
       </aside>
       <main id="main">
         {storageNotice}
         <header className="topline">
-          <span>{focused ? "Focus" : "Today"}</span>
+          <span>{focused ? "Focus" : isMountains ? "Mountains" : "Today"}</span>
           <span>
             {warning
               ? "Changes not saved"
@@ -261,6 +284,11 @@ export default function TodayView() {
                 : ""}
           </span>
         </header>
+        {pathname === "/mountains" && focused && <p className="notice">Your focus session is still accessible here. Save your place before browsing Mountains.</p>}
+        {isMountains ? <>
+          {reopened && <section ref={undoRecovery} tabIndex={-1} className="undo-recovery card" aria-label="Undo recovery"><p role="status">{s.subtasks.find(t => t.id === reopened)?.title} reopened. Current work is unchanged.</p><button className="primary" disabled={readOnly || !!warning} onClick={() => returnTo(reopened)}>Return to {s.subtasks.find(t => t.id === reopened)?.title}</button><button className="secondary" onClick={() => setReopened(null)}>Stay with current work</button></section>}
+          <MountainsView snapshot={s} disabled={readOnly || !!warning} dispatch={dispatch} onCreate={openCreate} onEdit={editBreakdownFor} onContinue={returnTo} onUndo={undo} />
+        </> : <>
         <div className="heading">
           <div>
             <h1 ref={heading} tabIndex={-1}>
@@ -629,6 +657,7 @@ export default function TodayView() {
             <details className="recovery-copy"><summary>About saved work</summary><p>Work is saved regularly while this tab is open. After a crash or slow browser update, your saved place may be slightly older. Time away is never counted as work.</p></details>
           </>
         )}
+        </>}
         <dialog className="decision-dialog" ref={undoChoice} aria-labelledby="undo-summit-title">
           <div className="decision-content">
           <h2 id="undo-summit-title">Was the summit confirmation also mistaken?</h2>
@@ -645,11 +674,11 @@ export default function TodayView() {
           aria-labelledby="draft-conflict-title"
         >
           <div className="decision-content"><h2 id="draft-conflict-title">Keep your existing draft?</h2>
-          <p>You have {s.creationDraft?.editingMountainId ? `an edit for ${s.mountains.find(m => m.id === s.creationDraft?.editingMountainId)?.title}` : `a new-project draft: ${s.creationDraft?.goal || s.creationDraft?.description || "Untitled"}`}. This is not the editor for {mountain?.title}.</p>
+          <p>You have {s.creationDraft?.editingMountainId ? `an edit for ${s.mountains.find(m => m.id === s.creationDraft?.editingMountainId)?.title}` : `a new-project draft: ${s.creationDraft?.goal || s.creationDraft?.description || "Untitled"}`}. This is not the editor for {s.mountains.find(m => m.id === editId)?.title}.</p>
           </div><div className="decision-actions">
           <button className="secondary" disabled={readOnly} onClick={() => { conflict.current?.close(); openCreate(); }}>Resume existing draft</button>
           <button ref={cancelConflict} autoFocus className="secondary" onClick={() => conflict.current?.close()}>Keep draft and cancel edit</button>
-          <button className="quiet" disabled={readOnly} onClick={() => { if (window.confirm(`Discard the existing draft and edit ${mountain?.title}?`)) { conflict.current?.close(); beginEdit(); } }}>Discard draft and edit this mountain</button>
+          <button className="quiet" disabled={readOnly} onClick={() => { if (window.confirm(`Discard the existing draft and edit ${s.mountains.find(m => m.id === editId)?.title}?`)) { conflict.current?.close(); beginEdit(); } }}>Discard draft and edit this mountain</button>
           </div>
         </dialog>
         <dialog

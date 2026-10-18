@@ -1,0 +1,5 @@
+# Intended Mountains edits
+
+- Add an App Router route group with a persistent shared client shell for Today and `/mountains`; leave unrelated root metadata/branding edits untouched. Exactly one existing useWorkTrail controller stays mounted across client navigation. Active focus remains accessible even on back navigation; browsing cannot interrupt or switch it.
+- Add MountainsView and pure mountain-summary selectors: seeded static previews (paginated to bound canvas cost), independent browsed detail, scoped saved context, accepted/archived actions and actual progress. Continue selects durably then routes Today, never starts work. Reuse editor/draft-conflict, journal/Undo and summit controls, not duplicated domain transitions.
+- Scoped Mountains CSS only; preserve Today/focus and terrain. Add isolated browser journeys for route/reload/browse/continue, states, shared controller, drafts/corrections, failure/ownership and responsive evidence. Run full core regressions/checks, update HANDOFF and commit intended files; no Progress, provider calls, deploy or push.
