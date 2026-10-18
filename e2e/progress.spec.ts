@@ -39,9 +39,12 @@ async function seed(page: Page, s = fixture()) {
   await page.addInitScript(raw => { if (!localStorage.getItem("work-trail:snapshot:v1")) localStorage.setItem("work-trail:snapshot:v1", raw); }, JSON.stringify(s));
 }
 async function fullYear(page: Page) {
-  const disclosure = page.locator(".progress-full-year");
-  if (!(await disclosure.evaluate(el => el.hasAttribute("open"))))
-    await disclosure.locator(":scope > summary").click();
+  if (await page.getByRole("button", { name: "Year overview", exact: true }).count())
+    await page.getByRole("button", { name: "Year overview", exact: true }).click();
+}
+async function monthView(page: Page) {
+  if (await page.getByRole("button", { name: "Larger month view", exact: true }).count())
+    await page.getByRole("button", { name: "Larger month view", exact: true }).click();
 }
 async function dayDetails(page: Page, name: string) {
   const outer = page.locator(".progress-day-disclosure");
@@ -56,7 +59,7 @@ test("empty Progress shows a real neutral year and accessible dates without writ
   await page.goto("/progress");
   await expect(page.getByRole("heading", { name: "Progress", exact: true })).toBeFocused();
   await expect(page.locator('.trail-navigation [aria-current="page"]')).toHaveText("▦ Progress");
-  await expect(page.locator(".progress-month:visible")).toHaveCount(1);
+  await expect(page.locator(".progress-heatmap")).toBeVisible();
   await expect(page.getByText("Your first checkpoint starts with one action.", { exact: true })).toBeVisible();
   await fullYear(page);
   await expect(page.locator("[data-date]")).toHaveCount(365);
@@ -64,6 +67,7 @@ test("empty Progress shows a real neutral year and accessible dates without writ
   await page.locator('[data-date="2026-10-19"]').click();
   await expect(page.locator("#progress-day-title")).toBeFocused();
   await expect(page.locator(".progress-day")).toContainText("Future date — not a missing day of work");
+  await monthView(page);
   await page.getByRole("combobox", { name: "Month", exact: true }).selectOption("0");
   await page.locator('[data-date="2026-01-01"]').focus();
   await page.locator('[data-date="2026-01-01"]').press("Enter");
@@ -98,6 +102,7 @@ test("mixed history has exact dates, time, title snapshots, saved-context limits
   await page.locator(".progress-comparison > summary").click();
   await expect(page.locator(".progress-comparison")).toContainText("October 11, 2026 – October 17, 2026");
   await expect(page.locator(".progress-comparison")).toContainText("October 4, 2026 – October 10, 2026");
+  await monthView(page);
   await page.locator('[aria-label="October 2026"]').screenshot({ path: info.outputPath("october-grid.png") });
   await page.locator(".progress-day").screenshot({ path: info.outputPath("mixed-day.png") });
   if (info.project.name === "desktop") await page.screenshot({ path: info.outputPath("year-and-records.png"), fullPage: true });
@@ -119,8 +124,7 @@ test("mixed history has exact dates, time, title snapshots, saved-context limits
   await fullYear(page);
   await expect(page.locator("[data-date]")).toHaveCount(366);
   await page.locator('[data-date="2024-02-29"]').click();
-  await expect(page.getByRole("combobox", { name: "Month", exact: true })).toHaveValue("1");
-  await expect(page.locator(".progress-month:visible")).toHaveCount(1);
+  await expect(page.locator(".progress-heatmap")).toBeVisible();
   await dayDetails(page, "Completed actions");
   await expect(page.locator(".progress-day")).toContainText("Archived action");
   await expect(page.locator('[data-date="2024-02-29"]')).toHaveAccessibleName(/1 completed actions; all commitments completed that day/);
@@ -139,6 +143,7 @@ test("Undo in existing Mountains updates the historical grid without erasing tim
   await page.locator(".mountain-detail").getByRole("button", { name: "Undo completion", exact: true }).click();
   await page.getByRole("link", { name: "▦ Progress", exact: true }).click();
   await page.getByLabel("Calendar year", { exact: true }).selectOption("2024");
+  await monthView(page);
   await page.getByRole("combobox", { name: "Month", exact: true }).selectOption("1");
   await page.locator('[data-date="2024-02-29"]').click();
   await expect(page.locator('[data-date="2024-02-29"]')).toHaveAccessibleName(/0 completed actions; not all commitments completed that day/);
@@ -211,14 +216,14 @@ test("metrics lead the first screen; year, full-year date and hash keep period/m
   await expect(page.locator(".progress-overview dt")).toHaveText(["Actions completed", "Days with completions", "Recorded time"]);
   await expect(page.locator(".progress-overview dd")).toHaveText(["3", "2", "2m"]);
   await expect(page.locator(".progress-day dt")).toHaveText(["Actions completed", "Recorded time"]);
-  await expect(page.locator(".progress-month:visible")).toHaveCount(1);
-  await expect(page.locator("[data-date]")).toHaveCount(31);
+  await expect(page.locator(".progress-heatmap")).toBeVisible();
+  await expect(page.locator("[data-date]")).toHaveCount(365);
   const metrics = await page.locator(".progress-overview .progress-measures").boundingBox();
-  const calendar = await page.locator(".progress-current-month").boundingBox();
+  const calendar = await page.locator(".progress-heatmap-scroll").boundingBox();
   expect(metrics!.y + metrics!.height).toBeLessThan(calendar!.y);
   expect(metrics!.y + metrics!.height).toBeLessThan(page.viewportSize()!.height);
   await expect(page.getByRole("link", { name: "Continue your work", exact: true })).toHaveAttribute("href", "/");
-  for (const css of [".progress-full-year", ".progress-day-disclosure", ".progress-comparison", ".progress-about"])
+  for (const css of [".progress-day-disclosure", ".progress-comparison", ".progress-about"])
     await expect(page.locator(css)).not.toHaveAttribute("open");
   await page.getByLabel("Calendar year", { exact: true }).selectOption("2024");
   await expect(page.locator("#progress-period-title")).toHaveText("2024");
@@ -231,16 +236,14 @@ test("metrics lead the first screen; year, full-year date and hash keep period/m
   await fullYear(page);
   await expect(page.locator("[data-date]")).toHaveCount(365);
   await page.locator('[data-date="2026-05-02"]').click();
-  await expect(page.locator(".progress-full-year")).not.toHaveAttribute("open");
-  await expect(page.getByRole("combobox", { name: "Month", exact: true })).toHaveValue("4");
-  await expect(page.locator(".progress-current-month h3")).toHaveText("May 2026");
+  await expect(page.locator(".progress-heatmap")).toBeVisible();
   await expect(page.locator("#progress-day-title")).toBeFocused();
   await page.reload();
-  await expect(page.locator(".progress-current-month h3")).toHaveText("May 2026");
+  await expect(page.locator("#progress-day-title")).toHaveText("May 2, 2026");
   await expect(page.locator('[data-date="2026-05-02"]')).toHaveAttribute("aria-pressed", "true");
   await page.goto("/progress#2024-02-29");
-  await expect(page.locator(".progress-current-month h3")).toHaveText("February 2024");
-  await expect(page.locator("[data-date]")).toHaveCount(29);
+  await expect(page.locator("#progress-day-title")).toHaveText("February 29, 2024");
+  await expect(page.locator("[data-date]")).toHaveCount(366);
   const beforeContinue = await records(page);
   await page.getByRole("link", { name: "Continue your work", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
@@ -283,7 +286,7 @@ for (const kind of ["empty", "ordinary", "long-name"] as const) test(`compact Pr
   await page.goto(kind === "empty" ? "/progress" : "/progress#2026-10-15");
   await expect(page.getByRole("link", { name: "Continue your work", exact: true })).toBeVisible();
   await expect(page.locator(".ownership")).toHaveCount(0);
-  await expect(page.locator(".progress-month:visible")).toHaveCount(1);
+  await expect(page.locator(".progress-heatmap")).toBeVisible();
   await page.screenshot({ path: info.outputPath("compact-default.png"), fullPage: true });
   if (kind !== "empty") {
     await dayDetails(page, "Completed actions");
@@ -294,12 +297,33 @@ for (const kind of ["empty", "ordinary", "long-name"] as const) test(`compact Pr
     if (kind !== "empty") await page.locator(".progress-day-disclosure > summary").click();
     await page.screenshot({ path: info.outputPath("compact-default-320.png"), fullPage: true });
     const metrics = await page.locator(".progress-overview .progress-measures").boundingBox();
-    const month = await page.locator(".progress-current-month").boundingBox();
+    const month = await page.locator(".progress-heatmap-scroll").boundingBox();
     expect(metrics!.y + metrics!.height).toBeLessThan(month!.y);
     expect(metrics!.y + metrics!.height).toBeLessThan(844);
+    await monthView(page);
     const cell = await page.locator("[data-date]").first().boundingBox();
     expect(cell!.width).toBeGreaterThanOrEqual(24);
     expect(cell!.height).toBeGreaterThanOrEqual(40);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
+ test("heatmap is compact, keyboard navigable and metrics have no card surfaces", async ({ page }, info) => {
+  await seed(page);
+  await page.goto("/progress#2026-10-15");
+  const before = await records(page);
+  await expect(page.locator(".heatmap-dates [data-date]")).toHaveCount(365);
+  const heatmap = await page.locator(".progress-heatmap").boundingBox();
+  expect(heatmap!.height).toBeLessThan(180);
+  const surfaces = await page.locator(".progress-overview .progress-measures > div").evaluateAll(els => els.map(el => ({ background: getComputedStyle(el).backgroundColor, border: getComputedStyle(el).borderTopWidth })));
+  expect(surfaces.every(s => s.background === "rgba(0, 0, 0, 0)" && s.border === "0px")).toBe(true);
+  const cell = page.locator('[data-date="2026-10-15"]');
+  await cell.focus();
+  await cell.press("ArrowRight");
+  await expect(page.locator('[data-date="2026-10-22"]')).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#progress-day-title")).toHaveText("October 22, 2026");
+  await expect(page.locator("#progress-day-title")).toBeFocused();
+  expect(await records(page)).toEqual(before);
+  await page.screenshot({ path: info.outputPath("heatmap-overview.png"), fullPage: true });
 });

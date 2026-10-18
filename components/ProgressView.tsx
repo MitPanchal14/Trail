@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { Snapshot } from "@/lib/domain";
 import { comparisonPeriods, completionBand, displayDate, formatRecordedTime, progressProjection, yearDates } from "@/lib/progress";
 import { overviewTime } from "@/lib/progress-display";
@@ -19,7 +19,9 @@ function Measures({ totals }: { totals: Totals }) {
 export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot; now: number }) {
   const p = useMemo(() => progressProjection(s, now), [s, now]);
   const [selected, setSelected] = useState(p.today);
-  const [fullYear, setFullYear] = useState(false);
+  const [fullYear, setFullYear] = useState(true);
+  const [focusedDate, setFocusedDate] = useState<string | null>(null);
+  const heatmap = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const details = useRef<HTMLHeadingElement>(null);
   const allowedYears = p.years.join(",");
@@ -29,7 +31,6 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
       const year = Number(date.slice(0,4));
       if (allowedYears.split(",").includes(String(year)) && yearDates(year).includes(date)) {
         setSelected(date);
-        setFullYear(false);
       }
     };
     restore();
@@ -40,6 +41,13 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
   const year = Number(selected.slice(0,4));
   const dates = yearDates(year);
   const day = p.day(selected);
+  const offset = (new Date(`${dates[0]}T00:00:00Z`).getUTCDay() + 6) % 7;
+  const weeks = Math.ceil((offset + dates.length) / 7);
+  useEffect(() => {
+    const scroll = heatmap.current;
+    const cell = scroll?.querySelector<HTMLElement>(`[data-date="${selected}"]`);
+    if (scroll && cell) scroll.scrollLeft += cell.getBoundingClientRect().left - scroll.getBoundingClientRect().left - scroll.clientWidth / 2;
+  }, [selected, fullYear]);
   const end = `${year}-12-31` < p.today ? `${year}-12-31` : p.today;
   const periods = comparisonPeriods(s, now);
   const month = Number(selected.slice(5,7)) - 1;
@@ -47,7 +55,7 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
   const periodLabel = year === Number(p.today.slice(0,4)) ? `${year} so far` : String(year);
   const choose = (date: string, reveal = true) => {
     setSelected(date);
-    setFullYear(false);
+    setFocusedDate(date);
     window.history.replaceState(window.history.state, "", `/progress#${date}`);
     if (reveal) requestAnimationFrame(() => {
       details.current?.focus({ preventScroll: true });
@@ -75,24 +83,46 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
       </div>
     </section>;
   };
-  return <div className={`progress-view${fullYear ? " progress-year-expanded" : ""}`}>
+  return <div className="progress-view progress-year-expanded">
     <header className="heading"><div><h1 ref={heading} tabIndex={-1}>Progress</h1></div></header>
     <section className="progress-overview" aria-labelledby="progress-period-title">
       <div className="progress-controls"><h2 id="progress-period-title">{periodLabel}</h2>
         <div className="progress-year-picker"><label htmlFor="progress-year">Calendar year</label><select id="progress-year" value={year} onChange={e => choose(Number(e.target.value) === Number(p.today.slice(0,4)) ? p.today : `${e.target.value}-01-01`, false)}>{p.years.map(y => <option key={y} value={y}>{y}</option>)}</select></div>
       </div>
       <Measures totals={totals} />
-      <div className="progress-encouragement"><p>{totals.completions ? `${totals.completions} action${totals.completions === 1 ? "" : "s"} completed ${year === Number(p.today.slice(0,4)) ? "this year" : `in ${year}`}. Choose your next step.` : s.completions.some(c => !c.undoneAt) ? "No actions completed in this period. Choose your next step." : "Your first checkpoint starts with one action."}</p><Link className="primary" href="/">Continue your work</Link></div>
+      <div className="progress-encouragement"><p>{totals.completions ? `${totals.completions} action${totals.completions === 1 ? "" : "s"} completed ${year === Number(p.today.slice(0,4)) ? "this year" : `in ${year}`}. Choose your next step.` : s.completions.some(c => !c.undoneAt) ? "No actions completed in this period. Choose your next step." : "Your first checkpoint starts with one action."}</p><Link className="quiet progress-continue" href="/">Continue your work <span aria-hidden="true">↗</span></Link></div>
     </section>
 
     <section className="progress-activity" aria-labelledby="progress-activity-title">
-      <div className="progress-controls"><h2 id="progress-activity-title">Activity</h2>
-        <label className="progress-month-picker">Month<select aria-label="Month" value={month} onChange={e => choose(`${year}-${String(Number(e.target.value) + 1).padStart(2,"0")}-01`, false)}>{months.map((label, i) => <option key={label} value={i}>{label}</option>)}</select></label>
+      <div className="progress-controls"><h2 id="progress-activity-title">Your trail through the year</h2>
+        {!fullYear && <label className="progress-month-picker">Month<select aria-label="Month" value={month} onChange={e => choose(`${year}-${String(Number(e.target.value) + 1).padStart(2,"0")}-01`, false)}>{months.map((label, i) => <option key={label} value={i}>{label}</option>)}</select></label>}
+        <button className="quiet progress-view-toggle" aria-pressed={!fullYear} onClick={() => setFullYear(value => !value)}>{fullYear ? "Larger month view" : "Year overview"}</button>
         <button className="quiet" onClick={() => choose(p.today, false)}>Today’s record</button>
       </div>
-      <div className="progress-legend" aria-label="Completed actions legend">{["0", "1", "2–3", "4–5", "6+"].map((label, i) => <span key={label}><i aria-hidden="true" data-band={i} />{label}</span>)}<span>✓ Plan completed that day</span></div>
-      {!fullYear && <div className="progress-current-month">{renderMonth(month)}</div>}
-      <details className="progress-full-year" open={fullYear} onToggle={e => setFullYear(e.currentTarget.open)}><summary>View full year</summary>{fullYear && <div className="progress-calendar" aria-label={`${year} completion calendar`}>{months.map((_, i) => renderMonth(i))}</div>}</details>
+      {fullYear ? (<div className="progress-heatmap-scroll" ref={heatmap} role="region" aria-label={`${year} completion calendar. Use arrow keys to explore dates, Enter to select. Scroll horizontally for the full year.`}>
+    <div className="progress-heatmap" style={{ "--weeks": weeks } as CSSProperties}>
+      <div className="heatmap-months" aria-hidden="true">{months.map((label, index) => {
+        const start = dates.findIndex(date => Number(date.slice(5, 7)) === index + 1);
+        return <span key={label} style={{ gridColumn: Math.floor((start + offset) / 7) + 1 }}>{label.slice(0, 3)}</span>;
+      })}</div>
+      <div className="heatmap-weekdays" aria-hidden="true"><span>Mon</span><span>Wed</span><span>Fri</span></div>
+      <div className="heatmap-dates">
+        {Array.from({ length: offset }, (_, i) => <span key={`padding-${i}`} aria-hidden="true" />)}
+        {dates.map((date, index) => {
+          const d = p.day(date);
+          const label = `${displayDate(date)}: ${d.count} completed actions; ${d.planComplete ? "all commitments completed that day" : d.commitments.length ? "not all commitments completed that day" : "no committed plan"}; ${d.state === "future" ? "future date" : d.state === "before-first-use" ? "before first use" : "recorded period"}`;
+          return <button key={date} type="button" data-date={date} data-band={completionBand(d.count)} data-date-state={d.state} data-plan-complete={d.planComplete} aria-label={label} title={label} aria-pressed={date === selected} aria-current={date === p.today ? "date" : undefined} aria-controls="progress-day-detail" tabIndex={date === (focusedDate && dates.includes(focusedDate) ? focusedDate : selected) ? 0 : -1} onFocus={() => setFocusedDate(date)} onClick={() => choose(date)} onKeyDown={event => {
+            const move = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 }[event.key];
+            if (move === undefined && event.key !== "Home" && event.key !== "End") return;
+            event.preventDefault();
+            const target = event.key === "Home" ? 0 : event.key === "End" ? dates.length - 1 : Math.max(0, Math.min(dates.length - 1, index + move!));
+            heatmap.current?.querySelector<HTMLElement>(`[data-date="${dates[target]}"]`)?.focus();
+          }} />;
+        })}
+      </div>
+    </div>
+  </div>) : <div className="progress-current-month">{renderMonth(month)}</div>}
+      <div className="progress-activity-footer"><span className="session-time">{fullYear ? "Each square is a day. Select one to look closer." : "Select a date to see its record."}</span><div className="progress-legend" aria-label="Completed actions legend"><span>Less</span>{["0", "1", "2–3", "4–5", "6+"].map((label, i) => <span key={label} title={`${label} completed actions`}><i aria-hidden="true" data-band={i} /><span className="sr-only">{label} completed actions</span></span>)}<span>More</span></div></div>
     </section>
 
     <section className="progress-day" id="progress-day-detail" aria-labelledby="progress-day-title">
@@ -115,7 +145,7 @@ export default function ProgressView({ snapshot: s, now }: { snapshot: Snapshot;
       <p>{periodLabel}: {displayDate(`${year}-01-01`)} – {displayDate(end)}{year === Number(p.today.slice(0,4)) ? ". Includes today’s partial record." : "."} Exact recorded time: {formatRecordedTime(totals.recordedMs)} ({totals.recordedMs / 1000} seconds).</p>
       <p>Calendar timezone: <strong>{s.calendarTimeZone}</strong>. First use: {displayDate(p.firstUse)}.</p>
       <p>Squares count active completed actions on their recorded dates, including archived work. Undo removes only corrected credit. Time, saves and summit confirmations do not add completions.</p>
-      <p>· No recorded completions · — Before first use · ○ Future date · Outlined square: selected date · Underlined square: today. Colours use fixed bands: 0, 1, 2–3, 4–5, 6+.</p>
+      <p>Empty squares: no recorded completions. Dashed squares: before first use. Dotted squares: future dates. Outlined square: selected date. Underlined square: today. Small dot: plan completed that day. Colours use fixed bands: 0, 1, 2–3, 4–5, 6+.</p>
       <p>✓ requires a nonempty commitment history and every action actively completed on that date after commitment. Removing or deferring unfinished actions does not earn it. Quiet days retain your earned mountain scenery.</p>
     </details>
   </div>;

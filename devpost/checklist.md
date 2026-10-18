@@ -72,6 +72,8 @@ Slice 1 checkpoint: `92da564`. Slice 2 implementation checkpoint: `71e624b`; mec
 
 ## Final Review
 
+- [ ] User accepts October 19 compact Progress revision: GitHub-style year heatmap and unboxed metrics. Implementation and automated verification complete; visual acceptance pending.
+
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship.
 
 ## Code Tour and App Map
@@ -87,6 +89,8 @@ Reflection: offer during final wrap-up; personal answer stays in ignored profile
 Activity mode: running app/editor preferred, disclose static fallback if needed.
 
 ## Revisions
+
+- October 19: user requested simpler GitHub-style Progress. Replaced default month view with compact year heatmap, retained large month option and collapsed details, removed metric-card surfaces. 54 unit tests, 36 Progress browser checks, lint/typecheck/build pass; desktop/mobile screenshots inspected. No storage or focus changes. See HANDOFF.md.
 
 - Focused slice 3 usability refinement: shared meaningful-draft close/load rule and state-aware Close labels; normalized duplicate instruction suppression in Today/focus; plain planner copy, optional context disclosure, compact time and connected responsive selection/plan/commit layout. No storage clear, terrain redesign or Gemini contract change. Fresh lint/typecheck/build pass; 31 unit tests and 57 self-started browser tests pass; 6 targeted browser checks cover retention, keyboard and enlarged text. Ignored screenshots inspected at desktop/tablet/390px mobile. No live requests. User review/acceptance pending; stop before slice 4.
 

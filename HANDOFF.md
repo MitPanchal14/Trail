@@ -1,10 +1,16 @@
 # Work Trail — Current Handoff
 
-Updated: October 18, 2026.
+Updated: October 19, 2026.
 
 ## Start here — handoff to the next chat
 
 This section and “Next action” supersede older dated status/stop-point statements below. Historical verification is retained for evidence; do not interpret earlier “not started” or “live unverified” statements as current status.
+
+### October 19 — compact Progress revision
+
+User explicitly asked Codex to change Progress to a simpler GitHub-style view. Implemented seven-row year heatmap by default, three unboxed metrics, quiet continuation link and collapsed optional records. Larger month view retains easier touch targets. Calendar remains based on actual completions, with selected/today/future/pre-use distinctions and plan markers; arrow keys explore dates and Enter selects. No domain, storage, timer, Today/focus or Mountains changes.
+
+Fresh verification: lint, TypeScript, production build and 54 unit tests pass; 36 Progress browser checks pass across desktop/tablet/mobile, including Undo, history, read-only state, year/date navigation, keyboard navigation, no card surfaces and 320px overflow. Inspected fictional desktop/mobile screenshots, corrected wrapping month labels and narrow toolbar spacing. Evidence: ignored `test-results/progress-heatmap-final/`. Local preview restarted on port 3000. Unrelated branding/evidence/check-server changes left untouched. User visual acceptance remains pending.
 
 ### Working arrangement and product direction
 
@@ -236,7 +242,7 @@ Existing design-lab is a standalone illustrative HTML prototype with synthetic r
 
 ## Next action
 
-Stop for user review of the simplified **Progress** at `/progress`: scan the selected-year numbers, follow Continue your work (navigation only), change month/year or choose a full-year date, then open just the day record you want. Verify that the first screen is quick to scan on desktop/390px/320px and the detailed history remains findable. Passing tests are not visual acceptance. After this review, the next separate phase is validated backup/import recovery, then deployment readiness; recording/submission remain later. Preserve existing calculations/history, Mountains and focus. Production AI remains blocked. No live agent Gemini requests, deployment, push or personal-record operations are authorized by this handoff.
+Review the new GitHub-style **Progress** at `/progress`: year heatmap is the default, numbers are unboxed, a selected date opens its summary, and deeper records stay optional. Try the scrollable year and Larger month view on mobile. Automated verification is complete; user visual acceptance is pending. Then continue the separately scoped backup/import recovery phase before deployment/demo rehearsal. Preserve the approved Today/focus UI.
 
 Required acceptance journey: create three actions → complete first → explicitly start second from the main card → save both return fields → close/reopen → explicitly Resume second → complete second → verify two earned checkpoints → Undo second → verify first achievement remains. Check reload persistence, no timer/absence/saving reward, reduced-motion final state and desktop/mobile controls. Then let the user repeat with their real project and assess whether returning makes the next step clear within about 20 seconds and completion visibly feels like progress. Stop for this review before later feature slices. No new agent Gemini calls, push, merge or deployment is authorized by this handoff alone.
 
