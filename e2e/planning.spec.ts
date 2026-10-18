@@ -23,13 +23,9 @@ async function open(page: Page) {
   await page.getByRole("button", { name: "＋ New task", exact: true }).click();
 }
 async function accept(page: Page) {
+  await expect(page.getByRole("checkbox", { name: /I reviewed/ })).toHaveCount(0);
   await page
-    .getByLabel("I reviewed the goal, finish condition and every action", {
-      exact: true,
-    })
-    .check();
-  await page
-    .getByRole("button", { name: "Accept breakdown", exact: true })
+    .getByRole("button", { name: /^(Accept breakdown|Save changes)$/ })
     .click();
 }
 const records = (page: Page) =>
@@ -45,7 +41,6 @@ test("accepted edits preserve IDs, archived history and another goal's saved pla
   await expect(page.getByLabel("Mountain name", { exact: true })).toHaveValue(fixture.goal);
   await accept(page);
   await page.getByRole("button", { name: "Start", exact: true }).click();
-  await page.getByText("Return note (optional)", { exact: true }).click();
   await page.getByLabel("Where I stopped").fill("Guide A: outline ready; next draw three veins.");
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
   const original = await records(page);
@@ -290,7 +285,6 @@ test("mocked clarification retains context; reviewed AI plan is editable and pre
   await expect(page.locator(".next-instruction")).toHaveText(
     "Draw an oak leaf and mark exactly three veins.",
   );
-  await page.getByText("Return note (optional)", { exact: true }).click();
   await page
     .getByLabel("Where I stopped")
     .fill("My outline is ready; next add the veins.");

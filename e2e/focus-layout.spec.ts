@@ -20,15 +20,11 @@ async function create(page: Page, name: string) {
   await page.getByLabel("Action 1 instruction").fill(`Action ${name}`);
   await page.getByLabel("Action 1 session minutes").fill("2");
   await page
-    .getByLabel("I reviewed the goal, finish condition and every action")
-    .check();
-  await page
     .getByRole("button", { name: "Accept breakdown", exact: true })
     .click();
 }
 async function save(page: Page, note: string) {
-  if (!(await page.getByLabel("Where I stopped").isVisible()))
-    await page.getByText("Return note (optional)", { exact: true }).click();
+  await expect(page.getByLabel("Where I stopped")).toBeVisible();
   await page.getByLabel("Where I stopped").fill(note);
   await page
     .getByRole("button", { name: "Save my place", exact: true })
@@ -68,7 +64,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
   await expect(
     page.getByRole("heading", { name: "One action at a time." }),
   ).toBeFocused();
-  await expect(page.getByLabel("Where I stopped")).not.toBeVisible();
+  await expect(page.getByLabel("Where I stopped")).toBeVisible();
   await page.screenshot({
     path: info.outputPath("focus-repair.png"),
     fullPage: true,

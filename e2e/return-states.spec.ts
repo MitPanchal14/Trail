@@ -12,7 +12,6 @@ test("ready, working, campsite, return context, earned light and Undo", async ({
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.locator("canvas")).toHaveAttribute("data-state", "working");
   await page.screenshot({ path: info.outputPath("working.png"), fullPage: true });
-  await page.getByText("Return note (optional)", { exact: true }).click();
   await page.getByLabel("Where I stopped").fill("Outline is ready");
   await page.getByLabel("First thing when I return").fill("Draw three veins");
   await page.getByRole("button", { name: "Save my place", exact: true }).click();

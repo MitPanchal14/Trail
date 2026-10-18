@@ -24,9 +24,6 @@ async function create(page: Page, name = "Field guide") {
   await page.getByLabel("Action 1 instruction").fill("Sketch an oak leaf");
   await page.getByLabel("Action 1 session minutes").fill("1");
   await page
-    .getByLabel("I reviewed the goal, finish condition and every action")
-    .check();
-  await page
     .getByRole("button", { name: "Accept breakdown", exact: true })
     .click();
   await expect(
@@ -48,7 +45,6 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.getByRole("timer")).toHaveText("01:00");
   await page.clock.fastForward(10000);
-  await page.getByText("Return note (optional)", { exact: true }).click();
   await page
     .getByLabel("Where I stopped")
     .fill("Oak outline ready; add the veins next.");
@@ -133,7 +129,7 @@ test("real save, close, return, explicit resume, background catch-up, checkpoint
   expect(s.mountains[0].status).toBe("active");
   await returned.locator(".checkpoint-journal summary").click();
   await expect(
-    returned.getByText("Oak outline ready; add the veins next.", {
+    returned.locator(".checkpoint-journal").getByText("Oak outline ready; add the veins next.", {
       exact: true,
     }),
   ).toBeVisible();

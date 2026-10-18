@@ -62,7 +62,7 @@ export default function TodayView() {
     duration = minutes ?? String(task?.suggestedMinutes ?? 20),
     remaining = session?.remainingMs ?? Number(duration) * 60000;
   const returning = !!session && !completion && !focused;
-  const returnStep = returning ? session.returnStep.trim() : "";
+  const returnStep = session && !completion ? session.returnStep.trim() : "";
   const accepted = s.subtasks.filter(t => t.mountainId === mountain?.id && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
   const next = accepted.find(t => !activeCompletion(s, t.id));
   const summitReached = mountain?.status === "completed";
@@ -309,10 +309,10 @@ export default function TodayView() {
             className="action card real-action"
             aria-labelledby="action-title"
           >
-            <div>
+            <div className={completion ? "just-completed" : undefined}>
               <span className="tag">
                 {completion
-                  ? "Completed action"
+                  ? "Just completed"
                   : session
                     ? session.status === "interrupted"
                       ? "Interrupted · Resume when ready"
@@ -325,20 +325,26 @@ export default function TodayView() {
                             : "Focus commitment"
                     : "Your next action"}
               </span>
+              {returnStep && <p className="eyebrow">First thing when I return</p>}
               <h2 id="action-title" ref={actionHeading} tabIndex={-1}>
-                {returnStep || task?.title || "What would you like to move forward?"}
+                {completion ? task?.title : returnStep || task?.title || "What would you like to move forward?"}
               </h2>
               {returnStep && <p className="original-action">Action: {task?.title}</p>}
               {task && !completion && !returning && <p className="destination">Destination: checkpoint {task.checkpointSlot + 1}</p>}
-              {task && !returnStep && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
-              {mountain && !summitPending && !summitReached && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
+              {task && !completion && !returnStep && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
+              {mountain && !completion && !summitPending && !summitReached && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
+              {completion && <>
+                <p className="session-time">Completed <time dateTime={completion.completedAt}>{new Date(completion.completedAt).toLocaleString()}</time></p>
+                <button className="secondary" disabled={readOnly} onClick={() => { setCelebration(null); undo(completion.id); }}>Undo completion</button>
+                <details><summary>Completed action details</summary><p>{task?.nextAction}</p><p>Finish condition: {mountain?.finishCondition}</p>{completion.note && <p>{completion.note}</p>}</details>
+              </>}
               {mountain && !focused && !completion && <p className="session-time">{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>}
             </div>
             {returning && session.note.trim() && (
-              <details className="context" open={session.note.length <= 200}>
-                <summary>Where I stopped</summary>
+              <div className="context">
+                <strong>Where I stopped</strong>
                 <p>{session.note}</p>
-              </details>
+              </div>
             )}
             {focused && session ? (
               <>
@@ -360,8 +366,8 @@ export default function TodayView() {
                     No completion was recorded.
                   </p>
                 )}
-                <details className="return-note">
-                  <summary>Return note (optional)</summary>
+                <section className="return-note" aria-label="Optional return context">
+                  <h3>When you return <span>(optional)</span></h3>
                   <label className="note-label" htmlFor="context-note">
                     Where I stopped <span>(optional)</span>
                     <textarea
@@ -381,7 +387,7 @@ export default function TodayView() {
                       onChange={(e) => dispatch({ type: "return-step", value: e.target.value })}
                       placeholder="Open the draft and write the next example." />
                   </label>
-                </details>
+                </section>
                 <div className="button-row">
                   <button
                     disabled={readOnly || session.status === "expired"}
@@ -421,18 +427,9 @@ export default function TodayView() {
               </>
             ) : completion ? (
               <>
-                <p className="session-time">
-                  Completed {new Date(completion.completedAt).toLocaleString()}
-                </p>
-                <button
-                  className="secondary"
-                  disabled={readOnly}
-                  onClick={() => { setCelebration(null); undo(completion.id); }}
-                >
-                  Undo completion
-                </button>
                 <p>{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>
                 {next ? <section className="task-form continuation" aria-label="Next accepted action">
+                  <p className="eyebrow">Up next · Action {accepted.findIndex(t => t.id === next.id) + 1} of {accepted.length}</p>
                   <h3>{next.title}</h3>
                   {distinctInstruction(next.title, next.nextAction) && <p>{next.nextAction}</p>}
                   {nextSession ? <>
@@ -443,7 +440,7 @@ export default function TodayView() {
                   {needsChoice && <label className="check-label"><input type="checkbox" checked={deliberate} onChange={e => setDeliberate(e.target.checked)} />Work on this {disposition} action now; keep today’s plan unchanged</label>}
                   <button className="primary" disabled={readOnly || !!warning || (needsChoice && !deliberate) || (nextSession ? !nextSession.remainingMs : !Number.isInteger(Number(nextMinutes)) || Number(nextMinutes) < 1 || Number(nextMinutes) > 120)} onClick={() => {
                     if (dispatch({ type: "start-next", id: next.id, minutes: nextSession ? next.suggestedMinutes : Number(nextMinutes) })) { setMinutes(null); setDeliberate(false); setFocus(true); }
-                  }}>{nextSession ? "Resume next action" : "Start next action"}</button>
+                  }}>{nextSession ? "Resume next action" : "Start this action"}</button>
                   {nextSession?.remainingMs === 0 && <button className="secondary" disabled={readOnly} onClick={() => { if (dispatch({ type: "select", id: next.id })) setMinutes(null); }}>Open saved action</button>}
                 </section> : null}
               </>

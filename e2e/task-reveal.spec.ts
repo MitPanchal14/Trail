@@ -36,7 +36,9 @@ test("choosing work reveals the saved action without starting it; narrow labels 
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!));
   expect(stored.selection.selectedSubtaskId).toBe(first);
   expect(stored.sessions[0].status).toBe("saved");
-  expect(stored.sessions[0].remainingMs).toBe(180000);
+  // Fixture construction may account for a millisecond between start and save.
+  // Selection must preserve the entire saved record, not an assumed duration.
+  expect(stored.sessions[0]).toEqual(s.sessions[0]);
   expect(stored.completions).toHaveLength(0);
   // Selecting the already-selected action must still bring its controls back.
   await page.locator(".other-work button").first().click();

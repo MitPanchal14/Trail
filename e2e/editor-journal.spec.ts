@@ -15,7 +15,7 @@ test("editable cards retain temporary minutes, add focus and direct existing edi
   await page.reload();
   await page.getByRole("button", { name: "Continue creation draft", exact: true }).click();
   await expect(minutes).toHaveValue("");
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
+  await expect(page.getByRole("checkbox", { name: /I reviewed/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!).subtasks.length)).toBe(0);
@@ -44,7 +44,6 @@ test("editable cards retain temporary minutes, add focus and direct existing edi
   }
   expect(contrast[1].focusRing).toBeGreaterThanOrEqual(3);
   await page.screenshot({ path: info.outputPath("action-editor.png") });
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   await page.getByRole("button", { name: "Edit breakdown", exact: true }).click();
   await expect(page.getByLabel("Describe the work")).toHaveCount(0);

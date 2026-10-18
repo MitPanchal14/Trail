@@ -24,6 +24,12 @@
 .plan .other-work button small { display: block; margin: 4px 0 0; }
 .work-bento .continuation { margin-top: 4px; gap: 12px; }
 .work-bento .continuation :is(h3, p) { margin: 0; }
+.real-action .just-completed { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.real-action .just-completed h2 { font-size: 20px; margin-block: 10px; }
+.real-action .just-completed summary { padding-block: 12px; color: var(--muted); }
+.real-action .return-note { display: grid; gap: 12px; }
+.real-action .return-note h3 { margin: 0; font-size: 14px; color: var(--muted); }
+.work-bento div.context { display: block; }
 .decision-dialog { max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
 .decision-content { display: grid; gap: 16px; min-width: 0; }
 .decision-dialog .decision-content :is(h2, p) { margin: 0; }

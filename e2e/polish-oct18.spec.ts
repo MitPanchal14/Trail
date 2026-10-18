@@ -18,7 +18,7 @@ test("unbroken names wrap, continuation stays compact and plan ownership stays v
   const s = fixture();
   await page.addInitScript(raw => { if (!localStorage.getItem("work-trail:snapshot:v1")) localStorage.setItem("work-trail:snapshot:v1", raw); }, JSON.stringify(s));
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Start next action", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Start this action", exact: true })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width);
   const boxes = await page.evaluate(() => ({ text: document.querySelector(".heading h1")!.getBoundingClientRect().toJSON(), button: document.querySelector(".heading > button")!.getBoundingClientRect().toJSON() }));
   expect(boxes.text.right <= boxes.button.x || boxes.text.y >= boxes.button.bottom || boxes.text.bottom <= boxes.button.y).toBe(true);
@@ -30,14 +30,7 @@ test("unbroken names wrap, continuation stays compact and plan ownership stays v
   await page.getByLabel("Finish condition", { exact: true }).fill("Reviewed");
   await page.getByLabel("Action 1 title", { exact: true }).fill("Review draft");
   await page.getByLabel("Action 1 instruction", { exact: true }).fill("Check the reference");
-  const label = page.getByLabel("I reviewed the goal, finish condition and every action");
-  await label.scrollIntoViewIfNeeded();
-  const aligned = await label.evaluate(input => {
-    const a = input.getBoundingClientRect(), b = input.parentElement!.querySelector("span")!.getBoundingClientRect();
-    return b.x > a.right && Math.abs(a.y - b.y) < 12;
-  });
-  expect(aligned).toBe(true);
-  await label.check();
+  await expect(page.getByRole("checkbox", { name: /I reviewed/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   await page.getByRole("button", { name: "Plan today", exact: true }).click();
   await page.getByRole("checkbox", { name: /Check caption/ }).check();

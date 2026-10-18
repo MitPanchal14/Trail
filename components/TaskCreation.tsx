@@ -37,8 +37,7 @@ export default function TaskCreation({
   const [review, setReview] = useState(false),
     [pending, setPending] = useState(false),
     [error, setError] = useState(""),
-    [recording, setRecording] = useState(false),
-    [checked, setChecked] = useState(false);
+    [recording, setRecording] = useState(false);
   const gate = useRef(new RequestGate()),
     speech = useRef<Recognition | null>(null),
     draftRef = useRef(d);
@@ -71,7 +70,6 @@ export default function TaskCreation({
   const update = (next: CreationDraft) => {
     gate.current.cancel();
     setPending(false);
-    setChecked(false);
     draftRef.current = next;
     dispatch({ type: "draft", draft: next });
   };
@@ -140,7 +138,6 @@ export default function TaskCreation({
           },
         });
         setReview(true);
-        setChecked(false);
       }
     } catch (e) {
       if (gate.current.current(attempt.id))
@@ -339,7 +336,6 @@ export default function TaskCreation({
           className="task-form"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!checked) return;
             if (dispatch({ type: "accept", draftId: d.id })) {
               setReview(false);
               close();
@@ -474,18 +470,8 @@ export default function TaskCreation({
           >
             + Add another action
           </button>
-          <label className="check-label">
-            <input
-              type="checkbox"
-              required
-              checked={checked}
-              disabled={disabled}
-              onChange={(e) => setChecked(e.target.checked)}
-            />
-            <span>I reviewed the goal, finish condition and every action</span>
-          </label>
           <button className="primary" disabled={disabled || !d.steps.length}>
-            Accept breakdown
+            {d.editingMountainId ? "Save changes" : "Accept breakdown"}
           </button>
         </form>
       )}

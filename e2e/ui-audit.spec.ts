@@ -18,17 +18,13 @@ test("saved hierarchy, compact world, planner prerequisites and measured Dusk co
   await expect(page.locator("canvas")).toHaveCount(1);
   await page.screenshot({ path: info.outputPath("today.png"), fullPage: true });
   await page.getByRole("button", { name: "Resume", exact: true }).click();
-  await page.getByText("Return note (optional)", { exact: true }).click();
   await page.getByLabel("First thing when I return").fill("Add the three branching veins before checking the illustration against the fictional reference specimen");
   const note = "The outline and stem are ready. Keep the annotated reference beside the drawing. ".repeat(6);
   await page.getByLabel("Where I stopped").fill(note);
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
   await expect(action.getByRole("heading")).toHaveText(/Add the three branching veins/);
-  await expect(action.getByText(note.trim(), { exact: true })).not.toBeVisible();
-  await action.getByText("Where I stopped", { exact: true }).click();
   await expect(action.getByText(note.trim(), { exact: true })).toBeVisible();
   await page.screenshot({ path: info.outputPath("today-long-notes.png"), fullPage: true });
-  await action.getByText("Where I stopped", { exact: true }).click();
   await page.getByRole("button", { name: "Plan today", exact: true }).click();
   const commit = page.getByRole("button", { name: "Commit today’s plan", exact: true });
   await expect(commit).toBeDisabled();
@@ -78,7 +74,6 @@ test("creation remains reachable in a short viewport with keyboard and reduced m
   await page.getByLabel("Finish condition", { exact: true }).fill("One checked page");
   await page.getByLabel("Action 1 title", { exact: true }).fill("Draw one pattern");
   await page.getByLabel("Action 1 instruction", { exact: true }).fill("Draw three short lines");
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
   const accept = page.getByRole("button", { name: "Accept breakdown", exact: true });
   await accept.focus();
   await expect(accept).toBeInViewport();

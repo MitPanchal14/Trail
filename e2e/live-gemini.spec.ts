@@ -55,7 +55,6 @@ test("live Gemini: clear breakdown, budgeted day, clarification and complete ret
   await page.getByLabel("Action 1 instruction", { exact: true }).fill("Draw the leaf outline from the supplied photograph, then mark three visible veins.");
   for (let i = 0; i < breakdown.steps.length; i++)
     await page.getByLabel(`Action ${i + 1} session minutes`, { exact: true }).fill("5");
-  await page.getByLabel("I reviewed the goal, finish condition and every action", { exact: true }).check();
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   await page.getByRole("button", { name: "Plan today", exact: true }).click();
   await page.getByLabel("Time available today (optional)", { exact: true }).fill("10");
@@ -78,7 +77,6 @@ test("live Gemini: clear breakdown, budgeted day, clarification and complete ret
   await page.getByLabel("Session length", { exact: true }).fill("1");
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.getByRole("timer")).toBeVisible();
-  await page.getByText("Return note (optional)", { exact: true }).click();
   const note = "Fictional outline saved. Next mark the three veins from the photograph.";
   await page.getByLabel("Where I stopped").fill(note);
   await page.getByRole("button", { name: "Save my place", exact: true }).click();

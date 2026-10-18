@@ -15,7 +15,6 @@ test("three manual steps require persisted finish-condition confirmation, with r
     await page.getByLabel(`Action ${i} instruction`, { exact: true }).fill(`Draw the outline of specimen ${i}`);
     await page.getByLabel(`Action ${i} session minutes`, { exact: true }).fill(String(i * 4));
   }
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   const canvas = page.locator("canvas");
   const read = () => page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!));
@@ -24,7 +23,7 @@ test("three manual steps require persisted finish-condition confirmation, with r
   const slots = (await read()).subtasks.map((t: { checkpointSlot: number }) => t.checkpointSlot);
   await canvas.screenshot({ path: info.outputPath("zero.png") });
   for (let i = 1; i <= 3; i++) {
-    await page.getByRole("button", { name: i === 1 ? "Start" : "Start next action", exact: true }).click();
+    await page.getByRole("button", { name: i === 1 ? "Start" : "Start this action", exact: true }).click();
     await page.getByRole("button", { name: "Complete action", exact: true }).click();
     await expect(page.getByText(`${i} / 3 accepted actions completed`, { exact: true })).toBeVisible();
     expect((await read()).summitConfirmations).toHaveLength(0);
@@ -38,8 +37,7 @@ test("three manual steps require persisted finish-condition confirmation, with r
   await expect(canvas).toHaveAttribute("data-position", pendingPosition!);
   await page.getByRole("button", { name: "Add another step", exact: true }).click();
   await page.getByRole("button", { name: "Move action 3 up", exact: true }).click();
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
-  await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
   expect((await read()).subtasks.map((t: { checkpointSlot: number }) => t.checkpointSlot)).toEqual(slots);
   await page.getByRole("button", { name: "Confirm goal complete", exact: true }).click();
   await page.getByRole("button", { name: "Yes, finish condition met", exact: true }).click();
@@ -73,8 +71,7 @@ test("three manual steps require persisted finish-condition confirmation, with r
   await page.getByRole("button", { name: "+ Add another action", exact: true }).click();
   await page.getByLabel("Action 4 title", { exact: true }).fill("Check caption");
   await page.getByLabel("Action 4 instruction", { exact: true }).fill("Compare the caption with the reference");
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
-  await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
   expect((await read()).subtasks.slice(0, 3).map((t: { checkpointSlot: number }) => t.checkpointSlot)).toEqual(slots);
   expect((await read()).subtasks[3].checkpointSlot).toBe(3);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

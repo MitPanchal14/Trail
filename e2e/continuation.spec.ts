@@ -16,7 +16,6 @@ test("three accepted actions continue, retain return context and earn visible as
     await page.getByLabel(`Action ${i} instruction`, { exact: true }).fill(`Outline specimen ${i}`);
     await page.getByLabel(`Action ${i} session minutes`, { exact: true }).fill(String(i * 3));
   }
-  await page.getByLabel("I reviewed the goal, finish condition and every action").check();
   await page.getByRole("button", { name: "Accept breakdown", exact: true }).click();
   let canvas = page.locator("canvas");
   const before = await canvas.getAttribute("data-position");
@@ -31,10 +30,9 @@ test("three accepted actions continue, retain return context and earn visible as
   await expect(page.getByRole("heading", { name: "Draw leaf 2", exact: true })).toBeVisible();
   await page.getByLabel("Next session length", { exact: true }).fill("7");
   await page.screenshot({ path: info.outputPath("continuation.png"), fullPage: true });
-  await page.getByRole("button", { name: "Start next action", exact: true }).click();
+  await page.getByRole("button", { name: "Start this action", exact: true }).click();
   await expect(page.getByRole("timer")).toHaveText(/0[67]:/);
   await expect(canvas).toHaveAttribute("data-position", one!);
-  await page.getByText("Return note (optional)", { exact: true }).click();
   await page.getByLabel("Where I stopped").fill("Outline ready");
   await page.getByLabel("First thing when I return").fill("Add veins");
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
@@ -128,7 +126,8 @@ test("saved next work resumes unchanged; deferred choice, rejected writes and fi
   await page.reload();
   // Recovery deliberately prioritizes the saved action; this is still explicit Resume.
   await page.getByRole("button", { name: "Resume", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Second", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Check the edge", exact: true })).toBeVisible();
+  await expect(page.getByText("Action: Second", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Complete action", exact: true }).click();
   await expect(page.getByRole("heading", { name: "All planned steps complete", exact: true }).first()).toBeVisible();
   await expect(page.getByText("2 / 2 accepted actions completed", { exact: true })).toBeVisible();
