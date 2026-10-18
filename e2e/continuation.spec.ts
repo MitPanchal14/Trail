@@ -110,7 +110,7 @@ test("saved next work resumes unchanged; deferred choice, rejected writes and fi
   await page.addInitScript(raw => { if (!localStorage.getItem("work-trail:snapshot:v1")) localStorage.setItem("work-trail:snapshot:v1", raw); }, JSON.stringify(s));
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await page.getByText("Choose other work", { exact: true }).click();
+  await page.getByText("Switch work", { exact: true }).click();
   await page.getByRole("button", { name: /^First Fictional two-part study/ }).click();
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await page.getByRole("button", { name: "Complete action", exact: true }).click();

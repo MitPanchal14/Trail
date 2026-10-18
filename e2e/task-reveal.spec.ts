@@ -15,7 +15,7 @@ test("choosing work reveals the saved action without starting it; narrow labels 
   await page.goto("/");
   // Recovery deliberately prioritizes saved work over a fresh selection.
   await expect(page.getByRole("button", { name: "Resume", exact: true })).toBeEnabled();
-  await page.locator(".other-work summary").click();
+  await page.locator(".other-work > summary").click();
   const other = page.locator(".other-work button").last();
   const labels = await other.evaluate(button => {
     const title = button.querySelector("span")!.getBoundingClientRect();

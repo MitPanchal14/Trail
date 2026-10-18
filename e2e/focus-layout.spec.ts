@@ -57,7 +57,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
   expect(b.remainingMs).toBe(100000);
   expect(a.note).toBe("Return note A");
   expect(a.remainingMs).toBe(110000);
-  await page.getByText("Choose other work", { exact: true }).click();
+  await page.getByText("Switch work", { exact: true }).click();
   await page.getByRole("button", { name: /Action A.*Mountain A/ }).click();
   await expect(page.getByText("Return note A", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Resume", exact: true }).click();

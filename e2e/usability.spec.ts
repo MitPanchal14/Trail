@@ -56,7 +56,7 @@ test("normalized duplicate instructions stay hidden in Today and focus; distinct
   await page.getByRole("button", { name: "Start", exact: true }).click();
   await expect(page.locator(".next-instruction")).toHaveText("Write three labels next to the drawing.");
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
-  await page.getByText("Choose other work", { exact: true }).click();
+  await page.getByText("Switch work", { exact: true }).click();
   await page.getByRole("button", { name: /Sketch leaf.*Fictional guide/ }).click();
   await expect(page.locator(".next-instruction")).toHaveCount(0);
   await page.getByRole("button", { name: "Start", exact: true }).click();

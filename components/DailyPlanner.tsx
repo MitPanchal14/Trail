@@ -40,6 +40,9 @@ export default function DailyPlanner({
   const candidates = s.subtasks
     .filter((t) => !t.archivedAt && !activeCompletion(s, t.id))
     .slice(0, 50);
+  const committedIds = (plan?.commitments ?? []).filter(c => c.disposition === "planned" && !activeCompletion(s, c.subtaskId) && s.subtasks.some(t => t.id === c.subtaskId && !t.archivedAt)).map(c => c.subtaskId);
+  const dirty = !!plan?.committedAt && JSON.stringify(ids) !== JSON.stringify(committedIds);
+  const stateLabel = (id: string) => activeCompletion(s, id) ? "Completed" : s.completions.some(c => c.subtaskId === id && c.undoneAt) ? "Reopened" : s.sessions.some(x => x.subtaskId === id && ["saved", "interrupted", "expired"].includes(x.status)) ? "Saved" : "Ready";
   const draft = (
     next = ids,
     availability = plan?.availabilityText ?? "",
@@ -47,6 +50,7 @@ export default function DailyPlanner({
   ) => {
     gate.current.cancel();
     setPending(false);
+    setMessage("");
     dispatch({ type: "day-draft", date, ids: next, availability, minutes });
   };
   const total = ids.reduce(
@@ -119,13 +123,14 @@ export default function DailyPlanner({
               setPending(false);
             }
             setEditing(!editing);
+            setMessage("");
           }}
         >
           {editing ? "Close planner" : "Plan today"}
         </button>
       </div>
       <p className="session-time">
-        {date} · {plan?.committedAt ? "Committed plan" : "Not committed"}
+        {date} · {dirty ? "Unsaved plan changes" : plan?.committedAt ? "Committed plan" : "Not committed"}
       </p>
       {editing && (
         <div className="daily-editor">
@@ -169,9 +174,9 @@ export default function DailyPlanner({
           </div>
           <div className="planner-columns">
           <fieldset>
-            <legend>Choose work for today</legend>
+            <legend>1 · Choose work for today</legend>
             {candidates.map((t) => (
-              <label className="check-label" key={t.id}>
+              <label className={`check-label candidate-card ${ids.includes(t.id) ? "is-selected" : ""}`} key={t.id}>
                 <input
                   type="checkbox"
                   disabled={disabled}
@@ -184,10 +189,10 @@ export default function DailyPlanner({
                     )
                   }
                 />
-                <span>{t.title} — {t.suggestedMinutes} min{" "}
+                <span><strong>{t.title}</strong> — <span className="duration-badge">{t.suggestedMinutes} min</span>{" "}
                 <small>
                   ({s.mountains.find((m) => m.id === t.mountainId)?.title})
-                </small></span>
+                </small><small>{stateLabel(t.id)}</small></span>
               </label>
             ))}
             {!candidates.length && (
@@ -198,8 +203,10 @@ export default function DailyPlanner({
             )}
           </fieldset>
           <div className="selected-plan">
-          <h3>Your plan</h3>
-          <p className="plan-total">{total} minutes suggested.</p>
+           <h3>2 · Review order</h3>
+           <p className="plan-total">{ids.length} {ids.length === 1 ? "action" : "actions"} · {total >= 60 ? `${Math.floor(total / 60)}h ${total % 60}m` : `${total}m`} planned</p>
+           <p className="session-time">{total} minutes suggested.</p>
+           <p className="session-time">Session lengths, not completion estimates.</p>
           <p className="session-time" id="commit-help">{ids.length ? "Review the order, then commit. Suggestions stay editable." : plan?.commitments.length ? "Commit this empty selection to clear the remaining plan. History is kept." : "Choose work to continue, or let AI choose from your unfinished actions."}</p>
           {plan?.availableMinutes && total > plan.availableMinutes ? (
             <p className="notice">
@@ -211,7 +218,8 @@ export default function DailyPlanner({
           <ol className="plan-list">
             {ids.map((id, i) => (
               <li key={id}>
-                {s.subtasks.find((t) => t.id === id)?.title}
+                <span className="sequence-number">{i + 1}</span>{" "}{s.subtasks.find((t) => t.id === id)?.title}
+                <span className="duration-badge"> · {s.subtasks.find(t => t.id === id)?.suggestedMinutes} min</span>
                 <small className="project-context">{s.mountains.find(m => m.id === s.subtasks.find(t => t.id === id)?.mountainId)?.title}</small>
                 <div className="button-row">
                   <button
@@ -241,8 +249,10 @@ export default function DailyPlanner({
                 </div>
               </li>
             ))}
-          </ol>
-          <div className="button-row">
+           </ol>
+           <h3>3 · Confirm today’s plan</h3>
+           <p className="session-time">{dirty ? "Draft changes are not committed yet." : plan?.committedAt ? "This order matches your committed unfinished work." : "Nothing is committed until you confirm."}</p>
+           <div className="button-row">
             <button
               className="secondary"
               aria-describedby="ai-plan-help"
@@ -266,7 +276,7 @@ export default function DailyPlanner({
                 }
               }}
             >
-              Commit today’s plan
+              {plan?.committedAt ? "Save plan changes" : "Commit today’s plan"}
             </button>
           </div>
           <p className="session-time" id="ai-plan-help">{candidates.length ? "AI can choose and order unfinished actions; selecting them first is optional." : "Add an unfinished action to use AI planning."}</p>
@@ -290,12 +300,13 @@ export default function DailyPlanner({
           {message}
         </p>
       )}
-      <ul className="plan-list">
+      {!editing && <><h3>Committed work</h3><ol className="plan-list committed-plan">
         {(plan?.commitments ?? []).map((c) => (
           <li key={c.id}>
             <div className="plan-row">
               <button
                 className="secondary"
+                aria-pressed={s.selection.selectedSubtaskId === c.subtaskId}
                 disabled={disabled || c.disposition !== "planned"}
                 onClick={() => onSelect(c.subtaskId)}
               >
@@ -348,29 +359,28 @@ export default function DailyPlanner({
             </div>
           </li>
         ))}
-      </ul>
+      </ol></>}
       {!editing && !plan?.commitments.length && (
         <p className="empty-plan">
           No work committed today.
         </p>
       )}
       <details className="other-work">
-        <summary>Choose other work</summary>
-        <ul className="plan-list">
-          {s.subtasks
-            .filter((t) => !t.archivedAt)
-            .map((t) => (
-              <li key={t.id}>
-                <button disabled={disabled} onClick={() => onSelect(t.id)}>
-                  <span>{t.title}</span>
-                  <small>
-                    {s.mountains.find((m) => m.id === t.mountainId)?.title} ·{" "}
-                    {activeCompletion(s, t.id) ? "Completed" : "Unfinished"}
-                  </small>
-                </button>
-              </li>
-            ))}
-        </ul>
+        <summary>Switch work</summary>
+        <p className="session-time">Choose an action to reveal it. Start or Resume separately.</p>
+        {![...s.subtasks].some(t => !t.archivedAt && !activeCompletion(s, t.id)) && <p>No unfinished work. Completed work remains below.</p>}
+        {[false, true].map(done => {
+          const groups = s.mountains.map(m => ({ mountain: m, tasks: s.subtasks.filter(t => t.mountainId === m.id && !t.archivedAt && !!activeCompletion(s, t.id) === done) })).filter(g => g.tasks.length);
+          const content = groups.map(({mountain, tasks}) => <section className="work-group" key={mountain.id} aria-label={mountain.title}>
+            <h3>{mountain.title} <small>· {tasks.length} {done ? "completed" : "unfinished"}</small></h3>
+            <ul className="plan-list">{tasks.map(t => <li key={t.id}>
+              <button disabled={disabled} aria-pressed={s.selection.selectedSubtaskId === t.id} onClick={() => onSelect(t.id)}>
+                <span>{t.title}</span><small>{mountain.title} · {t.suggestedMinutes} min · {stateLabel(t.id)}{s.selection.selectedSubtaskId === t.id ? " · Current selection" : ""}</small>
+              </button>
+            </li>)}</ul>
+          </section>);
+          return done ? <details className="completed-work" key="done"><summary>Completed work · {groups.reduce((n,g) => n + g.tasks.length, 0)}</summary>{content.length ? content : <p>No completed work yet.</p>}</details> : <div key="unfinished">{content}</div>;
+        })}
       </details>
     </section>
   );

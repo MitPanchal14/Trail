@@ -11,6 +11,31 @@
   --border: #648074;
   --soft: #304c3d;
 }
+/* Undo recovery and planning: no focus-screen or terrain overrides. */
+.undo-recovery { margin-block: 20px; padding: 20px; overflow-wrap: anywhere; }
+.undo-recovery .button-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.undo-recovery .button-row > button { flex: 1 1 240px; width: auto; white-space: normal; overflow-wrap: anywhere; }
+.correction-history { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 12px; }
+.correction-history article { margin-top: 12px; background: var(--input); }
+.plan .planner-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px; }
+.plan .candidate-card { border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-block: 8px; background: var(--input); cursor: pointer; }
+.plan .candidate-card.is-selected { border: 2px solid var(--action); padding: 11px; background: var(--soft); }
+.plan .candidate-card:focus-within { outline: 2px solid var(--action); outline-offset: 3px; }
+.plan .candidate-card input { accent-color: var(--action); }
+.plan .candidate-card strong { display: inline; font-size: 15px; }
+.plan .duration-badge { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.plan .selected-plan .button-row { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.plan .selected-plan .button-row button { width: auto; flex: 0 1 auto; min-height: 44px; padding: 8px 12px; }
+.plan .selected-plan li .button-row button { border: 1px solid var(--border); background: var(--input); }
+.plan .selected-plan li { padding: 12px; border-bottom: 1px solid var(--border); }
+.plan .sequence-number { color: var(--action); font-weight: 700; }
+.plan .work-group { margin-block: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; min-width: 0; }
+.plan .work-group h3 { font-size: 16px; overflow-wrap: anywhere; margin: 0; }
+.plan .work-group h3 small { font-weight: normal; color: var(--muted); }
+.plan .other-work button:hover, .plan .other-work button:focus-visible { background: var(--soft); outline: 2px solid var(--action); outline-offset: 2px; }
+.plan .other-work button[aria-pressed="true"] { border: 2px solid var(--action); }
+.plan .committed-plan { padding-left: 24px; list-style: decimal; }
+@media (max-width: 1000px) { .plan .planner-columns { grid-template-columns: minmax(0, 1fr); } }
 /* October 18: scoped content containment; never hide document overflow. */
 .heading > div, .world-heading > div, .plan-row > *, .check-label > span { min-width: 0; }
 .heading :is(h1, p), .world-heading :is(h2, .eyebrow), .decision-content, .project-context,

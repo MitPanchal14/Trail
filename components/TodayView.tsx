@@ -26,6 +26,8 @@ export default function TodayView() {
     [creationOpen, setCreationOpen] = useState(false),
     [minutes, setMinutes] = useState<string | null>(null);
   const [celebration, setCelebration] = useState<string | null>(null);
+  const [reopened, setReopened] = useState<string | null>(null);
+  const undoRecovery = useRef<HTMLElement>(null);
   const [nextDuration, setNextDuration] = useState({ id: "", value: "" });
   const [deliberate, setDeliberate] = useState(false);
   const [todayNow, setTodayNow] = useState(() => Date.now());
@@ -68,10 +70,35 @@ export default function TodayView() {
   const summitReached = mountain?.status === "completed";
   const summitHistory = s.summitConfirmations.some(c => c.mountainId === mountain?.id && !c.revokedAt);
   const summitPending = accepted.length > 0 && !next && !summitReached;
+  const returnTo = (id: string) => {
+    // Recovery choices never interrupt a live session or implicitly start one.
+    if (s.sessions.some(x => ["running", "paused"].includes(x.status))) return;
+    if (dispatch({ type: "select", id })) {
+      setMinutes(null);
+      setReopened(null);
+      requestAnimationFrame(() => {
+        actionHeading.current?.focus({ preventScroll: true });
+        actionHeading.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      });
+    }
+  };
+  const finishUndo = (id: string, correctSummit?: boolean) => {
+    const item = s.completions.find(c => c.id === id);
+    if (item && !item.undoneAt && dispatch({ type: "undo", id, correctSummit })) {
+      setCelebration(null);
+      setReopened(item.subtaskId);
+      requestAnimationFrame(() => {
+        undoRecovery.current?.focus({ preventScroll: true });
+        undoRecovery.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      });
+      return true;
+    }
+    return false;
+  };
   const undo = (id: string) => {
     if (s.summitConfirmations.some(c => !c.revokedAt && c.relatedCompletionIds.includes(id))) {
       setUndoId(id); undoChoice.current?.showModal();
-    } else dispatch({ type: "undo", id });
+    } else finishUndo(id);
   };
   const nextSession = s.sessions.findLast(x => x.subtaskId === next?.id && x.status !== "completed");
   const nextMinutes = nextDuration.id === next?.id ? nextDuration.value : String(next?.suggestedMinutes ?? 20);
@@ -546,6 +573,13 @@ export default function TodayView() {
         </div>
         {!focused && (
           <>
+            {reopened && <section ref={undoRecovery} tabIndex={-1} className="undo-recovery card" aria-label="Undo recovery">
+              <p role="status">{s.subtasks.find(t => t.id === reopened)?.title} reopened. Completion undone; current work is unchanged.</p>
+              <div className="button-row">
+                <button className="primary" disabled={readOnly || !!warning || s.sessions.some(x => ["running", "paused"].includes(x.status))} onClick={() => returnTo(reopened)}>Return to {s.subtasks.find(t => t.id === reopened)?.title}</button>
+                <button className="secondary" onClick={() => setReopened(null)}>Stay with current work</button>
+              </div>
+            </section>}
             <DailyPlanner
               snapshot={s}
               dispatch={dispatch}
@@ -569,7 +603,7 @@ export default function TodayView() {
                 Continue creation draft
               </button>
             )}
-            <CheckpointJournal snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} onUndo={undo} />
+            <CheckpointJournal snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning || s.sessions.some(x => ["running", "paused"].includes(x.status))} onUndo={undo} onReturn={returnTo} />
             <footer className="preview-controls">
               <div>
                 <strong>Private to this browser · no account or sync</strong>
@@ -601,8 +635,8 @@ export default function TodayView() {
           <p>This action supports an existing summit confirmation. Undo removes only this checkpoint unless you also correct the summit.</p>
           </div><div className="decision-actions">
           <button autoFocus className="secondary" onClick={() => undoChoice.current?.close()}>Cancel Undo</button>
-          <button className="secondary" disabled={readOnly || !!warning} onClick={() => { if (undoId && dispatch({ type: "undo", id: undoId, correctSummit: false })) undoChoice.current?.close(); }}>Undo action, keep summit</button>
-          <button className="primary" disabled={readOnly || !!warning} onClick={() => { if (undoId && dispatch({ type: "undo", id: undoId, correctSummit: true })) undoChoice.current?.close(); }}>Undo action and correct summit</button>
+           <button className="secondary" disabled={readOnly || !!warning} onClick={() => { if (undoId && finishUndo(undoId, false)) undoChoice.current?.close(); }}>Undo action, keep summit</button>
+           <button className="primary" disabled={readOnly || !!warning} onClick={() => { if (undoId && finishUndo(undoId, true)) undoChoice.current?.close(); }}>Undo action and correct summit</button>
           </div>
         </dialog>
         <dialog

@@ -94,7 +94,7 @@ test("short plan uses the same summit anchor with bounded normal motion and no r
   await page.locator("canvas").screenshot({ path: info.outputPath("one-step-summit.png") });
   await page.reload();
   await expect.poll(() => page.locator("canvas").evaluate((c: HTMLCanvasElement) => c.toDataURL()).then(s => s === final)).toBe(true);
-  await page.getByText("Choose other work", { exact: true }).click();
+  await page.getByText("Switch work", { exact: true }).click();
   await page.getByRole("button", { name: /^Draw bark Fictional second mountain/ }).click();
   await expect(page.locator("canvas")).toHaveAttribute("data-summit", "none");
   await expect(page.getByText("○ No checkpoints yet", { exact: true })).toBeVisible();
