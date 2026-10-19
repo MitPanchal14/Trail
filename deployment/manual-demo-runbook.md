@@ -1,6 +1,6 @@
 # Trail public manual demo — configuration review
 
-Status: **locally verified; not deployed**. Target discovery on October 19, 2026:
+Status: **project created/configured after user approval; not deployed**. Project created October 19, 2026 at 13:06:03.221 UTC; configuration/deployment inventory verified at 13:09:49.851 UTC.
 
 | Setting | Exact proposed value / verified state |
 | --- | --- |
@@ -8,9 +8,9 @@ Status: **locally verified; not deployed**. Target discovery on October 19, 2026
 | Signed-in account | `panchalmitkumarraju-2839` (verified by `vercel whoami`) |
 | Account/team scope | `panchalmitkumarraju-2839` |
 | Team ID / plan | `team_bawzsffpjX8zKvLJMwFOWXBg` / Hobby (verified) |
-| Project | **new `trail-demo`**; project listing returned no existing projects |
-| Hostname | Vercel-assigned `*.vercel.app`, per user request; **not allocated or verified yet**. Do not assume `trail-demo.vercel.app` is available. No custom domain. |
-| Release environment | Production public manual demo, **proposed for approval**, no authentication wall for judges |
+| Project | **`trail-demo`**, ID `prj_2AFvYa6vfTmljs28ZZ5zOO1q5c9r`, created in the approved account |
+| Hostname | **`trail-demo-seven.vercel.app`**, assigned by Vercel and returned as verified by the project domains API. No custom domain. Not serving an app yet. |
+| Release environment | Production public manual settings approved; **publication still awaits hostname approval**. Vercel SSO is preview-only, not production. |
 | Source | `66940bfe028dadfe320c02e5003d01c1a501cf89` runtime files + the two configuration files below |
 | Node / preset | `24.x` in Vercel project settings / Next.js |
 | Root / install / build | Staged root `./` / `npm ci` / `npm run build` |
@@ -19,7 +19,9 @@ Status: **locally verified; not deployed**. Target discovery on October 19, 2026
 | Gemini configuration | **No `GEMINI_API_KEY`, `GEMINI_MODEL`, public variants, or shared credential injection** in any project environment |
 | Git / integrations | CLI from reviewed source only; automatic git deployments disabled; no repository push, integrations, analytics, database or paid add-ons |
 
-The account, new project and concrete settings still require user approval before remote changes. Creating/linking a project is not publication approval. Record the actual assigned hostname and show it before the first public deploy. The Vercel dry-run could not run while unlinked (`Project is not linked`); do not claim host-side configuration validation yet.
+The user approved creation/configuration under this exact Hobby account, but explicitly required the hostname before publishing. The project is configured with Node 24.x, Next.js, `npm ci`, `npm run build`, root/output defaults, no Git connection, and preview-only SSO so a later production manual release can be public. The environment inventory contains **only `ENABLE_AI_PLANNING=false` for production/preview**, no Gemini variables. Approved settings are recorded in `deployment/trail-demo-project-settings.json` and `deployment/trail-demo-environment.json`. API inventory confirms **zero deployments**. Do not deploy until the user approves publication to **`trail-demo-seven.vercel.app`**.
+
+CLI dry-run now passes on the linked pristine staging directory: **42 files / 497,216 bytes**, all matching the source/config SHA-256 manifest, no missing or unexpected upload files. `.vercel` and the review manifest are excluded. Evidence is ignored `test-results/manual-demo-vercel-dry.json`. **No source has been uploaded.** CLI 64.5.0 `link --yes` unexpectedly downloaded a fresh Vercel OIDC `.env.local` and created `.gitignore` in the staging directory; neither was displayed or uploaded, and both generated files were deleted immediately before dry-run. No Gemini credential was fetched/copied. Do not assume future `vercel link` runs are environment-file-free: check/remove its generated staging env files without displaying them, retain `.vercelignore`, and recheck hashes/upload paths before release. The user's root environment files were untouched.
 
 ## Reviewed input and privacy boundary
 
@@ -44,13 +46,13 @@ No `.env.local` was copied or read for deployment. Build and production start ex
 
 ## Approval, release and real-URL verification
 
-1. Obtain approval for the account/scope, new `trail-demo` project, Hobby plan, production/manual settings, source/config hashes and audit limitation. No paid upgrades. Only then create/link the project **in the pristine staged directory**, not this dirty repository. Use explicit `--scope panchalmitkumarraju-2839 --project trail-demo`; do not let the random staging-directory name choose a project. Set/inspect Node 24.x and environment names without printing their values. If any Gemini/shared/public credential exists, stop for explicit removal approval; do not pull environment files.
-2. Inspect assigned project domains and show the exact assigned hostname before publication. Review anonymous accessibility, root/build/install settings, no add-ons and the env-name inventory. Do not change protection, domain or project settings on an unrelated project. Run CLI `deploy --dry --json` in the now-linked candidate and inspect every upload path against the manifest; allow only intended runtime/config inputs. Recreate a clean candidate if source hashes changed.
+1. **Creation/configuration approval received and applied. Do not recreate the project.** Continue with existing ID `prj_2AFvYa6vfTmljs28ZZ5zOO1q5c9r` under `--scope panchalmitkumarraju-2839 --project trail-demo`. No paid upgrades. The pristine staging directory, not the dirty repository, is linked. Re-inspect Node 24.x and environment names without printing values before publication. If any Gemini/shared/public credential appears, stop; do not pull environment files. See the automatic CLI-link env-file warning above.
+2. **Hostname shown for approval: `trail-demo-seven.vercel.app`. Publication is not authorized yet.** Domain verification, settings, environment inventory and upload dry-run are complete; anonymous app behavior cannot be checked until a deployment exists. Recheck every upload path against the manifest before release and recreate a clean candidate if runtime/config hashes change. Do not change any unrelated project.
 3. **Only after publish approval**, from that staged directory use pinned CLI with `--scope panchalmitkumarraju-2839 --project trail-demo --prod --env ENABLE_AI_PLANNING=false --build-env ENABLE_AI_PLANNING=false --meta sourceCommit=66940bfe028dadfe320c02e5003d01c1a501cf89 --meta demoMode=public-manual`. No token argument, `--temporary`, `--prebuilt`, `--turbo`, git push or copied credentials. Capture deployment ID/actual immutable URL/assigned alias and UTC time, inspect ready status and source metadata. No success claim from upload output alone.
 4. Run the real public smoke, not mocks or localhost, using a bare approved HTTPS origin:
 
    ```sh
-   PW_PUBLIC_DEMO=1 PW_DEMO_URL=https://ACTUAL-ASSIGNED-HOST npm exec playwright test -- --config playwright.manual-demo.config.ts --output=test-results/manual-public-smoke
+   PW_PUBLIC_DEMO=1 PW_DEMO_URL=https://trail-demo-seven.vercel.app npm exec playwright test -- --config playwright.manual-demo.config.ts --output=test-results/manual-public-smoke
    ```
 
    The config refuses remote URLs unless explicitly opted in, rejects embedded credentials/paths/queries, and refuses live Gemini mode. These are new fictional browser contexts, not anyone's personal profile. Availability/refusal assertions are unmocked. Inspect the desktop/mobile screenshots and actual client/error responses. If protections produce a login page, or AI is available, stop rather than weakening the assertions.

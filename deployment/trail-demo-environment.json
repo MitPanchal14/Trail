@@ -1,0 +1,6 @@
+{
+  "key": "ENABLE_AI_PLANNING",
+  "value": "false",
+  "type": "plain",
+  "target": ["production", "preview"]
+}
