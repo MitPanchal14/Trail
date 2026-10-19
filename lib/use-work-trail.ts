@@ -4,6 +4,9 @@ import { currentSession, type Snapshot } from "./domain";
 import { transition, type Action } from "./actions";
 import { loadSnapshot, saveSnapshot, STORAGE_KEY } from "./storage";
 import { ownTab } from "./tab-ownership";
+import { prepareBackup } from "./backup";
+
+export type RestorePoint = { snapshot: Snapshot; raw: string | null; ownershipEpoch: number };
 
 export function useWorkTrail() {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
@@ -18,6 +21,9 @@ export function useWorkTrail() {
   const expectedRaw = useRef<string | null>(null);
   const wall = useRef(0),
     steady = useRef(0);
+  const restoreBusy = useRef(false), operationEpoch = useRef(0), ownershipEpoch = useRef(0);
+  const storageReadable = useRef(false);
+  const dispatchEpoch = operationEpoch.current;
   const publish = (s: Snapshot) => {
     state.current = s;
     setSnapshot(s);
@@ -49,6 +55,7 @@ export function useWorkTrail() {
     }
   };
   const dispatch = (action: Action) => {
+    if (restoreBusy.current || dispatchEpoch !== operationEpoch.current) return false;
     if (!guard.current?.valid()) {
       setOwned(false);
       setNotice(
@@ -114,12 +121,14 @@ export function useWorkTrail() {
       blocked.current = loaded.blocked;
       setRaw(loaded.raw);
       expectedRaw.current = loaded.raw;
+      storageReadable.current = !loaded.blocked || loaded.raw !== null;
       warn(loaded.warning);
       publish(loaded.snapshot);
     };
     load();
     const controller = ownTab((value) => {
       if (!active) return;
+      ownershipEpoch.current++;
       setOwned(value);
       if (value) {
         if (!warningRef.current) load();
@@ -174,5 +183,38 @@ export function useWorkTrail() {
       window.removeEventListener("storage", changed);
     };
   }, []);
-  return { snapshot, owned, warning, notice, dispatch, raw };
+  const restoreMode = (open: boolean) => {
+    restoreBusy.current = open;
+    operationEpoch.current++;
+  };
+  const restorePoint = (): RestorePoint => ({ snapshot: state.current!, raw: expectedRaw.current, ownershipEpoch: ownershipEpoch.current });
+  const restore = (imported: Snapshot, point: RestorePoint): string => {
+    if (!restoreBusy.current) return "Open restore and select the backup again.";
+    if (!guard.current?.valid()) return "Editing ownership is required. Close the other tab, then select the backup again.";
+    if (!storageReadable.current) return "Browser storage cannot be read. Download recovery and enable storage before restoring.";
+    if (state.current !== point.snapshot || expectedRaw.current !== point.raw || ownershipEpoch.current !== point.ownershipEpoch)
+      return "Your trail or editing ownership changed. Select the backup again to review a fresh preview.";
+    if (state.current.sessions.some(s => ["running", "paused"].includes(s.status))) return "Save my place before restoring a backup.";
+    try {
+      const next = prepareBackup(imported, Math.max(state.current.revision, imported.revision) + 1);
+      if (!guard.current?.valid()) return "Editing ownership changed. Select the backup again.";
+      if (localStorage.getItem(STORAGE_KEY) !== point.raw)
+        return "Stored data changed in another tab. Download recovery and reload before restoring; nothing was replaced.";
+      const error = saveSnapshot(localStorage, next);
+      if (error) return error;
+      // setItem is synchronous and atomic: no intermediate clear or partial publish.
+      expectedRaw.current = JSON.stringify(next);
+      blocked.current = false;
+      setRaw(expectedRaw.current);
+      warn("");
+      setNotice("Private backup restored to this browser. Resume work only when ready.");
+      wall.current = 0;
+      steady.current = 0;
+      publish(next);
+      return "";
+    } catch {
+      return "Restore could not be saved. Current records are unchanged; download recovery and check browser storage.";
+    }
+  };
+  return { snapshot, owned, warning, notice, dispatch, raw, restoreMode, restorePoint, restore };
 }

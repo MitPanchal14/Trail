@@ -43,7 +43,17 @@ Actual outcomes, limitations and the next user check live in `HANDOFF.md`.
 
 ## Local records and recovery
 
-Records are versioned/validated JSON in localStorage (`work-trail:snapshot:v1`), not server data. Use the same browser/profile/origin; changing ports, clearing storage or changing devices does not preserve access. Download private recovery JSON before clearing storage. Downloads contain personal notes. Import/replacement review belongs to a later slice.
+Records are versioned/validated JSON in localStorage (`work-trail:snapshot:v1`), not server data. Use the same browser/profile/origin; changing ports, clearing storage or changing devices does not preserve access. Download private recovery JSON before clearing storage. Downloads contain personal task descriptions and notes; keep them private. `localhost:3000` and `127.0.0.1:3000` have separate records.
+
+### Private local backup and restore
+
+1. On Today, use **Download private recovery** beside the private-browser controls. This existing JSON export is the restore format; no account, upload or cloud storage is involved.
+2. Choose **Restore private backup**, then a Trail version 1 JSON file (maximum **2 MiB**). Size, schema, relationships and dates are validated locally before replacement. Review goals, actions, sessions, active completions, creation-draft presence and calendar timezone. Selecting a file, previewing it or cancelling does not replace your trail.
+3. **Restoring replaces this browser’s entire Trail history; it does not merge.** Use **Download current private data** first if you want to keep it. **Cancel** (or Escape) leaves records unchanged. Only **Replace and restore** authorizes replacement; a failed write never publishes a restored trail.
+4. Save your place before restoring during running/paused focus. Close other editing tabs. Changes to the trail/ownership or stored raw data require a fresh preview or reload; inaccessible storage cannot be replaced. Pending planner replies are cancelled, not applied over a restore.
+5. Saved IDs, terrain/checkpoint slots, return fields, drafts, commitments/dispositions, completion/Undo and summit history, first use and timezone are retained. Imported running sessions stop at the recorded heartbeat: **Resume** remains explicit, with no closed-tab time or new achievement. After success, reload and inspect Today, Mountains and Progress.
+
+If validation or saving fails, keep the dialog open to download current private data and the original stored data where available. Corrupt raw records stay untouched until a valid, explicitly confirmed replacement is saved; do not clear storage as a recovery step. Storage must be readable and this tab must own editing. To try the flow safely, use fictional work in a separate browser profile rather than replacing real records. Backup files are not encrypted; keep them in a trusted private location.
 
 While a tab is open, timestamps catch up delayed countdown ticks. Running sessions persist roughly once per second and on transitions. Reopening recovers the last durable heartbeat as interrupted; closed-tab absence is never added. Browser throttling/crashes can leave an older heartbeat, so exact last-second recovery is not guaranteed. Clock discontinuities pause conservatively. Recorded session time is not proof of attention.
 

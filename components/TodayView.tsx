@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import MountainsView from "./MountainsView";
 import ProgressView from "./ProgressView";
+import BackupRestore from "./BackupRestore";
 import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
@@ -29,7 +30,8 @@ export default function TodayView() {
   const revealToday = useRef(false);
   const editTarget = useRef<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
-  const { snapshot: s, owned, warning, notice, dispatch, raw } = useWorkTrail();
+  const { snapshot: s, owned, warning, notice, dispatch, raw, restoreMode, restorePoint, restore } = useWorkTrail();
+  const [restoreOpen, setRestoreOpen] = useState(false), [restoreGeneration, setRestoreGeneration] = useState(0);
   const [samples, setSamples] = useState(false),
     [focus, setFocus] = useState(false),
     [creationOpen, setCreationOpen] = useState(false),
@@ -206,6 +208,13 @@ export default function TodayView() {
     setCreationOpen(true);
     dialog.current?.showModal();
   };
+  const openRestore = () => {
+    setSamples(false);
+    restoreMode(true);
+    setRestoreOpen(true);
+    // Unmount pending planner requests; old dispatch closures are also revoked.
+    setRestoreGeneration(n => n + 1);
+  };
   const storageNotice = (
     <>
       {warning && (
@@ -231,6 +240,7 @@ export default function TodayView() {
                 Download original stored data
               </button>
             )}
+            <button onClick={openRestore}>Restore private backup</button>
           </div>
         </section>
       )}
@@ -613,9 +623,10 @@ export default function TodayView() {
               </div>
             </section>}
             <DailyPlanner
+              key={restoreGeneration}
               snapshot={s}
               dispatch={dispatch}
-              disabled={readOnly}
+              disabled={readOnly || restoreOpen}
               onSelect={(id) => {
                 if (dispatch({ type: "select", id })) {
                   setMinutes(null);
@@ -654,6 +665,7 @@ export default function TodayView() {
               >
                 Download private recovery
               </button>
+              <button className="quiet" onClick={openRestore}>Restore private backup</button>
               <button className="secondary" onClick={() => setSamples(true)}>
                 Explore sample previews
               </button>
@@ -662,6 +674,17 @@ export default function TodayView() {
           </>
         )}
         </>}
+        {focused && <button className="quiet" onClick={openRestore}>Restore private backup</button>}
+        {restoreOpen && <BackupRestore snapshot={s} owned={owned} warning={warning} raw={raw} capture={restorePoint} restore={restore}
+          onClose={() => { restoreMode(false); setRestoreOpen(false); }}
+          onRestored={() => {
+            restoreMode(false); setRestoreOpen(false); setRestoreGeneration(n => n + 1);
+            setCelebration(null); setReopened(null); setFocus(false); setMinutes(null); setNextDuration({ id: "", value: "" }); setDeliberate(false);
+            setCreationOpen(false); setEditId(null); setUndoId(null);
+            dialog.current?.close(); conflict.current?.close(); undoChoice.current?.close();
+            router.push("/");
+            requestAnimationFrame(() => heading.current?.focus());
+          }} />}
         <dialog className="decision-dialog" ref={undoChoice} aria-labelledby="undo-summit-title">
           <div className="decision-content">
           <h2 id="undo-summit-title">Was the summit confirmation also mistaken?</h2>
@@ -691,7 +714,7 @@ export default function TodayView() {
           aria-labelledby="create-title"
           onCancel={closeCreate}
         >
-          {creationOpen && (
+          {creationOpen && !restoreOpen && (
             <TaskCreation
               snapshot={s}
               dispatch={dispatch}

@@ -11,6 +11,15 @@
   --border: #648074;
   --soft: #304c3d;
 }
+.backup-dialog { width: min(620px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; overflow-wrap: anywhere; padding: 24px; color: var(--ink); background: var(--bg); border: 1px solid var(--border); border-radius: 12px; }
+.backup-dialog::backdrop { background: #000b; }
+.backup-dialog .button-row { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 16px; }
+.backup-dialog button { min-height: 44px; }
+.backup-file { display: grid; gap: 8px; margin-block: 20px; }
+.backup-file input { width: 100%; min-width: 0; font: inherit; }
+.backup-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.backup-counts dt { color: var(--muted); }
+.backup-counts dd { margin: 4px 0 0; }
 /* Progress is a read-only calendar, isolated from Today/focus and Mountains. */
 .progress-view { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0 32px; min-width: 0; overflow-wrap: anywhere; }
 .progress-view > :is(.heading, .progress-overview, .progress-comparison, .progress-about) { grid-column: 1 / -1; }
