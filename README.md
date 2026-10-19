@@ -41,9 +41,9 @@ This selects only `e2e/live-gemini.spec.ts`: a fictional clear goal, a budgeted 
 
 Actual outcomes, limitations and the next user check live in `HANDOFF.md`.
 
-## Public manual demo readiness
+## Public manual demo
 
-The approved manual configuration, created Vercel `trail-demo` project and assigned **`trail-demo-seven.vercel.app`** hostname are recorded in [`deployment/manual-demo-runbook.md`](deployment/manual-demo-runbook.md). **Publishing still awaits user approval; there are zero deployments.** Production AI remains unconditionally disabled; never upload Gemini credentials. Localhost and deployed hostnames have separate browser records, transferred only by explicit private backup/restore.
+**Live: https://trail-demo-seven.vercel.app**. The approved manual release passed **8 unmocked public desktop/mobile smoke checks**. Exact source revision, deployment ID, configuration hashes, UTC timestamps, results and rollback limits are in [`deployment/release-2026-10-19.md`](deployment/release-2026-10-19.md); hosting procedures are in [`deployment/manual-demo-runbook.md`](deployment/manual-demo-runbook.md). Production AI remains unconditionally disabled; no Gemini credentials were uploaded. Localhost and deployed hostnames have separate browser records, transferred only by explicit private backup/restore. Final user acceptance remains pending.
 
 Use `node scripts/prepare-manual-demo.mjs 66940bf` to stage the reviewed committed runtime source plus deployment configuration, excluding private documents, environment files and unrelated working-tree changes. It only prepares local files; it never creates a hosting project or uploads. The runbook separates fresh local-production checks from the required post-deployment public HTTPS smoke. [`deployment/demo-rehearsal.md`](deployment/demo-rehearsal.md) is the later hands-on checklist, not an acceptance claim.
 

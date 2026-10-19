@@ -1,6 +1,6 @@
 # Public manual demo rehearsal
 
-Run only after the actual assigned URL has passed its public smoke. User acceptance, physical Safari/mobile and screen-reader checks are not inferred from automated Chromium tests.
+Rehearse at **https://trail-demo-seven.vercel.app**. Its October 19 release passed 8 real public smoke checks; identity/results are in `release-2026-10-19.md`. The boxes below remain user checks: acceptance, physical Safari/mobile and screen-reader behavior are not inferred from automated Chromium tests.
 
 - [ ] Record actual URL, source revision, manual mode and public-test timestamp. Open a fresh isolated profile at that URL; do not reuse or clear personal records.
 - [ ] Explain: private to this browser; no account/cloud sync. Localhost and the public hostname have separate data. Optional transfer is private export/explicit replace, not automatic sync.
