@@ -1,0 +1,15 @@
+.env
+.env.*
+.git
+.vercel
+.next
+.next-e2e
+node_modules
+test-results
+playwright-report
+devpost
+.agents
+.claude
+agent
+skills-lock.json
+_deployment-review.json

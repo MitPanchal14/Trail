@@ -41,6 +41,12 @@ This selects only `e2e/live-gemini.spec.ts`: a fictional clear goal, a budgeted 
 
 Actual outcomes, limitations and the next user check live in `HANDOFF.md`.
 
+## Public manual demo readiness
+
+The reviewed manual deployment proposal, confirmed Vercel account and pending project/hostname approval are in [`deployment/manual-demo-runbook.md`](deployment/manual-demo-runbook.md). No public deployment is claimed yet. Production AI remains unconditionally disabled; never upload Gemini credentials. Localhost and deployed hostnames have separate browser records, transferred only by explicit private backup/restore.
+
+Use `node scripts/prepare-manual-demo.mjs 66940bf` to stage the reviewed committed runtime source plus deployment configuration, excluding private documents, environment files and unrelated working-tree changes. It only prepares local files; it never creates a hosting project or uploads. The runbook separates fresh local-production checks from the required post-deployment public HTTPS smoke. [`deployment/demo-rehearsal.md`](deployment/demo-rehearsal.md) is the later hands-on checklist, not an acceptance claim.
+
 ## Local records and recovery
 
 Records are versioned/validated JSON in localStorage (`work-trail:snapshot:v1`), not server data. Use the same browser/profile/origin; changing ports, clearing storage or changing devices does not preserve access. Download private recovery JSON before clearing storage. Downloads contain personal task descriptions and notes; keep them private. `localhost:3000` and `127.0.0.1:3000` have separate records.
