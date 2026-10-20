@@ -1,10 +1,24 @@
 # Work Trail — Current Handoff
 
-Updated: October 19, 2026.
+Updated: October 20, 2026.
 
 ## Start here — handoff to the next chat
 
 This section and “Next action” supersede older dated status/stop-point statements below. Historical verification is retained for evidence; do not interpret earlier “not started” or “live unverified” statements as current status.
+
+### October 20 — new-chat handoff and four-day reassessment
+
+**Read `devpost/next-chat-hackathon-review-2026-10-20.md` first.** User wants candid hackathon competitiveness review and a realistic four-day improvement plan, before further building. Confirm official competition/rubric/deadline; no winning claim or assumed exact deadline. Public manual demo is shipped; online AI, sync/native app and integrations are not implemented. Current structure is liked but not fully convincing. Both new visual studies were rejected as still AI-made; no redesign direction approved. Reference-led discussion is next; references not supplied yet. Latest phone clarification: Brave normal browsing retained work on reload, so data loss is not reproduced/established. These newer details supersede broad reset/confirmed-data-loss interpretations below.
+
+### October 20 — product direction reopened
+
+User rejects the overall generic/boring feel and asks to rethink mountains, visible accomplishment, friction and meaningful AI assistance. This newer request supersedes the blanket preserve-UI constraint for future approved redesign work; it does not approve a specific replacement or overwrite of real records. Exploration recorded in `devpost/product-reset-2026-10-20.md`. Current public release stays intact while the new core loop/visual direction is agreed.
+
+User reports data loss on reload/return. Fresh isolated live Chromium test manually created accepted fictional work, reloaded, closed the whole browser and relaunched the same persistent profile: task remained. User-specific failure is still open; browser/private/embedded mode, origin, device and work state need clarification. No real user data touched and no persistence fix claimed. Next: resolve those conditions and learn one actual daily workflow before redesign implementation; avoid another cosmetic mountain reskin or generic AI task breakdown feature.
+
+### October 19 — independent public smoke review
+
+After user confirmed the live URL, independently reran the existing unmocked public smoke at `https://trail-demo-seven.vercel.app`: **8 passed (14.0s)**, desktop/mobile Chromium emulation. Verified real manual journey, save/return/explicit Resume, completion/Undo/summit, backup/restore, routes/Progress, injected storage failure and anonymous AI refusal/client credential-marker checks. Isolated fictional browser records only; no user records or live provider calls. Evidence: ignored `test-results/public-independent-review/`; mobile Progress screenshot inspected. No deployment blocker found in these checks. Physical Safari/device and final user rehearsal remain pending. No source fix, redeploy or public AI enablement performed.
 
 ### October 19 — approved public manual release verified
 
@@ -32,6 +46,10 @@ This section and “Next action” supersede older dated status/stop-point state
 - Full existing ordinary suite against this **production** candidate: **273 passed (38.9s)** on desktop/tablet/mobile, using `PW_BASE_URL=http://127.0.0.1:3001 PW_DEMO_URL=http://127.0.0.1:3001 PW_FULL_REGRESSION=1 npm exec playwright test -- --config playwright.manual-demo.config.ts --output=test-results/manual-production-regression`. Ordinary AI success uses mocks, not live Gemini; the separate 8 smoke checks are unmocked. Fresh lint/typecheck and **64 unit tests** pass. `scripts/check-manual-bundles.mjs` scanned **10 client artifacts with zero provider/credential markers**. Actual production GET reports disabled; local same-origin POST returns `503 PUBLIC_AI_DISABLED`; unit spies verify production rejects before upstream fetch even with credentials configured. Real public same-origin POST is expected to remain `403 ORIGIN` under the preserved localhost-only boundary. Public evidence remains pending.
 - Inspected desktop saved-work and mobile Progress captures under ignored `test-results/manual-production-first/`; approved Dusk/focus/Mountains/separated-month Progress composition retained. Bundle scanning is marker-based, not a universal proof against every possible secret; clean committed-source/no-env staging is the complementary safeguard. `npm audit --omit=dev` reported **0 runtime vulnerabilities**; full audit reported **5 high dev-tool findings** in the ESLint → fast-glob/micromatch/braces chain (GHSA-vfj7-8cjw-p6xm). npm proposes downgrading eslint-config-next to 14.2.35; not applied to this Next 16 build. Disclose this limitation in configuration approval; no unreviewed dependency changes.
 - `deployment/demo-rehearsal.md` records the final user check, origin-specific local-data warning and no automatic recording/submission. Real public verification, hostname assignment, physical-device/Safari/screen-reader behavior and user acceptance remain **unverified**. Next step is target/configuration approval, not a silent deploy.
+
+### October 19 — independent backup review
+
+Reviewed OpenCode checkpoint `66940bf`, including schema validation, atomic replacement, expected-raw/ownership checks, recovery and stale async callbacks. No blocking findings. Fresh lint/typecheck/build pass, 64 unit tests and the full 273 ordinary browser checks pass (2.3m) across desktop/tablet/mobile. Isolated fictional records, AI disabled/mocked; user records untouched. Inspected desktop and 320px restore previews in ignored `test-results/backup-independent-review/`. Narrow dialog is long but bounded/scrollable; minor future polish only. No code fixes required. Local implementation is ready for deployment-readiness work; public deployment, physical Safari/mobile and user acceptance are not established. No live provider requests or push/deploy performed.
 
 ### October 19 — private local backup and restore
 
@@ -283,7 +301,7 @@ Existing design-lab is a standalone illustrative HTML prototype with synthetic r
 
 ## Next action
 
-User rehearsal at **https://trail-demo-seven.vercel.app**, using `deployment/demo-rehearsal.md` and a separate fictional-data browser profile. Approved public manual deployment **`dpl_2EWrVHHF13dp3FmeyAj7EQ2PYLdn`** is verified with **8 real public desktop/mobile smoke passes**; exact source/config/identity/times and rollback limits are in `deployment/release-2026-10-19.md`. Keep production AI blocked and Gemini credentials absent. Localhost and public browser records are separate; transfer only through explicit private backup/restore. Final user acceptance, physical-device/Safari and screen-reader checks remain pending. Do not redeploy, record/submit a video, push unrelated changes or mark acceptance complete automatically.
+Start a discussion using `devpost/next-chat-hackathon-review-2026-10-20.md`: assess the actual shipped product against confirmed official hackathon criteria and agree a realistic four-day plan. User wants to supply visual references and preserve useful current structure; neither prototype is approved. Do not start another reskin, paid service or AI enablement. Local source/records and public manual release stay intact until a focused change is agreed.
 
 Required acceptance journey: create three actions → complete first → explicitly start second from the main card → save both return fields → close/reopen → explicitly Resume second → complete second → verify two earned checkpoints → Undo second → verify first achievement remains. Check reload persistence, no timer/absence/saving reward, reduced-motion final state and desktop/mobile controls. Then let the user repeat with their real project and assess whether returning makes the next step clear within about 20 seconds and completion visibly feels like progress. Stop for this review before later feature slices. No new agent Gemini calls, push, merge or deployment is authorized by this handoff alone.
 
