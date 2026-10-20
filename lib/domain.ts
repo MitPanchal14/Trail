@@ -6,6 +6,7 @@ const time = z.iso.datetime();
 const nullableTime = time.nullable();
 const text = z.string().trim().min(1).max(500);
 const ms = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
+export const returnContextSchema = z.object({ note: z.string().max(2000), returnStep: z.string().max(500) }).strict();
 export const durationSchema = z.number().int().min(1).max(120);
 const zone = z.string().refine((value) => {
   try {
@@ -39,6 +40,7 @@ const subtaskSchema = z
     orderKey: z.number(),
     checkpointSlot: z.number().int().nonnegative(),
     archivedAt: nullableTime,
+    returnContext: returnContextSchema.optional(),
   })
   .strict();
 const sessionSchema = z
@@ -300,5 +302,10 @@ export function dateKey(now: number, timeZone: string) {
 }
 export const currentSession = (s: Snapshot) =>
   s.sessions.find((x) => x.id === s.selection.sessionId);
+export function savedContext(s: Snapshot, taskId: string) {
+  const task = s.subtasks.find(t => t.id === taskId);
+  const session = s.sessions.findLast(x => x.subtaskId === taskId);
+  return task?.returnContext ?? { note: session?.note ?? "", returnStep: session?.returnStep ?? "" };
+}
 export const activeCompletion = (s: Snapshot, taskId: string) =>
   s.completions.find((x) => x.subtaskId === taskId && !x.undoneAt);

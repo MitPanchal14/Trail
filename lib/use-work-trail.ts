@@ -81,7 +81,7 @@ export function useWorkTrail() {
       }
       const next = transition(s, action, now);
       const linkedUndo = action.type === "undo" && s.summitConfirmations.some(c => !c.revokedAt && c.relatedCompletionIds.includes(action.id));
-      const transactional = linkedUndo || ["undo", "select", "day-commit", "start-next", "edit-draft", "confirm-summit", "reopen-goal", "correct-summit"].includes(action.type);
+      const transactional = linkedUndo || ["update-progress", "undo", "select", "day-commit", "start-next", "edit-draft", "confirm-summit", "reopen-goal", "correct-summit"].includes(action.type);
       if (transactional) {
         if (blocked.current || next === s) return false;
         persist(next);

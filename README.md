@@ -41,6 +41,14 @@ This selects only `e2e/live-gemini.spec.ts`: a fictional clear goal, a budgeted 
 
 Actual outcomes, limitations and the next user check live in `HANDOFF.md`.
 
+## Local candidate: update ongoing work without focus
+
+October 20 slice, **not deployed or user-accepted**: select an unfinished action on Today and choose **Update progress** beside Start/Resume. Edit the prefilled optional **Where I stopped / what changed** and **Next time, start here**, then **Save update**. Reload to see the next step and supporting context on the existing return card. Reopen the editor to revise; **Cancel/Escape** preserves the last saved values. A context update earns no checkpoint, completes nothing and creates no focus session/time; Start/Resume remains explicit. Save an active/paused focus session before using this editor.
+
+If saving fails, the editor keeps the unsaved draft and offers **Download update draft** (private text JSON, not an importable full Trail backup). Resolve storage/ownership issues before retrying with a fresh editor; never treat the warning as a successful save. Existing private backup/restore supports the new optional action context and all older backups in this local candidate. The unchanged public build may reject newer backups containing this field; do not import those into it or clear personal records to test compatibility.
+
+Implementation/verification handoff: `devpost/progress-update-plan-2026-10-20.md` and `HANDOFF.md`. Independent review and real-device/accessibility/user acceptance remain separate from automated checks.
+
 ## Public manual demo
 
 **Live: https://trail-demo-seven.vercel.app**. The approved manual release passed **8 unmocked public desktop/mobile smoke checks**. Exact source revision, deployment ID, configuration hashes, UTC timestamps, results and rollback limits are in [`deployment/release-2026-10-19.md`](deployment/release-2026-10-19.md); hosting procedures are in [`deployment/manual-demo-runbook.md`](deployment/manual-demo-runbook.md). Production AI remains unconditionally disabled; no Gemini credentials were uploaded. Localhost and deployed hostnames have separate browser records, transferred only by explicit private backup/restore. Final user acceptance remains pending.

@@ -79,6 +79,8 @@ The user said 20–30 seconds is acceptable for recording, and shorter is prefer
 
 For unfinished work, the user explicitly said they would tap **Save my place** because revisiting and completing the task matters to them. The proposed action retains the current step and offers an optional brief note about where work stopped or what was difficult. The optional note is a design proposal; exact fields are not approved yet.
 
+**October 20 bounded refinement:** for a selected unfinished action, **Update progress** edits “Where I stopped / what changed” and “Next time, start here” without focus or the full task editor. Explicit save retains supplied context for the existing Today return card; cancellation changes nothing. This earns no completion, checkpoint or focus time. Typed input only in this slice; voice interpretation, reminders, integrations and visual redesign remain outside it. Implementation/review evidence is tracked separately; this authorization is not design/user acceptance.
+
 Pausing must be represented neutrally. The user wants useful records of unfinished work without feeling punished for admitting it. Keep unfinished work available rather than requiring a false completion to receive positive feedback.
 
 ### 5. Return with enough context to act

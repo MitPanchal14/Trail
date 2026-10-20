@@ -14,6 +14,9 @@ Slice 1 checkpoint: `92da564`. Slice 2 implementation checkpoint: `71e624b`; mec
 
 ## Slices
 
+- [ ] **October 20 bounded slice — Update progress without focus (user/independent review pending)**
+  Implemented: selected unfinished action; prefilled two-field manual editor, explicit save/cancel, existing Today return-card reuse, no timer/session/reward created. Original action, recovery/Undo/backup/routes retained. Mechanical checks: 74 unit tests, 303 ordinary desktop/tablet/mobile browser tests, 30 targeted local-production tests, lint/typecheck/build pass. Covers persistence/cancellation/target/time/checkpoints/explicit Resume/keyboard/320px/storage/ownership/old-new backup compatibility. See `progress-update-plan-2026-10-20.md` and HANDOFF for evidence/older-public-build backup limits. User/independent acceptance, physical-device/Safari and screen readers remain unchecked. No voice/AI/redesign/push/deploy. Historical unchecked items below are not evidence of missing implementation.
+
 - [x] **1. Today has a compelling pixel world**
   Becomes usable: Responsive Today and labeled sample states can be explored.
   Why now: Establish the visual quality before broad implementation.
@@ -89,6 +92,8 @@ Reflection: offer during final wrap-up; personal answer stays in ignored profile
 Activity mode: running app/editor preferred, disclose static fallback if needed.
 
 ## Revisions
+
+- October 20 bounded manual progress update implemented for review only. Optional action context, no manufactured session/time/checkpoint, explicit guarded save, draft recovery, existing return-card/Mountains context reuse, explicit Start/Resume carry-forward and old-data/new-backup support. 74 unit tests, 303 ordinary browsers and 30 new local-production checks pass; lint/typecheck/build pass. Preview http://127.0.0.1:3101/. Acceptance stays unchecked; old public release untouched. See HANDOFF and progress-update-plan-2026-10-20.md.
 
 - October 19 public manual release: after explicit hostname/publication approval, deployed reviewed `66940bf` source + config overlays to **https://trail-demo-seven.vercel.app** under Hobby scope `panchalmitkumarraju-2839`. Deployment `dpl_2EWrVHHF13dp3FmeyAj7EQ2PYLdn` READY at 13:19:20.210Z; alias/source/mode verified. Exactly 42 intended files, no env/Gemini credentials or unrelated edits. **8 actual public unmocked desktop/mobile smoke checks passed (10.4s)**; AI unavailable, same-origin/no-Origin POSTs 403 ORIGIN, public routes 200, screenshots inspected, bounded post-release logs returned no errors/5xx. Full 273/64 checks remain local evidence. Identity/hashes/times/rollback limits: deployment/release-2026-10-19.md. Final user rehearsal/acceptance, physical Safari/mobile and screen readers remain unchecked; no video/submission performed.
 

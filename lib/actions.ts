@@ -3,6 +3,7 @@ import {
   currentSession,
   dateKey,
   durationSchema,
+  returnContextSchema,
   type Snapshot,
 } from "./domain";
 import { account, recover, resume } from "./timer";
@@ -25,6 +26,7 @@ export type Action =
   | { type: "tick" | "pause" | "resume" | "save" | "complete" | "interrupt" }
   | { type: "note"; note: string }
   | { type: "return-step"; value: string }
+  | { type: "update-progress"; id: string; note: string; returnStep: string; expectedRevision: number }
   | { type: "extend"; minutes: number }
   | { type: "undo"; id: string; correctSummit?: boolean };
 export function transition(
@@ -32,6 +34,21 @@ export function transition(
   action: Action,
   now = Date.now(),
 ): Snapshot {
+  if (action.type === "update-progress") {
+    const target = previous.subtasks.find(t => t.id === action.id);
+    if (previous.revision !== action.expectedRevision || previous.selection.selectedSubtaskId !== action.id ||
+      !target || target.archivedAt || activeCompletion(previous, target.id) ||
+      previous.sessions.some(x => ["running", "paused"].includes(x.status))) return previous;
+    const context = returnContextSchema.parse({ note: action.note, returnStep: action.returnStep });
+    // Context capture is not a timing event: do not account, create or mutate sessions.
+    const next = structuredClone(previous);
+    next.subtasks.find(t => t.id === target.id)!.returnContext = context;
+    const mountain = next.mountains.find(m => m.id === target.mountainId)!;
+    mountain.savedSubtaskId = target.id;
+    mountain.savedAt = new Date(now).toISOString();
+    next.revision++;
+    return next;
+  }
   if (action.type === "edit-draft") return transition(previous, { type: "draft", draft: action.draft }, now);
   if (action.type === "start-next") {
     const target = previous.subtasks.find((t) => t.id === action.id);
@@ -50,6 +67,12 @@ export function transition(
     Object.assign(session, accounted);
   }
   const task = s.subtasks.find((x) => x.id === s.selection.selectedSubtaskId);
+  const takeReturnContext = () => {
+    if (task?.returnContext && session) {
+      Object.assign(session, task.returnContext);
+      delete task.returnContext;
+    }
+  };
   switch (action.type) {
     case "confirm-summit":
     case "reopen-goal":
@@ -125,6 +148,7 @@ export function transition(
       if (!task || task.archivedAt || activeCompletion(s, task.id))
         return previous;
       if (session && session.status !== "completed") {
+        takeReturnContext();
         Object.assign(session, resume(session, now));
         break;
       }
@@ -145,6 +169,7 @@ export function transition(
         returnStep: "",
         dailyElapsed: {},
       };
+      takeReturnContext();
       s.sessions.push(session);
       s.selection.sessionId = session.id;
       break;
@@ -154,8 +179,10 @@ export function transition(
         session.status !== "completed" &&
         task &&
         !activeCompletion(s, task.id)
-      )
+      ) {
+        takeReturnContext();
         Object.assign(session, resume(session, now));
+      }
       break;
     case "pause":
       if (session && session.status === "running") {
@@ -191,6 +218,7 @@ export function transition(
         if (session.remainingMs + minutes * 60000 > 7200000)
           throw Error("Remaining commitment cannot exceed 120 minutes.");
         session.remainingMs += minutes * 60000;
+        takeReturnContext();
         Object.assign(session, resume(session, now));
       }
       break;
@@ -210,7 +238,7 @@ export function transition(
           completedAt: stamp,
           localDate: dateKey(now, s.calendarTimeZone),
           calendarTimeZone: s.calendarTimeZone,
-          note: session?.note ?? "",
+          note: task.returnContext?.note ?? session?.note ?? "",
           sessionIds: s.sessions
             .filter((x) => x.subtaskId === task.id)
             .map((x) => x.id),
@@ -262,7 +290,11 @@ export function recoverSnapshot(s: Snapshot, now = Date.now()): Snapshot {
       !activeCompletion(s, c.subtaskId) &&
       s.subtasks.some((t) => t.id === c.subtaskId && !t.archivedAt),
   )?.subtaskId;
-  const task = s.subtasks.find((t) => t.id === (latest?.subtaskId ?? planned));
+  const contextTask = s.subtasks.filter(t => t.returnContext && !t.archivedAt && !activeCompletion(s, t.id) &&
+    s.mountains.some(m => m.savedSubtaskId === t.id && m.savedAt))
+    .sort((a, b) => Date.parse(s.mountains.find(m => m.id === b.mountainId)!.savedAt!) - Date.parse(s.mountains.find(m => m.id === a.mountainId)!.savedAt!))[0];
+  const contextWins = contextTask && (!latest || Date.parse(s.mountains.find(m => m.id === contextTask.mountainId)!.savedAt!) >= Date.parse(savedTime(latest)));
+  const task = s.subtasks.find((t) => t.id === (contextWins ? contextTask.id : latest?.subtaskId ?? planned));
   return {
     ...s,
     sessions,
@@ -271,7 +303,7 @@ export function recoverSnapshot(s: Snapshot, now = Date.now()): Snapshot {
           selectedMountainId: task.mountainId,
           selectedSubtaskId: task.id,
           sessionId:
-            latest?.id ??
+            (contextWins ? undefined : latest?.id) ??
             sessions.findLast((x) => x.subtaskId === task.id)?.id ??
             null,
         }

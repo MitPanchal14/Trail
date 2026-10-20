@@ -973,6 +973,12 @@ dialog p {
   font-size: 14px;
   color: var(--muted);
 }
+.progress-update-dialog { max-width: 520px; max-height: calc(100dvh - 24px); overflow-y: auto; overflow-wrap: anywhere; }
+.progress-update-dialog form, .progress-update-dialog label { display: grid; gap: 12px; }
+.progress-update-dialog label span { color: var(--muted); font-size: 12px; }
+.progress-update-dialog textarea { width: 100%; min-width: 0; }
+.progress-update-dialog .button-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.progress-update-dialog button { min-height: 44px; }
 .skip {
   position: fixed;
   left: 12px;

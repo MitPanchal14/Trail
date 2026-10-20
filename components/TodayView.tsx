@@ -4,11 +4,12 @@ import { usePathname, useRouter } from "next/navigation";
 import MountainsView from "./MountainsView";
 import ProgressView from "./ProgressView";
 import BackupRestore from "./BackupRestore";
+import UpdateProgress from "./UpdateProgress";
 import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
 import { useWorkTrail } from "@/lib/use-work-trail";
-import { activeCompletion, currentSession, dateKey } from "@/lib/domain";
+import { activeCompletion, currentSession, dateKey, savedContext } from "@/lib/domain";
 import { earnedPosition } from "@/lib/trail-position";
 import { downloadPrivate } from "@/lib/storage";
 import TaskCreation from "./TaskCreation";
@@ -32,6 +33,8 @@ export default function TodayView() {
   const [editId, setEditId] = useState<string | null>(null);
   const { snapshot: s, owned, warning, notice, dispatch, raw, restoreMode, restorePoint, restore } = useWorkTrail();
   const [restoreOpen, setRestoreOpen] = useState(false), [restoreGeneration, setRestoreGeneration] = useState(0);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const updateButton = useRef<HTMLButtonElement>(null);
   const [samples, setSamples] = useState(false),
     [focus, setFocus] = useState(false),
     [creationOpen, setCreationOpen] = useState(false),
@@ -81,10 +84,11 @@ export default function TodayView() {
     readOnly = !owned,
     duration = minutes ?? String(task?.suggestedMinutes ?? 20),
     remaining = session?.remainingMs ?? Number(duration) * 60000;
-  const returning = !!session && !completion && !focused;
+  const returning = (!!session || !!task?.returnContext) && !completion && !focused;
   const isMountains = pathname === "/mountains" && !focused;
   const isProgress = pathname === "/progress" && !focused;
-  const returnStep = session && !completion ? session.returnStep.trim() : "";
+  const context = task ? savedContext(s, task.id) : { note: "", returnStep: "" };
+  const returnStep = !completion ? context.returnStep.trim() : "";
   const accepted = s.subtasks.filter(t => t.mountainId === mountain?.id && !t.archivedAt).sort((a,b) => a.orderKey - b.orderKey);
   const next = accepted.find(t => !activeCompletion(s, t.id));
   const summitReached = mountain?.status === "completed";
@@ -122,6 +126,7 @@ export default function TodayView() {
     } else finishUndo(id);
   };
   const nextSession = s.sessions.findLast(x => x.subtaskId === next?.id && x.status !== "completed");
+  const nextContext = next ? savedContext(s, next.id) : null;
   const nextMinutes = nextDuration.id === next?.id ? nextDuration.value : String(next?.suggestedMinutes ?? 20);
   const disposition = s.dayPlans.find(p => p.dateKey === dateKey(todayNow, s.calendarTimeZone))?.commitments.find(c => c.subtaskId === next?.id)?.disposition;
   const needsChoice = disposition === "deferred" || disposition === "removed";
@@ -209,6 +214,7 @@ export default function TodayView() {
     dialog.current?.showModal();
   };
   const openRestore = () => {
+    setUpdateOpen(false);
     setSamples(false);
     restoreMode(true);
     setRestoreOpen(true);
@@ -310,7 +316,7 @@ export default function TodayView() {
                 ? "One action at a time."
                 : summitReached ? "Summit reached" : summitPending ? "All planned steps complete" : completion
                   ? "A checkpoint earned."
-                  : session
+                  : session || task?.returnContext
                      ? "Continue your work"
                     : task
                        ? "Next up"
@@ -353,7 +359,7 @@ export default function TodayView() {
               slots={slots}
               seed={mountain?.terrainSeed}
               currentSlot={task?.checkpointSlot}
-              saved={!!session && !completion}
+              saved={(!!session || !!task?.returnContext) && !completion}
               running={focused && session?.status === "running"}
               celebration={!!completion && celebration === task?.id}
               completed={!!completion}
@@ -392,7 +398,7 @@ export default function TodayView() {
                           : session.status === "paused"
                             ? "Paused"
                             : "Focus commitment"
-                    : "Your next action"}
+                    : task?.returnContext ? "Place saved" : "Your next action"}
               </span>
               {returnStep && <p className="eyebrow">First thing when I return</p>}
               <h2 id="action-title" ref={actionHeading} tabIndex={-1}>
@@ -409,10 +415,10 @@ export default function TodayView() {
               </>}
               {mountain && !focused && !completion && <p className="session-time">{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>}
             </div>
-            {returning && session.note.trim() && (
+            {returning && context.note.trim() && (
               <div className="context">
                 <strong>Where I stopped</strong>
-                <p>{session.note}</p>
+                <p>{context.note}</p>
               </div>
             )}
             {focused && session ? (
@@ -501,9 +507,9 @@ export default function TodayView() {
                   <p className="eyebrow">Up next · Action {accepted.findIndex(t => t.id === next.id) + 1} of {accepted.length}</p>
                   <h3>{next.title}</h3>
                   {distinctInstruction(next.title, next.nextAction) && <p>{next.nextAction}</p>}
+                  {nextContext?.returnStep && <p>First thing when I return: {nextContext.returnStep}</p>}
+                  {nextContext?.note && <p>Where I stopped: {nextContext.note}</p>}
                   {nextSession ? <>
-                    {nextSession.returnStep && <p>First thing when I return: {nextSession.returnStep}</p>}
-                    {nextSession.note && <p>Where I stopped: {nextSession.note}</p>}
                     <p>Remaining commitment: {clock(nextSession.remainingMs)}</p>
                   </> : <label>Next session length<input aria-label="Next session length" type="number" min={1} max={120} value={nextMinutes} onChange={e => setNextDuration({ id: next.id, value: e.target.value })} /></label>}
                   {needsChoice && <label className="check-label"><input type="checkbox" checked={deliberate} onChange={e => setDeliberate(e.target.checked)} />Work on this {disposition} action now; keep today’s plan unchanged</label>}
@@ -564,6 +570,7 @@ export default function TodayView() {
                       : "Start"}
                   </button>
                 </form>
+                <button ref={updateButton} className="secondary" disabled={readOnly || !!warning || s.sessions.some(x => ["running", "paused"].includes(x.status))} onClick={() => setUpdateOpen(true)}>Update progress</button>
                 {session &&
                   session.status !== "completed" &&
                   session.remainingMs === 0 && (
@@ -608,7 +615,7 @@ export default function TodayView() {
             )}
             {!focused && <SummitPanel snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} dispatch={dispatch} onAdd={editBreakdown} onReveal={() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: "start", behavior: "instant" }); }} />}
             {!focused && <div className="task-tools">
-              {returning && <details className="session-details"><summary>Session details</summary><p>Last saved: {new Date(session.lastHeartbeatAt).toLocaleString()}</p><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p></details>}
+              {returning && session && <details className="session-details"><summary>Session details</summary><p>Last saved: {new Date(session.lastHeartbeatAt).toLocaleString()}</p><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p></details>}
               {mountain && <button className="quiet edit-breakdown" disabled={readOnly} onClick={editBreakdown}>Edit breakdown</button>}
             </div>}
           </section>
@@ -675,6 +682,10 @@ export default function TodayView() {
         )}
         </>}
         {focused && <button className="quiet" onClick={openRestore}>Restore private backup</button>}
+        {updateOpen && <UpdateProgress snapshot={s} owned={owned} warning={warning} dispatch={dispatch} onClose={() => {
+          setUpdateOpen(false);
+          requestAnimationFrame(() => updateButton.current?.focus({ preventScroll: true }));
+        }} />}
         {restoreOpen && <BackupRestore snapshot={s} owned={owned} warning={warning} raw={raw} capture={restorePoint} restore={restore}
           onClose={() => { restoreMode(false); setRestoreOpen(false); }}
           onRestored={() => {
