@@ -1,5 +1,9 @@
 # Delivery checklist
 
+Cloud handoff: the user authorized slice 1 with the retained UI and tested commits/pushes only to `codex/trail-redesign`. See the latest instruction at the top of HANDOFF.md. Cloud setup is pending with the user; disable the local overnight automation before launching Cloud work. No implementation is claimed by publishing these documents.
+
+**Next session:** use [the one-day build checklist](ONE_DAY_BUILD.md) for the proposed build order, UI decision and delivery reserve. Work is paused; this plan does not mark product features complete.
+
 ## Demo-only repository baseline
 
 - [x] Preserve a readable recovery archive outside the repository.
@@ -13,6 +17,8 @@
 
 ## Functional product — not implemented
 
+- [x] Prepare local one-day restart checklist and record the pause (25 October 2026; documentation only).
+- [x] Prepare proposed [first functional slice brief](FIRST_FUNCTIONAL_SLICE.md), state/storage/timing contract, acceptance matrix and OpenCode dispatch text (planning only, 25 October 2026).
 - [ ] Agree the next bounded slice and state/storage contract.
 - [ ] Manual goal creation and editable ordered subtasks.
 - [ ] Real focus start/pause/extend with accurate effort and explicit Resume.
