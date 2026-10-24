@@ -9,7 +9,7 @@
 - [x] Provide one dependency-free run/build workflow.
 - [x] Verify syntax, serving and build checks after cleanup (4 tests passed).
 - [x] Inspect the retained landing → Today → Focus flow in a browser; navigation preserves the running simulated timer.
-- [ ] Commit and push the cleaned baseline; verify remote refs.
+- [x] Commit and push the cleaned baseline; main and codex/trail-redesign verified at 1414887 (followed by this documentation receipt).
 
 ## Functional product — not implemented
 

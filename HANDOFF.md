@@ -9,3 +9,5 @@ Run `npm run dev`, then open http://127.0.0.1:3000/. No dependencies or keys are
 Next: agree a bounded functional slice using BUILD_PROMPT.md and the unchecked items in devpost/checklist.md. Preserve the selected UI; this cleanup does not imply every visual detail is approved. Reminder delivery, durable storage, creation, AI and floating focus support are not implemented here.
 
 The recovery archive is outside Git at /Users/mitku/.codex/visualizations/2026/10/24/01a16c8e-0237-72c3-a8f0-3127a3975161/repo-cleanup-2026-10-25/. Historical Git commits and the pre-sync stash also remain recoverable. Consult the cleanup receipt before recovering individual files. Never restore old UI wholesale.
+
+Publication verified: cleanup commit 1414887 reached GitHub main and codex/trail-redesign. This subsequent documentation receipt records that verification. The local preview is http://127.0.0.1:3000/.
