@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "script": "visual-01b-verify.js",
+  "check": "Focused skip link has at least a 44 by 44 pixel target",
+  "assertion": "assert(bounds.width >= 44 && bounds.height >= 44)",
+  "observation": "The focused link expanded, but did not meet the target-size assertion. No exact dimensions were logged in this failed invocation.",
+  "correction": "Added explicit minimum width and height to the focused skip-link style; rerun supplemental verification."
+}

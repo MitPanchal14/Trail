@@ -1,0 +1,89 @@
+{
+  "url": "http://127.0.0.1:52254/",
+  "checks": [
+    {
+      "name": "desktop F01 saved primary",
+      "detail": {
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "primary": {
+          "x": 112,
+          "y": 592.28125,
+          "width": 148.1953125,
+          "height": 43
+        }
+      }
+    },
+    {
+      "name": "desktop F02 exact snapshot restored, paused absence excluded",
+      "detail": {
+        "remaining": 1194.581,
+        "effort": 5.419000000000096
+      }
+    },
+    {
+      "name": "desktop skip, blank, long, punctuation, optional context"
+    },
+    {
+      "name": "desktop F04 internal navigation, immediate Pause, non-hijacking expiry, +5/+10/+20 unfinished"
+    },
+    {
+      "name": "desktop F03/F05 five-step lifecycle, stable comparison context, no repeated reward",
+      "detail": {
+        "celebrations": 1
+      }
+    },
+    {
+      "name": "desktop first-use, keyboard dialog/Escape/outline, reduced motion and finite auto-exit"
+    },
+    {
+      "name": "mobile F01 saved primary",
+      "detail": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "primary": {
+          "x": 24,
+          "y": 587.6875,
+          "width": 137.578125,
+          "height": 43
+        }
+      }
+    },
+    {
+      "name": "mobile F02 exact snapshot restored, paused absence excluded",
+      "detail": {
+        "remaining": 1194.646,
+        "effort": 5.354000000000042
+      }
+    },
+    {
+      "name": "mobile skip, blank, long, punctuation, optional context"
+    },
+    {
+      "name": "mobile F04 internal navigation, immediate Pause, non-hijacking expiry, +5/+10/+20 unfinished"
+    },
+    {
+      "name": "mobile F03/F05 five-step lifecycle, stable comparison context, no repeated reward",
+      "detail": {
+        "celebrations": 1
+      }
+    },
+    {
+      "name": "mobile first-use, keyboard dialog/Escape/outline, reduced motion and finite auto-exit"
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "limits": [
+    "Visible automated Chrome in isolated contexts; not personal profile or physical phone.",
+    "Clock fast-forward used for expiry/extensions and Undo absence assertions; background-tab check uses real time separately.",
+    "No Comet, OS sleep/closed-page or production accounting validation."
+  ],
+  "browser": "155.0.8059.40",
+  "status": "failed",
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'visible'\n- 'hidden'\n\n    at /private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/playwright-test-01a-after.js:60:258"
+}

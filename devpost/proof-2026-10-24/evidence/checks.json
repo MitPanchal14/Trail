@@ -1,0 +1,385 @@
+{
+  "url": "http://127.0.0.1:52254",
+  "checks": [
+    "Today desktop: no horizontal overflow, primary control above fold",
+    "Focus desktop: no horizontal overflow, primary control above fold",
+    "Focus desktop: simulated countdown advances",
+    "Pause desktop: timer stopped synchronously, no completion",
+    "Pause desktop: no horizontal overflow",
+    "Save desktop: exact instruction and optional context return to Today, Unfinished tag",
+    "Skip desktop: existing instruction kept",
+    "Subtask desktop: local tick and checkpoint, no goal celebration",
+    "Undo desktop: restores action, keeps illustrative effort",
+    "Final review desktop: last step does not finish goal",
+    "Keyboard desktop: dialog traps Tab; Escape returns focus to review action",
+    "Add step desktop: goal stays open, new step becomes next",
+    "Celebration desktop: no horizontal overflow, primary control above fold",
+    "Finished desktop: no horizontal overflow",
+    "Goal desktop: explicit confirmation, changing message, finite colour transition, automatic neutral finished destination",
+    "Reset desktop: restores consistent fictional example",
+    "Expiry desktop: no horizontal overflow, primary control above fold",
+    "Expiry desktop: +5/+10/+20 only at expiry, all resume same unfinished action",
+    "Long Today desktop: no horizontal overflow",
+    "Long text desktop: complete text wraps without clipping, vertical scrolling permitted",
+    "First use desktop: no horizontal overflow",
+    "First use desktop: no fabricated route or metrics",
+    "Journey desktop: no horizontal overflow",
+    "Journey desktop: selectable keyboard-accessible records and saved context",
+    "Today mobile: no horizontal overflow, primary control above fold",
+    "Focus mobile: no horizontal overflow, primary control above fold",
+    "Focus mobile: simulated countdown advances",
+    "Pause mobile: timer stopped synchronously, no completion",
+    "Pause mobile: no horizontal overflow",
+    "Save mobile: exact instruction and optional context return to Today, Unfinished tag",
+    "Skip mobile: existing instruction kept",
+    "Subtask mobile: local tick and checkpoint, no goal celebration",
+    "Undo mobile: restores action, keeps illustrative effort",
+    "Final review mobile: last step does not finish goal",
+    "Keyboard mobile: dialog traps Tab; Escape returns focus to review action",
+    "Add step mobile: goal stays open, new step becomes next",
+    "Celebration mobile: no horizontal overflow, primary control above fold",
+    "Finished mobile: no horizontal overflow",
+    "Goal mobile: explicit confirmation, changing message, finite colour transition, automatic neutral finished destination",
+    "Reset mobile: restores consistent fictional example",
+    "Expiry mobile: no horizontal overflow, primary control above fold",
+    "Expiry mobile: +5/+10/+20 only at expiry, all resume same unfinished action",
+    "Long Today mobile: no horizontal overflow",
+    "Long text mobile: complete text wraps without clipping, vertical scrolling permitted",
+    "First use mobile: no horizontal overflow",
+    "First use mobile: no fabricated route or metrics",
+    "Journey mobile: no horizontal overflow",
+    "Journey mobile: selectable keyboard-accessible records and saved context",
+    "Reduced motion: static final colour, no CSS animations/parallax; manual celebration exit works",
+    "Additional Today 320x700: no horizontal overflow, primary control above fold",
+    "Additional Today 1600x900: no horizontal overflow, primary control above fold",
+    "Additional Today 1280x600: no horizontal overflow, primary control above fold",
+    "Fine-pointer scene has bounded perspective response outside focus",
+    "Local resources return 200; no page/console errors, storage access or external resource requests",
+    "Recorded actual Chrome goal completion transition to WEBM"
+  ],
+  "measurements": [
+    {
+      "name": "Today desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 870,
+      "primary": {
+        "x": 112,
+        "y": 449.5859375,
+        "width": 148.1953125,
+        "height": 43,
+        "top": 449.5859375,
+        "right": 260.1953125,
+        "bottom": 492.5859375,
+        "left": 112
+      },
+      "animations": []
+    },
+    {
+      "name": "Focus desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 828,
+      "primary": {
+        "x": 516.4375,
+        "y": 526.1875,
+        "width": 84.859375,
+        "height": 43,
+        "top": 526.1875,
+        "right": 601.296875,
+        "bottom": 569.1875,
+        "left": 516.4375
+      },
+      "animations": []
+    },
+    {
+      "name": "Pause desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 873,
+      "animations": []
+    },
+    {
+      "name": "Celebration desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 723,
+      "primary": {
+        "x": 560.9375,
+        "y": 521.09375,
+        "width": 158.109375,
+        "height": 43,
+        "top": 521.09375,
+        "right": 719.046875,
+        "bottom": 564.09375,
+        "left": 560.9375
+      },
+      "animations": [
+        {
+          "playState": "running",
+          "iterations": 1
+        },
+        {
+          "playState": "running",
+          "iterations": 1
+        }
+      ]
+    },
+    {
+      "name": "Finished desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 723,
+      "animations": []
+    },
+    {
+      "name": "Expiry desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 891,
+      "primary": {
+        "x": 494.578125,
+        "y": 589.1875,
+        "width": 128.578125,
+        "height": 43,
+        "top": 589.1875,
+        "right": 623.15625,
+        "bottom": 632.1875,
+        "left": 494.578125
+      },
+      "animations": []
+    },
+    {
+      "name": "Long Today desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 1105,
+      "animations": []
+    },
+    {
+      "name": "First use desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 769,
+      "animations": []
+    },
+    {
+      "name": "Journey desktop",
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "documentHeight": 769,
+      "animations": []
+    },
+    {
+      "name": "Today mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 1374,
+      "primary": {
+        "x": 24,
+        "y": 496.390625,
+        "width": 137.578125,
+        "height": 43,
+        "top": 496.390625,
+        "right": 161.578125,
+        "bottom": 539.390625,
+        "left": 24
+      },
+      "animations": []
+    },
+    {
+      "name": "Focus mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 849,
+      "primary": {
+        "x": 83.5625,
+        "y": 546.9921875,
+        "width": 77.671875,
+        "height": 43,
+        "top": 546.9921875,
+        "right": 161.234375,
+        "bottom": 589.9921875,
+        "left": 83.5625
+      },
+      "animations": []
+    },
+    {
+      "name": "Pause mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 928,
+      "animations": []
+    },
+    {
+      "name": "Celebration mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 844,
+      "primary": {
+        "x": 121.8046875,
+        "y": 576.296875,
+        "width": 146.3828125,
+        "height": 43,
+        "top": 576.296875,
+        "right": 268.1875,
+        "bottom": 619.296875,
+        "left": 121.8046875
+      },
+      "animations": [
+        {
+          "playState": "running",
+          "iterations": 1
+        },
+        {
+          "playState": "running",
+          "iterations": 1
+        }
+      ]
+    },
+    {
+      "name": "Finished mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 844,
+      "animations": []
+    },
+    {
+      "name": "Expiry mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 944,
+      "primary": {
+        "x": 63.0703125,
+        "y": 642.390625,
+        "width": 118.6484375,
+        "height": 43,
+        "top": 642.390625,
+        "right": 181.71875,
+        "bottom": 685.390625,
+        "left": 63.0703125
+      },
+      "animations": [
+        {
+          "playState": "running",
+          "iterations": 1
+        }
+      ]
+    },
+    {
+      "name": "Long Today mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 1664,
+      "animations": []
+    },
+    {
+      "name": "First use mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 844,
+      "animations": []
+    },
+    {
+      "name": "Journey mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "documentHeight": 1204,
+      "animations": []
+    },
+    {
+      "name": "Additional Today 320x700",
+      "width": 320,
+      "height": 700,
+      "scrollWidth": 320,
+      "documentHeight": 1443,
+      "primary": {
+        "x": 18,
+        "y": 496.390625,
+        "width": 137.578125,
+        "height": 43,
+        "top": 496.390625,
+        "right": 155.578125,
+        "bottom": 539.390625,
+        "left": 18
+      },
+      "animations": []
+    },
+    {
+      "name": "Additional Today 1600x900",
+      "width": 1600,
+      "height": 900,
+      "scrollWidth": 1600,
+      "documentHeight": 900,
+      "primary": {
+        "x": 272,
+        "y": 473.5859375,
+        "width": 148.1953125,
+        "height": 43,
+        "top": 473.5859375,
+        "right": 420.1953125,
+        "bottom": 516.5859375,
+        "left": 272
+      },
+      "animations": []
+    },
+    {
+      "name": "Additional Today 1280x600",
+      "width": 1280,
+      "height": 600,
+      "scrollWidth": 1280,
+      "documentHeight": 870,
+      "primary": {
+        "x": 112,
+        "y": 449.5859375,
+        "width": 148.1953125,
+        "height": 43,
+        "top": 449.5859375,
+        "right": 260.1953125,
+        "bottom": 492.5859375,
+        "left": 112
+      },
+      "animations": []
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "resources": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/styles.css",
+      "status": 200
+    },
+    {
+      "path": "/proof.js",
+      "status": 200
+    }
+  ],
+  "browser": {
+    "name": "Google Chrome",
+    "version": "155.0.8059.40",
+    "headless": false,
+    "platform": "darwin"
+  }
+}

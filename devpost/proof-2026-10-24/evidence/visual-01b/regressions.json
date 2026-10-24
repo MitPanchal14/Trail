@@ -1,0 +1,179 @@
+{
+  "checks": [
+    {
+      "name": "light-desktop landing, Home, direct return never start timer"
+    },
+    {
+      "name": "light-desktop F01/F02 primary exact saved instruction/context/timer Undo, no absent credit"
+    },
+    {
+      "name": "light-desktop skip/blank/long instruction+context, punctuation literal, Pause reachable"
+    },
+    {
+      "name": "light-desktop F04 internal+Home continuity, Pause, non-hijacking expiry, +5/+10/+20"
+    },
+    {
+      "name": "light-desktop F05 fifth numbered marker, record context, hover/keyboard linked without reflow"
+    },
+    {
+      "name": "light-desktop F03 five-step keep-open/confirm/revisit once, keyboard trap/Escape"
+    },
+    {
+      "name": "light-desktop still mode and 30s ambient control"
+    },
+    {
+      "name": "light-desktop reload resets fictional state and explicit in-memory theme"
+    },
+    {
+      "name": "light-phone landing, Home, direct return never start timer"
+    },
+    {
+      "name": "light-phone F01/F02 primary exact saved instruction/context/timer Undo, no absent credit"
+    },
+    {
+      "name": "light-phone skip/blank/long instruction+context, punctuation literal, Pause reachable"
+    },
+    {
+      "name": "light-phone F04 internal+Home continuity, Pause, non-hijacking expiry, +5/+10/+20"
+    },
+    {
+      "name": "light-phone F05 fifth numbered marker, record context, hover/keyboard linked without reflow"
+    },
+    {
+      "name": "light-phone F03 five-step keep-open/confirm/revisit once, keyboard trap/Escape"
+    },
+    {
+      "name": "light-phone still mode and 30s ambient control"
+    },
+    {
+      "name": "light-phone reload resets fictional state and explicit in-memory theme"
+    },
+    {
+      "name": "dark-desktop landing, Home, direct return never start timer"
+    },
+    {
+      "name": "dark-desktop F01/F02 primary exact saved instruction/context/timer Undo, no absent credit"
+    },
+    {
+      "name": "dark-desktop skip/blank/long instruction+context, punctuation literal, Pause reachable"
+    },
+    {
+      "name": "dark-desktop F04 internal+Home continuity, Pause, non-hijacking expiry, +5/+10/+20"
+    },
+    {
+      "name": "dark-desktop F05 fifth numbered marker, record context, hover/keyboard linked without reflow"
+    },
+    {
+      "name": "dark-desktop F03 five-step keep-open/confirm/revisit once, keyboard trap/Escape"
+    },
+    {
+      "name": "dark-desktop still mode and 30s ambient control"
+    },
+    {
+      "name": "dark-desktop reload resets fictional state and explicit in-memory theme"
+    },
+    {
+      "name": "dark-phone landing, Home, direct return never start timer"
+    },
+    {
+      "name": "dark-phone F01/F02 primary exact saved instruction/context/timer Undo, no absent credit"
+    },
+    {
+      "name": "dark-phone skip/blank/long instruction+context, punctuation literal, Pause reachable"
+    },
+    {
+      "name": "dark-phone F04 internal+Home continuity, Pause, non-hijacking expiry, +5/+10/+20"
+    },
+    {
+      "name": "dark-phone F05 fifth numbered marker, record context, hover/keyboard linked without reflow"
+    },
+    {
+      "name": "dark-phone F03 five-step keep-open/confirm/revisit once, keyboard trap/Escape"
+    },
+    {
+      "name": "dark-phone still mode and 30s ambient control"
+    },
+    {
+      "name": "dark-phone reload resets fictional state and explicit in-memory theme"
+    },
+    {
+      "name": "light touch-style route selection",
+      "detail": {
+        "hover": false
+      }
+    },
+    {
+      "name": "dark touch-style route selection",
+      "detail": {
+        "hover": false
+      }
+    },
+    {
+      "name": "light reduced motion from first render: static Focus/reward"
+    },
+    {
+      "name": "dark reduced motion from first render: static Focus/reward"
+    },
+    {
+      "name": "light 320px measured overflow gate"
+    },
+    {
+      "name": "dark 320px measured overflow gate"
+    },
+    {
+      "name": "light 390px measured overflow gate"
+    },
+    {
+      "name": "dark 390px measured overflow gate"
+    },
+    {
+      "name": "light 1024px measured overflow gate"
+    },
+    {
+      "name": "dark 1024px measured overflow gate"
+    }
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "measurements": [
+    {
+      "tag": "light-desktop",
+      "primaryBottom": 606.40625
+    },
+    {
+      "tag": "light-desktop",
+      "longFocusPauseBottom": 698.59375
+    },
+    {
+      "tag": "light-phone",
+      "primaryBottom": 688.5703125
+    },
+    {
+      "tag": "light-phone",
+      "longFocusPauseBottom": 761
+    },
+    {
+      "tag": "dark-desktop",
+      "primaryBottom": 606.40625
+    },
+    {
+      "tag": "dark-desktop",
+      "longFocusPauseBottom": 698.59375
+    },
+    {
+      "tag": "dark-phone",
+      "primaryBottom": 688.5703125
+    },
+    {
+      "tag": "dark-phone",
+      "longFocusPauseBottom": 761
+    }
+  ],
+  "limits": [
+    "Visible automated Chrome; isolated contexts, resized phone viewport, no physical device.",
+    "Timer tests use synthetic clock. Internal navigation is not hidden-tab verification.",
+    "No production integration, storage, provider, Comet or OS sleep/closure tests."
+  ],
+  "browser": "155.0.8059.40",
+  "status": "passed"
+}

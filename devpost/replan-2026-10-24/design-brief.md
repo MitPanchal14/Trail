@@ -2,6 +2,40 @@
 
 Status: **draft design proposal; not visually approved**. Updated October 24, 2026. Read `requirements-ledger.md` for confirmed requirements and `reference-audit.md` for evidence. This brief makes a concrete direction reviewable without pretending the learner selected every detail.
 
+## Latest learner feedback — visual revision 01b
+
+**Decision:** the existing mixed gradient palette is liked. The contour-route graphic, working composition and emotional presentation are not approved. Task 01a fixed continuity bugs; it did not settle the visual direction. This section supersedes conflicting earlier contour/composition proposals below, which remain exploration history.
+
+### Confirmed requested changes
+
+- A visually beautiful landing page with one clear primary action leading into the working experience. “Nail the Trail” was suggested as wording, not a locked button label.
+- Task/completion surfaces must feel composed and engaging rather than a column of text and buttons. Highlight the areas most useful to a viewer while keeping the site minimal.
+- Goal journey needs visual depth and coordinated gradient feedback when hovering a subtask. Touch and keyboard users need equivalent selected/focused feedback.
+- Focus should feel peaceful and alive. Learner offered either left-aligned essentials with a visual on the right, or a central work window over a softly moving gradient/shapes background.
+- Dark mode must be tracked for development; it is not implemented or approved by this note. Do not restore rejected dark-glass/pixel styling.
+
+### One proposed composition for the next proof
+
+**Attention hierarchy (design assumption, not eye-tracking research):** the next executable instruction and Start/Resume have strongest contrast; the earned checkpoint/result comes next; original step title, optional context, duration and secondary navigation recede. Strong colour belongs to accomplishment and journey, not every button or card. Do not remove optional context to make the page look empty.
+
+**Landing:** one screen with quiet Trail navigation, a short headline (“Nail the Trail” is the proposed expressive line), a plain explanation (“Start focused work. Save your next step. Come back knowing what to do.”), one primary “Start working” button and a crafted live journey preview. Reuse the product’s actual proposed visual language, not an unrelated marketing illustration. No pricing section, fake testimonials, fabricated statistics, autoplay video, login wall or long onboarding. First visit can enter here; a returning user should reach the exact saved work directly. Brand/Home can revisit the landing. For this proof, expose first-visit versus return as labelled fictional scenarios; do not add persistence to solve routing.
+
+**Today / small completion:** give the current action one deliberate stage with compact step identity, primary instruction, optional context and dominant Resume; group secondary actions. Support it with a purposeful progress object rather than a competing card dashboard. Completing a step produces a small finite coordinated light/check transition and updates its marker. The next action then becomes clear. No full-screen major reward for a subtask.
+
+**Route / journey:** retire the stacked contour relief as the main object in this revision. Explore one graceful luminous route drawn across a clean open field, with spatially separated milestone surfaces and a precise saved-position marker. Use subtle depth and intentional blue/violet/teal/peach transitions from the existing palette. It should read as a path through accumulated work rather than a decorative squiggle or a standard checklist. Keep daily and goal timescales distinct. Selecting a subtask highlights its corresponding route marker/segment and a nearby detail panel; completed, current, unfinished and planned states remain distinguishable without colour alone. A fifth step remains legible; exact time-to-geometry mapping is still illustrative. Do not return to mountains/trees/avatars or add GIS/geolocation.
+
+**Journey hover/focus:** use the subtask surface edge or contained background for a subtle coordinated multihue highlight, with stable readable text. Apply equivalent styling to keyboard focus and persistent selection; tap selects on touch. Highlight the associated route marker/segment as well. No moving buttons, reflow, hover-only facts or a neon border around everything.
+
+**Focus:** choose the centered work-window option for this proof. Within a readable stable surface, show small goal/step identity, primary next instruction, a prominent timer and clear Pause/Complete. Original instruction and optional context remain reachable without competing with the current action. Behind the window, use large soft gradient fields or restrained shapes in an approximately 24–36 second low-amplitude loop; this timing is a visual starting point, not an attention claim. Keep motion behind a stable reading surface, not across text. Provide an explicit still/ambience control and respect reduced motion from initial render. No ticking pulse, particles, soundtrack or flashing. Narrow screens keep task/timer/controls before decoration; long instructions can scroll without obscuring Pause.
+
+**Whole-goal confirmation / reward:** retain explicit review, add-step, keep-open and confirmation behaviour. Give the final review a clear completion summary and visual goal token with one primary confirmation. On confirmation, expand coordinated gradient colour through the viewport with a readable result message and a meaningful finished route/landmark. Reduce the large opaque-white-card feel of the current celebration. Keep finite motion, immediate exit and a static reduced-motion equivalent; do not invent a new unapproved lifecycle. Return to neutral history with a colourful finished-work block and clear next destination. No repeated celebration on ordinary navigation.
+
+**Dark mode:** use shared semantic surface/text/border/gradient tokens. Preview a deliberate deep neutral version of landing, Today, journey, focus, review, celebration and finished cards, with a small labelled Light/Dark control. Preserve colour relationships and text contrast; do not blindly invert colours, turn everything into glass or assume dark mode is universally more calming. A proof-only theme toggle can be in memory. Real preference storage/OS-default behaviour is a later implementation contract.
+
+### Acceptance evidence for 01b
+
+Show landing → Start working → Today → Focus → Pause/save → Resume → small completion → journey selection → final review → confirmed reward → finished work as one connected proof. Retain and rerun F01–F05 regressions. Capture real desktop/phone evidence in light and dark, demonstrate hover/focus/tap matching the route, long saved instruction, fifth step, keyboard/Escape, reduced motion and a still focus state. Label fictional data, static geometry/minutes and unverified background behaviour. Learner reviews the composition before production integration.
+
 ## 1. Design objective
 
 Make it easy to begin and resume meaningful work, and rewarding to look back at the work that accumulated. The first glance answers: **what do I do next?** The second glance reveals: **my work is adding up.**

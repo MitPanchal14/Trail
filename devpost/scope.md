@@ -67,3 +67,7 @@ Occasional meaningful encouragement is requested, with a quiet, optional treatme
 - Claims that elapsed time proves useful work or that the landscape measures personal worth: records represent user-reported effort and accomplishment.
 
 Accounts, sync, sharing and a framework migration have not been authorized as revision requirements.
+
+## Latest requested presentation additions — October 24
+
+Learner requests a beautiful landing → start → working flow, richer task/completion and goal-journey treatment, gradient hover with keyboard/touch equivalents, peaceful animated focus surroundings with a still alternative, and dark-mode development. The existing mixed gradient palette is liked; the current contour route/layout is not approved. Returning users still reach saved next work directly. These additions do not authorize auth, remote services or production integration by this documentation task. See the latest 01b section of the design brief for concrete proposals.

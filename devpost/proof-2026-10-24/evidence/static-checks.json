@@ -1,0 +1,49 @@
+{
+  "contrast": [
+    {
+      "name": "Body on canvas",
+      "foreground": "#202124",
+      "background": "#fafbfc",
+      "ratio": 15.54
+    },
+    {
+      "name": "Secondary on canvas",
+      "foreground": "#5d626b",
+      "background": "#fafbfc",
+      "ratio": 5.92
+    },
+    {
+      "name": "Primary button",
+      "foreground": "#ffffff",
+      "background": "#202124",
+      "ratio": 16.1
+    },
+    {
+      "name": "Route labels on darkest relief",
+      "foreground": "#515b70",
+      "background": "#e1e6f1",
+      "ratio": 5.45
+    },
+    {
+      "name": "Finished text, peach corner",
+      "foreground": "#202847",
+      "background": "#f7b49d",
+      "ratio": 8.22
+    },
+    {
+      "name": "Finished text, teal corner",
+      "foreground": "#202847",
+      "background": "#75d7dc",
+      "ratio": 8.59
+    }
+  ],
+  "resources": [
+    "styles.css",
+    "proof.js"
+  ],
+  "checks": [
+    "All local HTML resource links exist",
+    "No production storage, network, notification or worker API in proof.js",
+    "Six selected text/surface contrast pairs exceed 4.5:1 (not a full accessibility audit)"
+  ]
+}

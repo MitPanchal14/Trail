@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+  <title>Trail — isolated visual proof</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 25L14 7h6l-3 9h9L15 27' fill='none' stroke='%234167ec' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="proof.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to work</a>
+  <div class="proofbar">
+    <span><i class="demo-dot"></i> Demo — fictional work</span>
+    <div class="proof-controls">
+      <label for="scenario">Preview state</label>
+       <select id="scenario">
+         <option value="landing">First visit / landing</option>
+        <option value="today">Returning Today</option>
+        <option value="journey">Goal journey</option>
+        <option value="focus">Focus running</option>
+        <option value="pause">Pause / saved place</option>
+        <option value="expired">Block ended</option>
+        <option value="final">Final-step review</option>
+        <option value="finished">Finished work</option>
+        <option value="empty">First use</option>
+        <option value="long">Long instruction</option>
+      </select>
+      <button id="reset" class="text-button">Reset example</button>
+    </div>
+  </div>
+  <header class="header">
+    <a class="brand" href="#home" aria-label="Trail Home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 25 14 7h6l-4 10h10L15 27"/></svg>Trail<span class="brand-period">.</span></a>
+    <nav aria-label="Main"><button data-nav="today">Today</button><button data-nav="journey">Goal journey</button><button data-nav="finished">Finished work</button></nav>
+    <div class="theme-control" role="group" aria-label="Colour theme"><button data-theme="light" aria-pressed="true">Light</button><button data-theme="dark" aria-pressed="false">Dark</button></div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+  <footer class="footer"><span>Illustrative records & route mapping. Not the production app.</span><span>In memory only. Reload resets this example.</span></footer>
+  <div id="notice" class="notice" role="status" aria-live="polite"></div>
+  <dialog id="review" aria-labelledby="review-title">
+    <div class="dialog-heading"><span class="goal-token" aria-hidden="true">↗</span><button class="text-button" data-action="close-review" aria-label="Close review">✕</button></div>
+    <p class="muted">All planned steps checked</p><h2 id="review-title">Is the goal finished?</h2>
+    <p class="review-goal">Finish my ML assignment</p><div id="review-summary" class="review-summary"></div><p class="muted">Anything still to do? Add a step, or give this goal its finishing moment.</p>
+    <form id="add-form" hidden><label for="new-step">Another step</label><input id="new-step" maxlength="500" placeholder="What still needs doing?"><button class="button" type="submit">Add step & keep open</button></form>
+    <div class="dialog-actions"><button class="button primary" data-action="confirm">Confirm goal finished</button><button class="button" data-action="add">Add another step</button><button class="text-button" data-action="keep-open">Keep goal open</button></div>
+    <small>Proposed review flow · fictional example</small>
+  </dialog>
+</body>
+</html>

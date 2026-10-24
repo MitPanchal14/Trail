@@ -36,3 +36,7 @@ Before future Next.js code changes, read applicable installed guides under `node
 - Accessibility, responsive layout, reduced motion and visual-proof acceptance criteria.
 
 Do not approve or implement this unfinished technical contract. See `replan-2026-10-24/OPENCODE_HANDOFF.md` for the proposed first design-proof task. Historical spec HTML has been archived and replaced with a status notice.
+
+## Visual revision 01b — implementation constraints to retain
+
+First-visit landing and returning-work entry must be distinct; do not award focus or start a clock from marketing navigation. Preserve 01a state transitions. Journey hover/focus/selection must share stable step identity with route highlights and details; touch does not depend on hover. Theme through semantic tokens in light/dark; proof toggle can reset on reload, while production default/persistence remains to be specified. Focus ambient motion is optional, low amplitude, compositor-friendly where practical, and stops under reduced motion or explicit still mode; controls remain stable/readable. Exact design and time-to-geometry mapping remain proposed. Task 01b is isolated proof work only.

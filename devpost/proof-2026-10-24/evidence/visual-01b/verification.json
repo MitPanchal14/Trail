@@ -1,0 +1,508 @@
+{
+  "status": "passed",
+  "browser": "155.0.8059.40",
+  "syntax": "node --check passed",
+  "resources": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "matchesDisk": true
+    },
+    {
+      "file": "styles.css",
+      "status": 200,
+      "matchesDisk": true
+    },
+    {
+      "file": "proof.js",
+      "status": 200,
+      "matchesDisk": true
+    },
+    {
+      "file": "evidence/visual-01b/index.html",
+      "status": 200,
+      "matchesDisk": true
+    }
+  ],
+  "protected": {
+    "baselineFiles": 239,
+    "changed": [],
+    "previous01aEvidenceFiles": 39,
+    "previous01aChanged": [],
+    "handoffPriorTextUnchanged": true
+  },
+  "regressionGroups": 42,
+  "keyStateCaptures": 28,
+  "supplemental": [
+    {
+      "theme": "light",
+      "skipLinkFocusedBounds": {
+        "x": 16,
+        "y": 10,
+        "width": 113.3125,
+        "height": 44
+      },
+      "themePreservesRunningState": true,
+      "rewardEscapeWorks": true
+    },
+    {
+      "theme": "dark",
+      "skipLinkFocusedBounds": {
+        "x": 16,
+        "y": 10,
+        "width": 113.3125,
+        "height": 44
+      },
+      "themePreservesRunningState": true,
+      "rewardEscapeWorks": true
+    }
+  ],
+  "sources": [
+    {
+      "path": "devpost/proof-2026-10-24/index.html",
+      "sha256": "86e8fd9c4a2283047d5e21ab9f6f75e22aae96fa91078f59f255b2ade223515b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/styles.css",
+      "sha256": "4a4382cd05d2f7c573e2ed0e0ae67a76ecd3e01768318f240bb6a7b30d5d735f"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/proof.js",
+      "sha256": "b08fdcfa324da623ba35fd8e3afa7746ac97df735853062e7cffe596d1cb896c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/PLAN.md",
+      "sha256": "af914933aab5e429fec3d9d09ec355e8c0ae5e16c8fa2744921bfbbd0cfaa5cb"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/README.md",
+      "sha256": "9735c0925d70c15afdcd28eda5bbca1a8bbd1e7979157a27f8d8c5d96a62a754"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/REVIEW.md",
+      "sha256": "06cc6e3e946f646f6a112cda4c979892bf7d09b11cbe56dc3393cd846c59fdf1"
+    }
+  ],
+  "inventory": [
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/achievement-motion-frames.png",
+      "sha256": "cf21ba96a911fd12b372c33570f5374829917100ad6b6d9abf7c38310cda7349"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/attempt-1-added-step-whitespace.json",
+      "sha256": "aa3c52c5024ebf5dd426deca4105190194971b377951ba3aca12fd445377aa1c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/attempt-2-contrast-parser.json",
+      "sha256": "9706d54f3158d7592a503024db48daf8c78ed6f86f52bcd463829b6f70641860"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/attempt-3-skip-link-target.json",
+      "sha256": "f20c89346307f5859e7ac02383157d3923227e461a41d398b35bfdcb332102a5"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-final-desktop.png",
+      "sha256": "15f3233583dbd9009507aa346a76820c552dca4ff958e5805dc26e00466dc0cd"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-final-phone.png",
+      "sha256": "32704f219f239a048b69022d31993cc660d614b05df163017688aed314fb2dfa"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-focus-desktop.png",
+      "sha256": "c7e9c7c18e72c485560ed97d7cb97b6fb2f24a623a44be235577a3157f5e1662"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-focus-phone.png",
+      "sha256": "05e3495e44ccffc9706c6b146cf7fb7ce2be70cedbd42ec04f638f5f8a2b78eb"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-journey-desktop.png",
+      "sha256": "f6ca5396e3ffb5034b75cf55077f2d1c4d0ec2e481bb0f39431f55eb569584a4"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-journey-phone.png",
+      "sha256": "c720cf67a3b2caff81a1880db77a530e9ad099c6ee8e5f1f4962538eecf7ea3b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-today-desktop.png",
+      "sha256": "4416562d5adb18dc53d6ad3950652949d53ae7aa88ff909e135c525956a86224"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/before-today-phone.png",
+      "sha256": "c018c1fd66022c8b9686c30e72f63c8f058b5584b733534521c4f51be9a2e891"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/captures.json",
+      "sha256": "cc655f583e8a99a865f51cf1ea5e83ef1700497bffa9992c514cbad62d2674cd"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/checks/visual-01b-capture.js",
+      "sha256": "1a02d57ada999f2423434d3882a1e4a8b5448243101991b8ac6f0cfa9755cc67"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/checks/visual-01b-motion-audit.js",
+      "sha256": "54650cb90541fb508b271fe89ceed36000ced8602417e117cbfceb56a4016d75"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/checks/visual-01b-tests.js",
+      "sha256": "28627557865acd2b9c5fc9ec864dab5b05b4d34886a8acd668958aeadd69a0de"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/checks/visual-01b-verify.js",
+      "sha256": "cff6e3cd30f04f6dd2e0832dc5ea16b9018f17096c178c81736f605a00c5712c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-fifth-context.png",
+      "sha256": "75a731823d3d7f50cfaab742db33e1721d9ffd01d46e00850631c894618299c2"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-final.png",
+      "sha256": "3f6984134f0d87841d269adff26e5cbf509a46f5db342c9b3594878e3c559257"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-finished.png",
+      "sha256": "5801e508c00e2ac0c3526009759eac769034b7f019a986e9e065adaec52f81f9"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-five-step-review.png",
+      "sha256": "bf1e0107bb635ba37bbb6da3a3237fe2a255eeca7c6d0bee1a67eea3460f8018"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-five-step-reward.png",
+      "sha256": "63430eba1c876350e6fb8311b891b426f4b1f3b97efc26edaa1c6c2abd4868bd"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-focus-motion.webm",
+      "sha256": "75aa211d41fca772c35ea039377e64528a980637bb4ce5ce4520ad3ce53f2a8f"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-focus.png",
+      "sha256": "62d4554314ce3d02f514d8fd5d605a9541d2cf515ee1f9aabd0573d68979a450"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-hover.png",
+      "sha256": "75a731823d3d7f50cfaab742db33e1721d9ffd01d46e00850631c894618299c2"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-journey.png",
+      "sha256": "0486518ce34be7602101e6daf890164b4ee0d32752ef5fa003b1377f5c3fcca1"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-keyboard-selection.png",
+      "sha256": "b41a599b9170c7e140f02432b6863f7cf0344c6528e02c0e77371562320ec4a2"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-landing.png",
+      "sha256": "5ac48f4ea871d5f869021a1281d1be48701c9badfdf4e50d4317fd0ee5adc0e9"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-long-focus-context.png",
+      "sha256": "db859024d3ab05f808af1a4a309bc20f3270da369806e9500754bffe29c57255"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-long-focus.png",
+      "sha256": "78ccad760cd812b5f266ad88d03bc28bf96f2c57a8f5e880f8ffd69ef2a942ab"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-long-today.png",
+      "sha256": "b352bebcc084ab12f9ba6c8fd4a2dc03bb3e100c67fd0624df18e6d7783a67ef"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-reward.png",
+      "sha256": "e1c0bc265f1985528b039716956bd87fe1d421929d7e6427055e781ef13ff620"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-small-completion.png",
+      "sha256": "f006b5c89dd0c380bd48c040df17a1ac57f33ea368800cb92365848b4babcc45"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-still-focus.png",
+      "sha256": "f047e35136d439db85e36456e982b5ffaaeaa2158b43c175ab2b41ebce09c3ee"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-today.png",
+      "sha256": "e586dfe91fd38559d69657301d720aebae1100219891074d0b1709007a075376"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-desktop-undo.png",
+      "sha256": "2690d2001324bf11d7b55fc6ce19017484d62ea207ce1d048ea8dd93ce9f7230"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-audit-overlay.png",
+      "sha256": "b8d5dd5143ed5af65bd541a28cf472c6213bc524503d232dd6cbc77a7a5e96da"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-fifth-context.png",
+      "sha256": "32068bd5e7a8f3e8e9302e14aef321808e8ed1196bae5407d6767d473d7ab726"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-final.png",
+      "sha256": "86f8e51ab83c7f6a509df0f66a5da8694e114cb3e00ec6c58f465bc682b31a60"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-finished.png",
+      "sha256": "a6f3ab9550ae46e6fa17ee3baf61e90437d2982125d4aa754e212aef4c4fcb9c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-five-step-review.png",
+      "sha256": "89a9953ae441d6e129edebed2451b7e727aca55ca8f2622eaacd574fb44c5b83"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-five-step-reward.png",
+      "sha256": "ee245ff44181f91dee3f54c226b86cc8551b214721fe8d76a62f2d8f3f780e3b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-focus.png",
+      "sha256": "f1e772adadb505470c041c3e12709638d5e322f53ce0252e4139cb605521d19c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-hover.png",
+      "sha256": "c45ce65a8afbda5e2575d5b1c3baa7d55b4b8a0f91a1ab5c6a7b57229ddbe138"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-journey.png",
+      "sha256": "f09066d4a294e14b8412358b95a22cd26f8d9b2a91fab19d3e18e234d0a744f4"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-keyboard-selection.png",
+      "sha256": "9998e52fb0d25d15aedc0c5c3ad834526d69be79d053310e5842b80c26209a50"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-landing.png",
+      "sha256": "dac52e596303624ef605c43d3f6efcc54692bb07a54032726c4092839b5054cd"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-long-focus-context.png",
+      "sha256": "3789d7379b705265cae54f68e209ee2dc251f568789961759e19ff7bd6461610"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-long-focus.png",
+      "sha256": "f59f913bf9fe9001cfaf89d7d82a3584fb48729627e753dcfb97096f5c7d9506"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-long-today.png",
+      "sha256": "ccedb30896f51879f9bcf827684e17c6576024b363efa6a5b1ef34a3debace8b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-reduced-focus.png",
+      "sha256": "335ab3abd69055f9a515fb3acfaf90a7c42eae5c36da457c2b98ad36b09cb8ca"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-reduced-reward.png",
+      "sha256": "ee190269c3e8dd75f0b8d49a2594b9e585e9e5796a8a685e9cb6d8e4fcff269a"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-reward.png",
+      "sha256": "e84d7da93db834b14b6d0d16d258396e923ddbe45553ac8b8aec72d34d5ed673"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-small-completion.png",
+      "sha256": "66e22e8c36823ad476ce5f02ecdc4d4f7f1e05039fb65107052ffaca1c75a706"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-still-focus.png",
+      "sha256": "5259ec67fe7760ee80ff18c2917578d4601387f911ca1ce191a725511e0210c9"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-today.png",
+      "sha256": "76cd1288742b627376300bda4ca1552b236cc04a4102bec4f0c55be2a5040908"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-touch-selection.png",
+      "sha256": "0a665a3dfe4dbf9b847d84e13f345ec5d8f4e76374361bd124c3979e2c8b792b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/dark-phone-undo.png",
+      "sha256": "05c8336a477342f458da87b33ed1f833ed049e9a68fdfb800dc85de73abbca63"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/focus-motion-frames.png",
+      "sha256": "421d6979574bb15186834edcc789f255ade70718479695ec5e418e750a957724"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/index.html",
+      "sha256": "127a6e415afc1552a523f7bc0f866b9a280e599ee3ab75efa0ef0025b0df16a1"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-achievement-motion.webm",
+      "sha256": "a85cc92833a6379d3c011846b1452ad97af3a67a429beaaed219b0764719a8e7"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-fifth-context.png",
+      "sha256": "512d475176c171b98c08c6ef226d3b5b87111d0afc3bca77b7447d00f212a0d7"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-final.png",
+      "sha256": "6f6fd5d2deb54fa6fd24fe0af6975aa64795465911c71bb79a1fb6fb45f6864e"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-finished.png",
+      "sha256": "e9087cf63ec8861281cb4d74d4168052bf0072381757c72497c8e6f5f51d7f0c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-five-step-review.png",
+      "sha256": "6cfe1cce90b3d766f60a7d9f0096e14046d4a067c40d1f44a4d723fb4574b593"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-five-step-reward.png",
+      "sha256": "b0bc9876564ab81d53bbed6f181638f1d0a1d7d63a72c224dc939946ef36ad85"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-focus.png",
+      "sha256": "dd2aefb5d3b7b0043bc2b8222b0a34c0ee246b381b58bd6c7ea60045ad09abc9"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-hover.png",
+      "sha256": "22b70c7e7835279ce424bf0dfe3f05551d47b458fa9d89e6db0640707a0526d1"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-journey.png",
+      "sha256": "121ccf0f833888d197eedf8b1b3483070b9e36cad5939fa98c3e2f969a9714fa"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-keyboard-selection.png",
+      "sha256": "2d8c4ae9e707a9b4049eda0837e515fb3112a3c712dabc8a21c57e7042462cfd"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-landing.png",
+      "sha256": "371db861a39890e19893797d851dc7fc4e320bd2a9303f58001d8e5d64fa1ab9"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-long-focus-context.png",
+      "sha256": "ac1f0bf0293007f61b5cbc318ef00073bcb8004469daf23abd926abcb2c2d0a6"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-long-focus.png",
+      "sha256": "bdb92c05a246f096023e69d32bfec7ef6098333c352813bb250bf2604b3b41e5"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-long-today.png",
+      "sha256": "496993c496ab03135a515dfc758ccb495ca7e4c089517cb83055957220090f31"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-reward.png",
+      "sha256": "e5d2b81749e706c6c79147007b838b6f2fafe7338da404d3faf66a3d43212f96"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-small-completion.png",
+      "sha256": "eb13b21fb32a752d740656a5c61fb4a6f6ab5d4877da7b53d02614f4a41070fa"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-still-focus.png",
+      "sha256": "873609238bc2b6c46f36326e9ca701832c63b6991b524e936f9b1aac71b52b5e"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-today.png",
+      "sha256": "d30683ebdc21927890b59d6936393410b3ed7ca29ec7ae0deef00eb142f1551c"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-desktop-undo.png",
+      "sha256": "b51854e45119e5c83e6d4ca231c150be74333add0905fdb561620435fe6f4f99"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-audit-overlay.png",
+      "sha256": "48c3fdf28432c2542bf272adb8244c773d747ff401c696991b692ea938816558"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-fifth-context.png",
+      "sha256": "ef9a29b5fe852e820e8b07428023852f81c826442c8e4e7ee217a37ec18612fb"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-final.png",
+      "sha256": "695a9b9a69213fda56456f146417ec6734c2453a56b9ace0cbc72a15dfe2deaf"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-finished.png",
+      "sha256": "3cbaa60f31ff5a5d90ba2018429aeb595eb77d95f42ef58f5575477d85549fcd"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-five-step-review.png",
+      "sha256": "ac34e249167a2b6cd0ff5e28c522e843dfa9b6fb6e0ad19c43a03ccc4de0d6df"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-five-step-reward.png",
+      "sha256": "38c5a4154bdc54ffcb001589128357ffa0da8bf6c607b3bafdfeaf62436c5ccf"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-focus.png",
+      "sha256": "3bcd431206c176dbd79e9590a1d1146e64b90bff600124c99ccac6f120a0cd58"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-hover.png",
+      "sha256": "2dcb4e9194251e1061772594ab88662c3190d4a83ce6c0997ed88f2beeeb1a55"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-journey.png",
+      "sha256": "690bb2aacf6c6260b33136bebfc60955d9a8900771ec7f5ff1a498dabf3a0835"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-keyboard-selection.png",
+      "sha256": "1a80341d59a90e5a4f539cc6e56f2b13946430d552f2929961bcf5f8ffe1deb3"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-landing.png",
+      "sha256": "b4d9237af0bae3757de019480b61218b6455679a7d632d6e6c42684ebf47e11a"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-long-focus-context.png",
+      "sha256": "7baacc716817d31d8620fbd2b7ce6473cb29ac76226c603a05728508ff138230"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-long-focus.png",
+      "sha256": "26f6eafb709d0141555e1cca32870ca14163a98af7491fded8e4bc1ea2de9dc5"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-long-today.png",
+      "sha256": "9603423fd6fd466d226503f3cf9f90ea80c82be647046a3081dd48e22d92005b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-reduced-focus.png",
+      "sha256": "35dba92d7fc0d793d68411ae3fd6aebf95bdb3a5082178205dff8581e617375b"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-reduced-reward.png",
+      "sha256": "31fab29ea7487c6bdf21ce08f4aabc3d7b0e2eee5299299838ce0a06d63ac731"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-reward.png",
+      "sha256": "e84d7da93db834b14b6d0d16d258396e923ddbe45553ac8b8aec72d34d5ed673"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-small-completion.png",
+      "sha256": "2bce9c8475dac4a7a8803647a4dc5f4d574385bd2c996ba072d8d72ee46205de"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-still-focus.png",
+      "sha256": "35a90ba693c1575c26493bbb0284ecdbf7f03845c43a70669008ef515b3dbd6d"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-today.png",
+      "sha256": "30469a5ae734d4719c401c2d6cc92f5d7a9f7d2cca4b6a8ff9740cac4fe097cb"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-touch-selection.png",
+      "sha256": "304be3296d86a5aaca721a2aec437bf21d3a0616d08678052cbfa241414de7a7"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/light-phone-undo.png",
+      "sha256": "5a37603b97cc0a26fc84f95eb3604e8cd08b1eed9caed7d082dd7e19bf9f991a"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/motion-audit.json",
+      "sha256": "6dee6a8f8a59c280130b763d5c8072bfebff29c8bca854d47a81e83d25c050a2"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/protected-before.json",
+      "sha256": "fa6a4560318cac0b01bb2c5fde664f3b40a2da06454c52ddbfdda6d2400d19c9"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/regressions.json",
+      "sha256": "ff1f82e04d050f3cda8a08e684d197996cf284314e580c30cae0b0f82b701ed0"
+    },
+    {
+      "path": "devpost/proof-2026-10-24/evidence/visual-01b/reward-real-time-1500ms.png",
+      "sha256": "f1292d9faf9de5bb7c070cbd03d665d12e3d54ad71cdfad0a135bdc1cc8b7516"
+    }
+  ]
+}

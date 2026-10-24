@@ -4,6 +4,8 @@ Core scope approved. PRD, exact design, spec and build order remain in planning.
 
 ## Start here
 
+**Ready to start:** [live delivery checklist](../checklist.md) → [OpenCode task 01c](../build-tasks/01c-proof-closeout.md). GPT-6.1 Sol / medium reasoning, one coding task at a time. After each result the learner returns to this chat for review and checklist updates. The existing general reading map below remains reference material.
+
 1. `requirements-ledger.md`: learner decisions and unresolved questions.
 2. `reference-audit.md`: sources, seven original desktop screenshots and adaptation matrix.
 3. `design-brief.md`: detailed proposed interface, replacement graphics, states, motion and review criteria.
@@ -14,7 +16,7 @@ Core scope approved. PRD, exact design, spec and build order remain in planning.
 
 Root BUILD_PROMPT.md and HANDOFF.md now point here. Canonical scope/PRD/spec/checklist are in the parent devpost directory. Archived previous versions are historical only and do not override the current direction. Revision scope/PRD copies are snapshots; canonical future edits belong in the parent files and must be kept aligned when these snapshots are retained.
 
-No graphic has been visually approved. Exact route growth, landmarks, task selection and timer end behaviour remain decisions. The proposed contour journey is not an implementation or a promised productivity outcome.
+01b replaces the rejected contour/layout and has been independently reviewed. Reviewer recommends retaining it; Task 01c fixes two state-wording issues. Learner visual approval remains pending. Exact route growth, landmarks, task selection and timer end behaviour remain decisions. The proposed contour journey is not an implementation or a promised productivity outcome.
 
 Automatic morning/daytime reminders for neglected important work are now confirmed, including another-tab and closed-page delivery. Exact eligibility, cadence, browser support and minimal remote data are still open; no reminder service is implemented by these docs.
 

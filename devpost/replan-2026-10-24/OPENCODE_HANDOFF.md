@@ -2,6 +2,14 @@
 
 Updated October 24, 2026. Intended builder: OpenCode, GPT-6.1 Sol, medium effort, chosen by the learner. This document does not change the model or dispatch a job. It provides context to an agent under another account that cannot see the planning chat.
 
+Latest independent review: 01b composition recommended for retention; two small wording findings B01/B02 need Task 01c. Learner acceptance is pending; prior rejection below refers to the pre-01b contour proof. Do not rerun the 01b redesign packet.
+
+## Latest execution entry point
+
+Use the live `devpost/checklist.md` and the current detailed task packet, `devpost/build-tasks/01c-proof-closeout.md`. The learner will dispatch one task at a time; this review chat inspects the shared result and updates progress before issuing the next task. Step 01's targeted read order takes precedence over loading this entire general source map. No production implementation is implied by the packet's existence. Chrome on the learner's MacBook Pro is the primary demo target; Comet needs a separate compatibility check. The repository baseline is published as `b436ce6` on main, and the active branch is `codex/trail-redesign`.
+
+Latest learner feedback: palette liked; contour-route and layout not accepted. New landing/start flow, richer work and goal journey, coordinated hover/focus/touch gradient feedback, peaceful animated focus and dark mode requested. Use latest 01b design section; preserve 01a fixes and remain proof-only.
+
 ## Current stage
 
 **Planning. Core scope approved; PRD/design/spec/checklist revision not approved.** No application implementation has been authorized by the latest documentation request. The learner wants a new visual direction with strong Stripe/Linear inspiration and a new graphical representation; they reject the old pixel landscape.

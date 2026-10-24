@@ -19,6 +19,10 @@ Trail helps a student or independent builder start and resume difficult work, wi
 
 Latest explicit learner choices supersede historical design language. Preserve user records and useful behaviour, not the rejected presentation. Proposed defaults are not learner decisions.
 
+## Latest presentation revision — October 24, Task 01b
+
+The learner approves the gradient palette but not the current contour-route/layout. Add a beautiful first-visit landing with one clear start action leading into the work flow; retain direct saved-work entry for returning users. Improve next-action/subtask-completion hierarchy and whole-goal reward composition, make goal journey selection visually engaging with coordinated gradient hover/keyboard/touch feedback tied to the route, and give focus a peaceful animated gradient background with a stable work surface and still/reduced-motion alternatives. A centered focus window is the next design proposal, not a final learner choice. Add intentional light/dark themes to the tracked build. No new login, marketing funnel or productivity-science claim is implied. Full proposed composition and proof acceptance matrix: `replan-2026-10-24/design-brief.md`, latest 01b section. Task 01a behaviour fixes remain required. Production integration awaits visual review and unresolved contracts.
+
 ## The Core Journey
 
 Source: `scope.md > The Core Loop`.
@@ -37,7 +41,7 @@ Source: `scope.md > Inspiration & Identity`; confirmed priority R01 and R14 in t
 
 The next action is the strongest visual element on Today. The daily route and larger-goal visual are secondary to working. Do not retain the old mountain-above-task composition.
 
-Proposed structure for review: Today, goals and progress/history as a small set of destinations, with a dedicated focus surface and contextual creation/editing. Exact navigation names and grouping remain open. Do not add a landing page, login flow or settings centre as a default redesign task.
+Proposed structure for review: Today, goals and progress/history as a small set of destinations, with a dedicated focus surface and contextual creation/editing. Exact navigation names and grouping remain open. A landing page is now explicitly requested in Task 01b; login and a settings centre remain outside this visual task.
 
 Desktop and phone composition proposals are detailed in `design-brief.md > 4. Proposed screen composition`. They must be shown before production UI changes. A realistic long action and saved return instruction must remain readable; visual simplicity cannot be achieved by silently dropping content.
 

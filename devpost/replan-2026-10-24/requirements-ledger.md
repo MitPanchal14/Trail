@@ -1,5 +1,17 @@
 # Trail — requirements and decision ledger
 
+## Latest visual decision — Task 01b
+
+Learner likes the mixed gradient palette, but the contour-route and working layout are not accepted. Requests: beautiful landing with one start CTA leading into work; richer action/completion presentation; more engaging goal journey with coordinated gradient subtask hover; calm moving gradient/shapes around focus; dark mode added to development checklist. Exact CTA text and left-versus-center focus placement were offered as options, not approved specifics. The next task proposes a centered work window and an improved luminous route instead of stacked contours. See the latest section of `design-brief.md` and `../build-tasks/01b-visual-experience.md`. Keep Task 01a continuity fixes. No production integration yet.
+
+Returning directly to saved work remains R01/R09; landing must not create a mandatory daily detour. Keyboard focus/touch selection must provide hover-equivalent feedback. Dark mode is a newly requested feature, not a revival of old dark-glass styling. No eye-tracking or productivity efficacy claims are warranted by the hierarchy assumption.
+
+## Latest delivery preferences
+
+The learner will code through OpenCode CLI in another account using GPT-6.1 Sol, with this chat supplying one bounded task and reviewing the shared result. The canonical progress tracker is `devpost/checklist.md`; current packet: `devpost/build-tasks/01b-visual-experience.md`. Aim for the working majority tonight (October 24), broader testing/release/submission work tomorrow (October 25); no guarantee or revised official deadline is implied. Test every slice as it lands.
+
+Preferred demo environment: the learner's MacBook Pro, primarily Chrome or Comet. Use Chrome as the first validation target and check Comet separately before claiming capability support. The exact installed browser versions have not been observed. No route/reward mapping, reminder schedule or unresolved product rule was approved by this environment answer.
+
 Updated October 24, 2026. Source: direct learner answers in this planning conversation. This is the durable record for a builder with no access to that conversation. A separate ChatGPT account does not carry these decisions automatically.
 
 ## Authority and status

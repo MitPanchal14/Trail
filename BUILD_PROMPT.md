@@ -1,6 +1,10 @@
 # OpenCode Entry Point — Trail revision, October 24, 2026
 
-## Current stage: planning and visual direction
+## Current stage: first visual proof ready to dispatch
+
+The learner is implementing through OpenCode in their other account using GPT-6.1 Sol, medium reasoning. This chat handles planning and review. **Live tracker: `devpost/checklist.md`. Current bounded task: `devpost/build-tasks/01-visual-proof.md`.** Follow that packet's targeted read order for Step 01; the general document map below is for lookup, not a demand to preload every file. Do not start later slices from the tracker alone.
+
+Published baseline: `b436ce6` on origin/main. Active working branch: `codex/trail-redesign`, published. Primary demo target: Chrome on the learner's MacBook Pro; Comet is a desired secondary compatibility check, not assumed identical support. Night of October 24 targets the working majority; October 25 targets broader testing/release/submission work. Test each slice as it lands.
 
 The revised scope is approved. The revised PRD, exact design, technical plan and build checklist are drafts. The learner requests detailed planning and a new graphical direction before application implementation. Do not begin runtime changes from old approvals.
 
@@ -20,7 +24,7 @@ The existing pixel world, original terrain and old composition are superseded vi
 
 ## Next action
 
-Continue the product/design review. If the learner dispatches a design-proof task, follow the bounded proof instructions in OPENCODE_HANDOFF.md: create isolated reviewable screen proofs without production app changes, show actual evidence and obtain visual feedback before implementation. The handoff includes a paste-ready prompt and source map.
+Current packet: `devpost/build-tasks/01c-proof-closeout.md`. Independent 01b review recommends keeping the new visual composition; two small state-wording fixes remain, with learner approval still pending. Read `devpost/replan-2026-10-24/review-step-01b/REVIEW.md`. Preserve verified 01a behaviour and 01b visuals. One proof-only closeout; no production integration or another broad redesign. After corrections and learner approval, move to Step 02 contracts/reminder feasibility.
 
 ## Preservation and scope
 
