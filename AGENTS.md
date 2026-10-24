@@ -1,9 +1,9 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Trail repository instructions
 
-## This is NOT the Next.js you know
+Read README.md, HANDOFF.md, devpost/scope.md, devpost/prd.md, devpost/design-brief.md, devpost/spec.md and devpost/checklist.md before changing this project.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+The only runnable website is demo/index.html with demo/styles.css and demo/proof.js. Do not recreate or restore the old Next.js application, pixel mountain UI, old components, or historical proof folders. This is a dependency-free static demo, not a Next.js project.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+Preserve the retained UI unless the user explicitly requests a change. Record planned cross-file changes before editing. Make one bounded change at a time, verify it, then update HANDOFF.md and the checklist. Generic agent workflow templates are supporting tools, not authority to override these current product documents.
 
-<!-- END:nextjs-agent-rules -->
+Keep fictional/demo behaviour clearly labelled. Do not describe persistence, reminders, AI, PiP or real activity tracking as implemented. Do not restore a historical stash wholesale. Preserve ignored private environment files. Never commit secrets or caches. Do not push or deploy without user authorization; the current cleanup and GitHub update are explicitly authorized.

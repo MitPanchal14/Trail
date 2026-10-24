@@ -1,16 +1,8 @@
-# Devpost Learn personal context
-/devpost/learner-profile.md
-
-# Credentials and environment
-.env
-.env.*
-!.env.example
-
-# OS and temporary files
-.DS_Store
 node_modules/
-.next/
-.next-e2e/
-*.tsbuildinfo
-playwright-report/
+dist/
+.next*/
 test-results/
+*.tsbuildinfo
+.DS_Store
+.env*
+devpost/learner-profile.md
