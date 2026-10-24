@@ -39,6 +39,7 @@ for (const width of [1280, 390, 320]) test(`visible return and explicit continua
   await expect(page.getByRole("heading", { name: "Label veins", exact: true })).toBeVisible();
   await expect(page.getByText("1 / 2 accepted actions completed", { exact: true })).toBeVisible();
   expect((await read()).sessions).toHaveLength(1);
+  await page.locator(".continuation .session-settings > summary").click();
   await page.getByLabel("Next session length", { exact: true }).fill("4");
   await noOverflow();
   await page.screenshot({ path: info.outputPath(`next-${width}.png`), fullPage: true });
@@ -49,6 +50,7 @@ for (const width of [1280, 390, 320]) test(`visible return and explicit continua
   await expect(page.getByRole("button", { name: "Confirm goal complete", exact: true })).toBeVisible();
   expect((await read()).summitConfirmations).toHaveLength(0);
   await page.getByRole("button", { name: "Undo completion", exact: true }).first().click();
+  await page.locator(".action-details > summary").click();
   await expect(page.getByText("1 / 2 accepted actions completed", { exact: true })).toBeVisible();
   await expect(page.locator("canvas")).toHaveAttribute("data-position", position!);
   await noOverflow();

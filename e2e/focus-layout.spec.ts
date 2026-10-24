@@ -69,7 +69,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
     path: info.outputPath("focus-repair.png"),
     fullPage: true,
   });
-  const layout = await page.locator(".shell.is-focusing").evaluate((el) => {
+  const layout = await page.locator(".shell.work-focusing").evaluate((el) => {
     const main = el.querySelector("main")!,
       world = el.querySelector(".world")!,
       panel = el.querySelector(".action")!;
@@ -95,28 +95,16 @@ test("two-task focus layout and reload retain task-specific context", async ({
     };
   });
   console.log(info.project.name, "focus computed layout", layout);
-  expect(layout.columns).toBe(1);
-  expect(layout.main.width).toBeCloseTo(layout.shell.width, 0);
   expect(layout.overflow).toBe(false);
-  expect(layout.shell.width).toBeLessThanOrEqual(1250);
-  expect(layout.main.width).toBeGreaterThan(
-    Math.min(layout.viewport - 40, 1000),
-  );
-  if (layout.viewport > 800) {
-    expect(layout.world.right).toBeLessThanOrEqual(layout.panel.x);
-    expect(Math.abs(layout.world.y - layout.panel.y)).toBeLessThan(2);
-  } else {
-    expect(layout.world.y).toBeGreaterThan(layout.panel.y);
-    expect(layout.world.y).toBeLessThan(800);
-  }
+  expect(layout.shell.width).toBeLessThanOrEqual(layout.viewport);
+  expect(layout.panel.width).toBeGreaterThanOrEqual(Math.min(layout.viewport - 48, 300));
+  expect(layout.world.bottom).toBeLessThanOrEqual(layout.panel.y);
+  expect(Math.abs(layout.world.width - layout.panel.width)).toBeLessThan(2);
   await expect(
     page.getByRole("heading", { name: "Action A", exact: true }),
   ).toBeVisible();
   await expect(
-    page
-      .locator("#world-title")
-      .locator("..")
-      .getByText("Mountain A", { exact: true }),
+    page.locator(".work-project").getByText("Mountain A", { exact: true }),
   ).toBeVisible();
   const resumed = await read(page);
   expect(resumed.sessions[0]).toMatchObject({
@@ -145,7 +133,7 @@ test("two-task focus layout and reload retain task-specific context", async ({
   ).toBeFocused();
   expect(
     await page
-      .locator(".shell.is-focusing > main")
+      .locator(".shell.work-focusing > main")
       .evaluate((el) => el.getBoundingClientRect().width),
   ).toBeCloseTo(layout.main.width, 0);
   expect((await read(page)).sessions[0]).toMatchObject({

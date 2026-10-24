@@ -61,10 +61,12 @@ for (const motion of ["reduce", "no-preference"] as const) test(`decision dialog
   await page.getByRole("button", { name: "Yes, finish condition met", exact: true }).click();
   if (motion === "no-preference") await page.waitForTimeout(950); // bounded visual reveal only
   if (info.project.name === "mobile") {
-    await expect(page.locator("canvas")).toBeInViewport({ ratio: 0.8 });
+    await expect(page.getByRole("heading", { name: "Summit reached", exact: true })).toBeInViewport();
     const placement = await page.evaluate(() => ({ world: document.querySelector(".world")!.getBoundingClientRect().toJSON(), task: document.querySelector(".real-action")!.getBoundingClientRect().toJSON() }));
     expect(placement.world.bottom).toBeLessThanOrEqual(placement.task.y);
-    expect(placement.world.top).toBeGreaterThanOrEqual(0);
+    await expect(page.locator("canvas")).toHaveAttribute("data-summit", "reached");
+    await page.locator("canvas").scrollIntoViewIfNeeded();
+    await expect(page.locator("canvas")).toBeInViewport({ ratio: 0.8 });
   }
   await page.screenshot({ path: info.outputPath(`summit-${motion}.png`) });
   await page.setViewportSize({ width: 390, height: 480 });

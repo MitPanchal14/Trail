@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { emptySnapshot } from "../lib/domain";
 import { transition } from "../lib/actions";
 
-test("saved hierarchy, compact world, planner prerequisites and measured Dusk contrast", async ({ page }, info) => {
+test("saved hierarchy, compact world, planner prerequisites and measured interface contrast", async ({ page }, info) => {
   if (info.project.name === "desktop") await page.setViewportSize({ width: 1360, height: 900 });
   let s = transition(emptySnapshot(), { type: "create", title: "Fictional field guide", finishCondition: "One reviewed page", action: "Sketch the leaf", minutes: 10 });
   s = transition(s, { type: "start", minutes: 10 });
@@ -22,7 +22,8 @@ test("saved hierarchy, compact world, planner prerequisites and measured Dusk co
   const note = "The outline and stem are ready. Keep the annotated reference beside the drawing. ".repeat(6);
   await page.getByLabel("Where I stopped").fill(note);
   await page.getByRole("button", { name: "Save my place", exact: true }).click();
-  await expect(action.getByRole("heading")).toHaveText(/Add the three branching veins/);
+  await expect(action.locator(".next-instruction")).toContainText("Add the three branching veins");
+  await action.getByText("Read full stopping note", { exact: true }).click();
   await expect(action.getByText(note.trim(), { exact: true })).toBeVisible();
   await page.screenshot({ path: info.outputPath("today-long-notes.png"), fullPage: true });
   await page.getByRole("button", { name: "Plan today", exact: true }).click();

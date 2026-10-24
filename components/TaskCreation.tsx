@@ -122,7 +122,7 @@ export default function TaskCreation({
         try { return parsePlanResponse(body, input); }
         catch { throw Error("AI returned an unusable draft. Your input is retained; edit manually or retry explicitly."); }
       })();
-      if (result.kind === "day") throw Error("Unexpected draft");
+      if (result.kind !== "breakdown" && result.kind !== "clarification") throw Error("Unexpected draft");
       if (result.kind === "clarification") {
         dispatch({
           type: "draft",

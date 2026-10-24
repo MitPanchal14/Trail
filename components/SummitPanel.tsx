@@ -4,10 +4,11 @@ import type { Snapshot } from "@/lib/domain";
 import { activeCompletion } from "@/lib/domain";
 import type { Action } from "@/lib/actions";
 
-export default function SummitPanel({ snapshot: s, mountainId, disabled, dispatch, onAdd, onReveal }: {
+export default function SummitPanel({ snapshot: s, mountainId, disabled, dispatch, onAdd, onReveal, compact = false }: {
   snapshot: Snapshot; mountainId?: string; disabled: boolean;
   dispatch: (a: Action) => boolean; onAdd: () => void;
   onReveal: () => void;
+  compact?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const m = s.mountains.find(m => m.id === mountainId);
@@ -19,14 +20,14 @@ export default function SummitPanel({ snapshot: s, mountainId, disabled, dispatc
   if (!ready && !history.length) return null;
   return <section className={`summit-panel ${m.status === "completed" ? "summit-reached" : "summit-pending"}`} aria-label="Goal completion">
     <h3>{m.status === "completed" ? "Goal confirmed complete" : ready ? "All planned steps complete" : "Goal reopened"}</h3>
-    <p>{count} of {tasks.length} actions completed.</p>
+    {!compact && <p>{count} of {tasks.length} actions completed.</p>}
     <p>Finish condition: <strong>{m.finishCondition}</strong></p>
     {m.status === "reopened" && <p>Reopened · current work is separate from historical achievement.</p>}
     {m.status === "completed" ? <>
       <p role="status">Summit reached. This records your explicit confirmation of the finish condition.</p>
       <button className="secondary" disabled={disabled} onClick={() => dispatch({ type: "reopen-goal", mountainId: m.id })}>Reopen goal</button>
     </> : <>
-      {ready && <><p>Confirmation needed. The outlined summit route is a destination, not an earned achievement.</p>
+      {ready && <><p>{compact ? "Confirm when this goal’s finish condition is met." : "Confirmation needed. The outlined summit route is a destination, not an earned achievement."}</p>
         <button className="primary" disabled={disabled} onClick={() => dialog.current?.showModal()}>Confirm goal complete</button></>}
       {history.some(c => !c.revokedAt) && <p>Historical summit retained. New work is not marked complete.</p>}
       <button className="secondary" disabled={disabled} onClick={onAdd}>Add another step</button>

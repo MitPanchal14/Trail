@@ -1,0 +1,108 @@
+
+Running 72 tests using 5 workers
+
+(node:223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:221) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/72] [desktop] › e2e/progress-update.spec.ts:30:5 › save/reload/return keeps original action and no time/reward/session; Start is explicit; backup round trip
+[2/72] [tablet] › e2e/progress-update.spec.ts:30:5 › save/reload/return keeps original action and no time/reward/session; Start is explicit; backup round trip
+[3/72] [tablet] › e2e/progress-suggestion.spec.ts:41:5 › AI drafts require editable review and explicit save; reload preserves context without earning progress
+[4/72] [desktop] › e2e/today-correction.spec.ts:20:5 › production work-loop visual matrix at scroll zero
+[5/72] [desktop] › e2e/progress-suggestion.spec.ts:41:5 › AI drafts require editable review and explicit save; reload preserves context without earning progress
+[6/72] [tablet] › e2e/progress-suggestion.spec.ts:60:5 › unavailable AI explains the disabled control and manual saving remains available
+[7/72] [desktop] › e2e/progress-suggestion.spec.ts:60:5 › unavailable AI explains the disabled control and manual saving remains available
+[8/72] [tablet] › e2e/progress-suggestion.spec.ts:72:5 › late AI results after editing cannot overwrite text or records
+[9/72] [tablet] › e2e/progress-update.spec.ts:64:5 › existing context is prefilled, Cancel/Escape preserve it, keyboard focus stays bounded and returns
+[10/72] [desktop] › e2e/progress-suggestion.spec.ts:72:5 › late AI results after editing cannot overwrite text or records
+[11/72] [desktop] › e2e/progress-update.spec.ts:64:5 › existing context is prefilled, Cancel/Escape preserve it, keyboard focus stays bounded and returns
+[12/72] [tablet] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Cancel request cannot change the reopened draft or records
+[13/72] [desktop] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Cancel request cannot change the reopened draft or records
+[14/72] [desktop] › e2e/progress-update.spec.ts:77:5 › saved session update preserves remaining/focus/history; re-edit and explicit Resume use latest context
+[15/72] [tablet] › e2e/progress-update.spec.ts:77:5 › saved session update preserves remaining/focus/history; re-edit and explicit Resume use latest context
+[16/72] [tablet] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Cancel cannot change the reopened draft or records
+[17/72] [desktop] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Cancel cannot change the reopened draft or records
+[18/72] [desktop] › e2e/progress-update.spec.ts:90:5 › updates only the selected action when switching work and does not alter original instructions
+[19/72] [desktop] › e2e/today-correction.spec.ts:70:5 › 320px exact return and real Resume stay above supporting context; maximum text remains intact
+[20/72] [tablet] › e2e/progress-update.spec.ts:90:5 › updates only the selected action when switching work and does not alter original instructions
+[21/72] [tablet] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Escape cannot change the reopened draft or records
+[22/72] [desktop] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Escape cannot change the reopened draft or records
+[23/72] [tablet] › e2e/progress-suggestion.spec.ts:108:5 › invalid responses and clarification retain editable input; original text can be recovered from a valid suggestion
+[24/72] [desktop] › e2e/progress-update.spec.ts:107:53 › failed quota save preserves context and offers unsaved draft recovery
+[25/72] [desktop] › e2e/progress-suggestion.spec.ts:108:5 › invalid responses and clarification retain editable input; original text can be recovered from a valid suggestion
+[26/72] [tablet] › e2e/progress-update.spec.ts:107:53 › failed quota save preserves context and offers unsaved draft recovery
+[27/72] [desktop] › e2e/today-correction.spec.ts:104:5 › three real manual actions retain continuity, explicit return and factual Undo
+[28/72] [desktop] › e2e/progress-update.spec.ts:107:53 › failed changed-raw save preserves context and offers unsaved draft recovery
+[29/72] [tablet] › e2e/progress-suggestion.spec.ts:123:5 › dictation appends once, accepts a final result after Stop, and never sends AI or saves automatically
+[30/72] [tablet] › e2e/progress-update.spec.ts:107:53 › failed changed-raw save preserves context and offers unsaved draft recovery
+[31/72] [desktop] › e2e/progress-suggestion.spec.ts:123:5 › dictation appends once, accepts a final result after Stop, and never sends AI or saves automatically
+[32/72] [desktop] › e2e/progress-update.spec.ts:122:5 › read-only tab cannot open editor; lease lost in Save handler cannot write
+[33/72] [tablet] › e2e/progress-suggestion.spec.ts:136:5 › denied/unsupported dictation and late events after closing preserve manual updates
+[34/72] [tablet] › e2e/progress-update.spec.ts:122:5 › read-only tab cannot open editor; lease lost in Save handler cannot write
+[35/72] [desktop] › e2e/progress-suggestion.spec.ts:136:5 › denied/unsupported dictation and late events after closing preserve manual updates
+[36/72] [desktop] › e2e/today-correction.spec.ts:157:5 › long identities, short-height dialog, reflow, warnings and separate summit decisions remain accessible
+[37/72] [tablet] › e2e/today-correction.spec.ts:20:5 › production work-loop visual matrix at scroll zero
+[38/72] [desktop] › e2e/progress-update.spec.ts:133:5 › 320px editor and long context stay bounded with reachable controls
+[39/72] [tablet] › e2e/progress-update.spec.ts:133:5 › 320px editor and long context stay bounded with reachable controls
+[40/72] [desktop] › e2e/today-correction.spec.ts:189:5 › final checkpoint never awards summit without confirmation and reopening retains history
+[41/72] [desktop] › e2e/progress-update.spec.ts:143:5 › clearing both fields explicitly does not resurrect legacy session context
+(node:301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[42/72] [tablet] › e2e/progress-update.spec.ts:143:5 › clearing both fields explicitly does not resurrect legacy session context
+[43/72] [mobile] › e2e/progress-suggestion.spec.ts:41:5 › AI drafts require editable review and explicit save; reload preserves context without earning progress
+[44/72] [desktop] › e2e/progress-update.spec.ts:154:5 › ownership loss and newer saved context invalidate the open draft even after ownership returns
+[45/72] [tablet] › e2e/progress-update.spec.ts:154:5 › ownership loss and newer saved context invalidate the open draft even after ownership returns
+[46/72] [mobile] › e2e/progress-suggestion.spec.ts:60:5 › unavailable AI explains the disabled control and manual saving remains available
+(node:315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[47/72] [mobile] › e2e/progress-update.spec.ts:30:5 › save/reload/return keeps original action and no time/reward/session; Start is explicit; backup round trip
+[48/72] [mobile] › e2e/progress-suggestion.spec.ts:72:5 › late AI results after editing cannot overwrite text or records
+[49/72] [tablet] › e2e/today-correction.spec.ts:70:5 › 320px exact return and real Resume stay above supporting context; maximum text remains intact
+[50/72] [mobile] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Cancel request cannot change the reopened draft or records
+[51/72] [tablet] › e2e/today-correction.spec.ts:104:5 › three real manual actions retain continuity, explicit return and factual Undo
+[52/72] [mobile] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Cancel cannot change the reopened draft or records
+[53/72] [mobile] › e2e/progress-update.spec.ts:64:5 › existing context is prefilled, Cancel/Escape preserve it, keyboard focus stays bounded and returns
+[54/72] [mobile] › e2e/progress-suggestion.spec.ts:86:64 › pending AI results after Escape cannot change the reopened draft or records
+[55/72] [mobile] › e2e/progress-update.spec.ts:77:5 › saved session update preserves remaining/focus/history; re-edit and explicit Resume use latest context
+(node:330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[56/72] [mobile] › e2e/progress-suggestion.spec.ts:108:5 › invalid responses and clarification retain editable input; original text can be recovered from a valid suggestion
+[57/72] [mobile] › e2e/today-correction.spec.ts:20:5 › production work-loop visual matrix at scroll zero
+[58/72] [mobile] › e2e/progress-update.spec.ts:90:5 › updates only the selected action when switching work and does not alter original instructions
+[59/72] [tablet] › e2e/today-correction.spec.ts:157:5 › long identities, short-height dialog, reflow, warnings and separate summit decisions remain accessible
+[60/72] [mobile] › e2e/progress-suggestion.spec.ts:123:5 › dictation appends once, accepts a final result after Stop, and never sends AI or saves automatically
+[61/72] [tablet] › e2e/today-correction.spec.ts:189:5 › final checkpoint never awards summit without confirmation and reopening retains history
+[62/72] [mobile] › e2e/progress-update.spec.ts:107:53 › failed quota save preserves context and offers unsaved draft recovery
+[63/72] [mobile] › e2e/progress-suggestion.spec.ts:136:5 › denied/unsupported dictation and late events after closing preserve manual updates
+[64/72] [mobile] › e2e/progress-update.spec.ts:107:53 › failed changed-raw save preserves context and offers unsaved draft recovery
+[65/72] [mobile] › e2e/progress-update.spec.ts:122:5 › read-only tab cannot open editor; lease lost in Save handler cannot write
+[66/72] [mobile] › e2e/today-correction.spec.ts:70:5 › 320px exact return and real Resume stay above supporting context; maximum text remains intact
+[67/72] [mobile] › e2e/progress-update.spec.ts:133:5 › 320px editor and long context stay bounded with reachable controls
+[68/72] [mobile] › e2e/today-correction.spec.ts:104:5 › three real manual actions retain continuity, explicit return and factual Undo
+[69/72] [mobile] › e2e/progress-update.spec.ts:143:5 › clearing both fields explicitly does not resurrect legacy session context
+[70/72] [mobile] › e2e/progress-update.spec.ts:154:5 › ownership loss and newer saved context invalidate the open draft even after ownership returns
+[71/72] [mobile] › e2e/today-correction.spec.ts:157:5 › long identities, short-height dialog, reflow, warnings and separate summit decisions remain accessible
+[72/72] [mobile] › e2e/today-correction.spec.ts:189:5 › final checkpoint never awards summit without confirmation and reopening retains history
+  72 passed (13.4s)

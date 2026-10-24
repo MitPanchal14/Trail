@@ -18,6 +18,11 @@ export const breakdownSchema = z
 export const clarificationSchema = z
   .object({ kind: z.literal("clarification"), question: text })
   .strict();
+export const progressUpdateSchema = z.object({
+  kind: z.literal("progress-update"),
+  note: z.string().trim().min(1).max(2000),
+  returnStep: text,
+}).strict();
 export const dayResponseSchema = z
   .object({
     kind: z.literal("day"),
@@ -33,6 +38,13 @@ export const planRequestSchema = z
         description: z.string().trim().min(1).max(6000),
       })
       .strict(),
+    z.object({
+      kind: z.literal("progress-update"),
+      update: z.string().trim().min(1).max(2000),
+      action: text,
+      instruction: text,
+      previousReturnStep: z.string().max(500),
+    }).strict(),
     z
       .object({
         kind: z.literal("day"),
@@ -60,7 +72,16 @@ export const planRequestSchema = z
   });
 export type PlanRequest = z.infer<typeof planRequestSchema>;
 export type Breakdown = z.infer<typeof breakdownSchema>;
+type Clarification = z.infer<typeof clarificationSchema>;
+type ProgressUpdate = z.infer<typeof progressUpdateSchema>;
+type DayPlan = z.infer<typeof dayResponseSchema>;
+export function parsePlanResponse(input: unknown, request: Extract<PlanRequest, { kind: "breakdown" }>): Breakdown | Clarification;
+export function parsePlanResponse(input: unknown, request: Extract<PlanRequest, { kind: "progress-update" }>): ProgressUpdate | Clarification;
+export function parsePlanResponse(input: unknown, request: Extract<PlanRequest, { kind: "day" }>): DayPlan;
+export function parsePlanResponse(input: unknown, request: PlanRequest): Breakdown | Clarification | ProgressUpdate | DayPlan;
 export function parsePlanResponse(input: unknown, request: PlanRequest) {
+  if (request.kind === "progress-update")
+    return z.union([progressUpdateSchema, clarificationSchema]).parse(input);
   if (request.kind === "breakdown")
     return z.union([breakdownSchema, clarificationSchema]).parse(input);
   const result = dayResponseSchema.parse(input),

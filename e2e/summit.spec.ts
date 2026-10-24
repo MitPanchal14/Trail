@@ -19,13 +19,16 @@ test("three manual steps require persisted finish-condition confirmation, with r
   const canvas = page.locator("canvas");
   const read = () => page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!));
   expect((await read()).completions).toHaveLength(0);
+  await page.locator(".action-details > summary").click();
   await expect(page.getByText("0 / 3 accepted actions completed", { exact: true })).toBeVisible();
+  await page.locator(".action-details > summary").click();
   const slots = (await read()).subtasks.map((t: { checkpointSlot: number }) => t.checkpointSlot);
   await canvas.screenshot({ path: info.outputPath("zero.png") });
   for (let i = 1; i <= 3; i++) {
     await page.getByRole("button", { name: i === 1 ? "Start" : "Start this action", exact: true }).click();
     await page.getByRole("button", { name: "Complete action", exact: true }).click();
-    await expect(page.getByText(`${i} / 3 accepted actions completed`, { exact: true })).toBeVisible();
+    if (i < 3) await expect(page.getByText(`${i} / 3 accepted actions completed`, { exact: true })).toBeVisible();
+    else await expect(page.getByRole("heading", { name: "All planned steps complete", exact: true })).toBeVisible();
     expect((await read()).summitConfirmations).toHaveLength(0);
     await canvas.screenshot({ path: info.outputPath(`checkpoint-${i}.png`) });
   }

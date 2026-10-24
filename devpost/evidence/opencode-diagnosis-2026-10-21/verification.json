@@ -1,0 +1,29 @@
+{
+  "reviewDate": "2026-10-21",
+  "preview": "http://127.0.0.1:3101/",
+  "buildId": "o60UF-wt_heJqR65fEXRH",
+  "servedBuildMatches": true,
+  "runtimeSourceMatches": {
+    "components/TodayView.tsx": true,
+    "components/TodayExperience.module.css": true,
+    "components/UpdateProgress.tsx": true,
+    "components/SummitPanel.tsx": true,
+    "components/WorkText.tsx": true
+  },
+  "openCodeVersion": "2.0.29",
+  "projectTaskModel": {
+    "provider": "openai",
+    "id": "gpt-6.1-sol",
+    "variant": "high"
+  },
+  "briefReadRecorded": true,
+  "latestTaskCompactions": 0,
+  "independentChecks": {
+    "unit": 74,
+    "focusedProductionBrowser": 45,
+    "lint": "passed",
+    "typecheck": "passed"
+  },
+  "providerRequestsMadeByThisReview": 0,
+  "appSourceEditsMadeByThisReview": 0
+}

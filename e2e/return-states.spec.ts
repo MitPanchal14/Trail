@@ -6,7 +6,9 @@ test("ready, working, campsite, return context, earned light and Undo", async ({
   await page.addInitScript((raw) => { if (!localStorage.getItem("work-trail:snapshot:v1")) localStorage.setItem("work-trail:snapshot:v1", raw); }, JSON.stringify(s));
   await page.route("**/api/plan", route => route.fulfill({ status: 503, json: { error: "AI disabled in tests" } }));
   await page.goto("/");
+  await page.locator(".action-details > summary").click();
   await expect(page.getByText(/Destination: checkpoint 1/)).toBeVisible();
+  await page.locator(".action-details > summary").click();
   await expect(page.getByRole("button", { name: "Start", exact: true })).toBeEnabled();
   await page.screenshot({ path: info.outputPath("ready.png"), fullPage: true });
   await page.getByRole("button", { name: "Start", exact: true }).click();

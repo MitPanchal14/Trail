@@ -1,5 +1,7 @@
 # Work Trail
 
+> **October 24 revision:** The light, action-first Trail redesign is being planned. The pixel/Dusk presentation described below is historical. Start with [BUILD_PROMPT.md](BUILD_PROMPT.md), [the current PRD](devpost/prd.md) and [the repository audit](devpost/replan-2026-10-24/REPOSITORY_AUDIT.md). Application files have not been rebuilt by this documentation work. Superseded briefs/studies were removed during the authorized cleanup; [cleanup record and recovery archive](devpost/replan-2026-10-24/CLEANUP_RECEIPT.md). Historical descriptions below are not the new build direction.
+
 Slice 3 review build: reviewed task breakdowns, persistent creation drafts, optional browser voice, a server Gemini planning adapter and explicit daily commitments around the existing Save/Resume loop. Original Dusk bento/pixel terrain retained. No accounts, sync or deployment; public production AI is disabled.
 
 Use Node 24 LTS. Run `npm ci`, then `npm run dev` and open http://localhost:3000. Choose New task, describe the work, then Write manually (works without credentials) or Build with AI. Review/edit the mountain name, finish condition and every ordered action/instruction/session duration; check the review box and Accept breakdown. Plan today selects/orders a draft; Commit today’s plan creates commitments. Remove/Defer keeps their records without awarding completion. Start, type an optional return note, and Save my place. Close and reopen the same URL: Resume is explicit. Complete earns a checkpoint; Undo reverses credit without deleting sessions.
@@ -47,7 +49,19 @@ October 20 slice, **not deployed or user-accepted**: select an unfinished action
 
 If saving fails, the editor keeps the unsaved draft and offers **Download update draft** (private text JSON, not an importable full Trail backup). Resolve storage/ownership issues before retrying with a fresh editor; never treat the warning as a successful save. Existing private backup/restore supports the new optional action context and all older backups in this local candidate. The unchanged public build may reject newer backups containing this field; do not import those into it or clear personal records to test compatibility.
 
-Implementation/verification handoff: `devpost/progress-update-plan-2026-10-20.md` and `HANDOFF.md`. Independent review and real-device/accessibility/user acceptance remain separate from automated checks.
+Current implementation/verification handoff: `BUILD_PROMPT.md` and `HANDOFF.md`; the superseded progress-update brief is listed in the cleanup record. Independent review and real-device/accessibility/user acceptance remain separate from automated checks.
+
+## Local candidate: Today experience
+
+**Current corrective candidate (October 21):** the October 20 Today-only presentation below is superseded by one coherent Today → Focus → Update progress → completion surface. Preview **http://127.0.0.1:3101/**, AI disabled; public release unchanged. Start/Resume precedes optional context, long instructions use reading-sized text with full-value disclosures, Focus keeps work/world placement with Complete primary and Save secondary, and final planned completion leads to separate summit confirmation. Persistence/timer/reward/Undo semantics remain unchanged. [Matched production before/after evidence and measured mobile correction](devpost/evidence/today-correction-2026-10-21/README.md); [implementation/check details](devpost/replan-2026-10-24/CLEANUP_RECEIPT.md#removed-files). Stop for user visual review; no commit/push/deploy.
+
+The October 20 **Today-only redesign is awaiting visual review**, not deployed. Open **http://127.0.0.1:3101/** while the local production preview is running. Use fictional work in a separate browser profile; no sample records are inserted into your trail.
+
+- **Ready:** the ivory work panel leads with your action and **Start**. **Session settings** discloses duration; **Action details** holds the checkpoint/finish condition.
+- **Returning:** your saved next step leads, with brief stopping context, full-note disclosure when needed, **Update progress**, and explicit **Start/Resume**. “Session time remaining” is separate from commitments in the daily plan.
+- **Completed:** the actual completed action and checkpoint are named, **Undo completion** stays accessible, and the next accepted action has its own explicit Start/Resume control. Completion does not automatically confirm the larger goal.
+
+The forest landscape supports the wider desktop action panel and follows the action on mobile. Focus, Mountains and Progress keep their existing appearance. Timer accounting, checkpoint positions, storage/backup semantics and Update progress behaviour are unchanged. Existing public demo remains the older release. Historical evidence/checks remain in `devpost/evidence/` and `HANDOFF.md`; the superseded redesign plan is listed in the cleanup record.
 
 ## Public manual demo
 

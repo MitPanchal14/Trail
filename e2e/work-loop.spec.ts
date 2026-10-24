@@ -327,6 +327,7 @@ test("duration validation and stored suggestions survive reload", async ({
   await page.goto("/");
   await create(page);
   await page.reload();
+  await page.locator(".session-settings > summary").click();
   await expect(page.getByLabel("Session length")).toHaveValue("1");
   await page.getByLabel("Session length").fill("0");
   await page.getByRole("button", { name: "Start", exact: true }).click();

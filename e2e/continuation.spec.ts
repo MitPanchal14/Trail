@@ -28,6 +28,7 @@ test("three accepted actions continue, retain return context and earn visible as
   await canvas.screenshot({ path: info.outputPath("after-first.png") });
   await expect(page.getByText("1 / 3 accepted actions completed", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Draw leaf 2", exact: true })).toBeVisible();
+  await page.locator(".continuation .session-settings > summary").click();
   await page.getByLabel("Next session length", { exact: true }).fill("7");
   await page.screenshot({ path: info.outputPath("continuation.png"), fullPage: true });
   await page.getByRole("button", { name: "Start this action", exact: true }).click();
@@ -116,7 +117,7 @@ test("saved next work resumes unchanged; deferred choice, rejected writes and fi
   await page.getByRole("button", { name: "Complete action", exact: true }).click();
   const resume = page.getByRole("button", { name: "Resume next action", exact: true });
   await expect(resume).toBeDisabled();
-  await expect(page.getByText("Where I stopped: Keep the reference", { exact: true })).toBeVisible();
+  await expect(page.locator(".continuation .context")).toContainText("Keep the reference");
   await page.getByRole("checkbox", { name: /Work on this deferred action now/ }).check();
   await expect(resume).toBeEnabled();
   await page.evaluate(() => { Storage.prototype.setItem = () => { throw Error("Fictional storage failure"); }; });
@@ -127,10 +128,10 @@ test("saved next work resumes unchanged; deferred choice, rejected writes and fi
   // Recovery deliberately prioritizes the saved action; this is still explicit Resume.
   await page.getByRole("button", { name: "Resume", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Check the edge", exact: true })).toBeVisible();
-  await expect(page.getByText("Action: Second", { exact: true })).toBeVisible();
+  await expect(page.locator(".real-action").getByText("Action: Second", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Complete action", exact: true }).click();
   await expect(page.getByRole("heading", { name: "All planned steps complete", exact: true }).first()).toBeVisible();
-  await expect(page.getByText("2 / 2 accepted actions completed", { exact: true })).toBeVisible();
+  expect((await page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!))).completions.filter((c: { undoneAt: string | null }) => !c.undoneAt)).toHaveLength(2);
   await expect(page.locator("canvas")).toHaveAttribute("data-segment", "1");
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("work-trail:snapshot:v1")!));
   expect(stored.mountains[0].status).toBe("active");

@@ -1,5 +1,0 @@
-# Intended Progress changes
-
-- Add pure calendar-date and snapshot projection helpers with focused tests first: exact year dates/bands, recorded completion dates, commitment timing/dispositions, Undo, per-date session time, latest recorded saves and equal complete comparison periods. No storage/schema/timer changes.
-- Add `/progress` within the existing route group/shared controller and navigation. Build a Dusk month-based yearly grid with readable day buttons, fixed legend, neutral future/pre-use distinction, read-only day detail and factual year/14-complete-date comparisons. Date selection stays local/URL-only; no work selection or automatic starts.
-- Preserve Mountains, Today/focus, AI protection and unrelated working-tree edits. Add fictional isolated browser cases for date/year/reload, timezone, Undo, readonly/warnings and live-focus back navigation. Inspect desktop/tablet/390/320px; run full checks/regressions, record actual evidence in HANDOFF, review/stage intended files and commit. Stop for review before backup/deployment; no live AI/push/personal records.

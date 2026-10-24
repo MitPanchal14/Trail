@@ -29,7 +29,7 @@ export default function SampleToday({ onReturn }: { onReturn: () => void }) {
           <span className="brand-mark" aria-hidden="true">
             ▟
           </span>
-          work trail.
+          Trail.
         </Link>
         <nav aria-label="Main">
           <Link className="nav-active" href="/" aria-current="page">
@@ -46,7 +46,7 @@ export default function SampleToday({ onReturn }: { onReturn: () => void }) {
           <span className="little-tree" aria-hidden="true">
             ♧
           </span>
-          <p>Work Trail</p>
+          <p>Trail.</p>
         </div>
       </aside>
       <main id="main">

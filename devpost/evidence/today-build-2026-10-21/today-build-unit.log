@@ -1,0 +1,13 @@
+
+> work-trail@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /Users/mitku/Documents/Hackathons/Devpost/Build_With_AI
+
+
+ Test Files  12 passed (12)
+      Tests  78 passed (78)
+   Start at  21:17:45
+   Duration  375ms (import 54%, tests 31%, transform 12%, worker 3%)
+

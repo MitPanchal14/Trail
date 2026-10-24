@@ -1,30 +1,29 @@
-# OpenCode Build Entry Point — Work Trail
+# OpenCode Entry Point — Trail revision, October 24, 2026
 
-Build this approved hackathon web app in this folder. Start with slice 1 only; show the running result and obtain visual feedback before advancing. Preserve the approved bento + pixel-world direction. Do not replace it with a generic dashboard or copy a previous Trail implementation.
+## Current stage: planning and visual direction
 
-## Read once, in order
+The revised scope is approved. The revised PRD, exact design, technical plan and build checklist are drafts. The learner requests detailed planning and a new graphical direction before application implementation. Do not begin runtime changes from old approvals.
 
-1. HANDOFF.md — actual status and next action.
-2. devpost/scope.md — unique kernel and exclusions.
-3. devpost/prd.md — approved behavior.
-4. devpost/spec.md — approved architecture and precise contracts.
-5. devpost/checklist.md — approved order and verification.
-6. devpost/design-lab/index.html — visual reference, not production behavior.
+The existing pixel world, original terrain and old composition are superseded visual requirements. Continue this repository, retain useful behaviour and preserve personal records. The learner wants strong Stripe/Linear inspiration with a light neutral interface, dark text, selective colour and the next action first. Do not recreate the old app under a new palette.
 
-For project workflow use .agents/skills/5-build/SKILL.md. It requires choosing learn/fast mode at the first build session; explain the difference briefly and ask once. User has approved the approach/order, so do not restart the product questionnaire. Read the ignored learner-profile locally only when needed for teaching; never publish it or quote private research/project context into app samples or public documents.
+## Read once
 
-## First slice
+1. AGENTS.md and the newest entry at the top of HANDOFF.md.
+2. devpost/scope.md.
+3. devpost/replan-2026-10-24/requirements-ledger.md.
+4. devpost/prd.md.
+5. devpost/replan-2026-10-24/design-brief.md.
+6. devpost/replan-2026-10-24/reference-audit.md and its referenced screenshots.
+7. devpost/replan-2026-10-24/OPENCODE_HANDOFF.md.
+8. devpost/replan-2026-10-24/REPOSITORY_AUDIT.md for file classifications and deletion blockers.
+9. devpost/spec.md and devpost/checklist.md for current stage and unresolved contracts.
 
-Implement a responsive Today screen with a generous original pixel mountain, readable next action/context card, compact day plan and accessible controls. Preserve the existing Next.js scaffold, bento layout and original terrain artwork. Opt-in clearly labeled sample cases: empty, one earned checkpoint, saved context and rich history. Default real first-use state is empty. No live AI or fake personal activity in this slice. Palette: user-selected Dusk tokens in spec.md, superseding Woodland. Localized completion light must visibly accumulate; saved/current climber and future path stay distinct from earned checkpoints. Reduced motion shows final rewards immediately. Keep the demo as historical comparison reference; its style switches, research panel and simulated metrics are not app requirements. No theme selector required.
+## Next action
 
-Run the dev server, lint/typecheck/build and inspect desktop/mobile browsers. Show screenshots or a working preview, report actual checks, ask for visual feedback and stop at the planned checkpoint. Visual quality matters: coherent pixel terrain/path, convincing depth, natural trees/water, warm completion light, legible controls. Don't settle for an abstract polygon tile with arbitrary dots.
+Continue the product/design review. If the learner dispatches a design-proof task, follow the bounded proof instructions in OPENCODE_HANDOFF.md: create isolated reviewable screen proofs without production app changes, show actual evidence and obtain visual feedback before implementation. The handoff includes a paste-ready prompt and source map.
 
-## Execution rules
+## Preservation and scope
 
-Build one usable slice at a time. After each, run its checks, fix failures, inspect staged changes, commit intended files and record actual evidence/next action in HANDOFF.md. Tick checklist boxes only when verified. If Git is not initialized, follow the build skill's one-time agreement requirement before git init; never claim commits exist otherwise. No blanket staging or history rewrites. Protect learner-profile and .env files; preserve unrelated work.
+Record intended multi-file edits first. Preserve existing dirty work. Never clear storage, reset the checkout, rename every stored field, change framework or enable public AI as a shortcut to redesign. No implied permission for commits, push, deploy, account access or messaging. No simultaneous competing implementation agents in the same checkout.
 
-The kernel is Start → save context → close → return → Resume → complete, with truthful persistent history. Implement it in slice 2 before secondary features. Real completion alone earns checkpoint colour; timer expiry and pauses do not. Confirm goal completion separately. Reopening retains a genuine earned summit; correction revokes mistaken summit credit. Preserve stable checkpoint slots through edits.
-
-Use targeted reads after initial briefing; don't repeatedly reread every file. If implementation reveals a contradiction, explain it and revise affected docs in one pass. No new services/auth/database, scope additions or paid commitments without user agreement. No API secret in client code. No claims of live AI from sample/manual output. Public AI must be protected or explicitly disabled.
-
-Stop after the first visual review checkpoint. Subsequent sessions resume the first unchecked slice. Do not submit the hackathon, publish personal material or deploy unprotected AI as an incidental action.
+Before future Next.js changes, read the relevant installed node_modules/next/dist/docs guides as AGENTS.md requires. Test actual behaviour and inspect the browser; report historical evidence as historical. The old BUILD_PROMPT.md is archived at devpost/replan-2026-10-24/previous-BUILD_PROMPT.md and is not a current build instruction.

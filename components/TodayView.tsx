@@ -5,6 +5,8 @@ import MountainsView from "./MountainsView";
 import ProgressView from "./ProgressView";
 import BackupRestore from "./BackupRestore";
 import UpdateProgress from "./UpdateProgress";
+import styles from "./TodayExperience.module.css";
+import WorkText from "./WorkText";
 import { useEffect, useRef, useState } from "react";
 import MountainWorld from "./MountainWorld";
 import SampleToday from "./SampleToday";
@@ -59,9 +61,14 @@ export default function TodayView() {
   const actionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (pathname === "/") {
-      const target = revealToday.current ? actionHeading : heading;
+      const reveal = revealToday.current;
+      const target = reveal ? actionHeading : heading;
       revealToday.current = false;
-      requestAnimationFrame(() => { target.current?.focus(); target.current?.scrollIntoView({ block: "start", behavior: "instant" }); });
+      requestAnimationFrame(() => {
+        target.current?.focus({ preventScroll: true });
+        if (reveal) target.current?.scrollIntoView({ block: "start", behavior: "instant" });
+        else window.scrollTo({ top: 0, behavior: "instant" });
+      });
     }
   }, [pathname]);
   useEffect(() => {
@@ -272,7 +279,7 @@ export default function TodayView() {
       </>
     );
   return (
-    <div className={`shell ${focused ? "is-focusing" : ""}`}>
+    <div className={`shell ${focused || pathname === "/" ? styles.today : ""} ${focused ? "work-focusing" : ""}`}>
       <a className="skip" href="#main">
         Skip to {isProgress ? "Progress" : isMountains ? "Mountains" : "Today"}
       </a>
@@ -314,22 +321,22 @@ export default function TodayView() {
             <h1 ref={heading} tabIndex={-1}>
               {focused
                 ? "One action at a time."
-                : summitReached ? "Summit reached" : summitPending ? "All planned steps complete" : completion
-                  ? "A checkpoint earned."
+                 : summitReached ? "Summit reached" : completion
+                   ? "Your work"
                   : session || task?.returnContext
                      ? "Continue your work"
                     : task
                        ? "Next up"
                       : "Every path starts here."}
             </h1>
-            <p role={completion && !summitReached ? "status" : undefined} className={completion && !summitReached ? "earned-confirmation" : undefined}>
+            <p role={completion && !summitReached ? "status" : undefined} className={completion && !summitReached ? "sr-only" : undefined}>
               {focused
-                ? "Time records your commitment, not proof of attention."
+                 ? new Date(todayNow).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })
                 : summitReached ? mountain?.title : completion
-                   ? `✓ ${task?.title} earned checkpoint ${task ? task.checkpointSlot + 1 : ""}. Local trail light restored. The larger goal is not automatically finished.`
+                   ? `${task?.title} earned checkpoint ${task ? task.checkpointSlot + 1 : ""}.`
                   : task
-                     ? mountain?.title
-                    : "Make room for one thing you want to move forward."}
+                     ? new Date(todayNow).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })
+                     : "Make room for one thing you want to move forward."}
             </p>
           </div>
           {!focused && (
@@ -342,50 +349,14 @@ export default function TodayView() {
             </button>
           )}
         </div>
-        <div className={`bento work-bento ${returning ? "has-saved-work" : ""} ${summitReached && !focused ? "show-summit-reward" : ""}`}>
-          <section className="world" aria-labelledby="world-title">
-            <div className="world-heading">
-              <div>
-                <p className="eyebrow">
-                  {mountain?.title ?? "An open landscape"}
-                </p>
-                <h2 id="world-title">
-                  {earned.length ? `${earned.length} checkpoint${earned.length === 1 ? "" : "s"} earned` : "Your trail starts here"}
-                </h2>
-              </div>
-            </div>
-            <MountainWorld
-              count={earned.length}
-              slots={slots}
-              seed={mountain?.terrainSeed}
-              currentSlot={task?.checkpointSlot}
-              saved={(!!session || !!task?.returnContext) && !completion}
-              running={focused && session?.status === "running"}
-              celebration={!!completion && celebration === task?.id}
-              completed={!!completion}
-              positionSlot={earnedPosition(s, mountain?.id)}
-              summit={summitReached}
-              historicalSummit={summitHistory}
-              summitPending={summitPending}
-            />
-            <div className="world-footer">
-              <span className="pill">
-                {earned.length
-                  ? `✦ ${earned.length} earned checkpoint${earned.length === 1 ? "" : "s"}`
-                  : "○ No checkpoints yet"}
-              </span>
-              <span className={returning ? "saved-label" : ""}>
-                {summitReached ? "⚑ Summit reached" : summitPending ? "○ Summit awaiting confirmation" : returning ? "⚑ Saved campsite" : focused ? "Walking in place · no progress earned" : completion ? "✦ Action complete" : "○ Next checkpoint ahead"}
-              </span>
-              <details className="trail-key"><summary>Trail key</summary><p>Amber lanterns: completed work. Blue frame and tent: saved place. Pale path: work ahead.</p></details>
-            </div>
-          </section>
+        {mountain && <div className="work-project"><span>Selected mountain</span><strong>{mountain.title.length > 80 ? `${mountain.title.slice(0, 80)}…` : mountain.title}</strong>{mountain.title.length > 80 && <details><summary>Read full project name</summary><p>{mountain.title}</p></details>}</div>}
+        <div className={`bento work-bento ${returning ? "has-saved-work" : ""}`} data-today-state={focused ? "focusing" : completion ? "completed" : returning ? "returning" : task ? "ready" : "empty"}>
           <section
             className="action card real-action"
             aria-labelledby="action-title"
           >
             <div className={completion ? "just-completed" : undefined}>
-              <span className="tag">
+              <span className={completion ? "sr-only" : "tag"}>
                 {completion
                   ? "Just completed"
                   : session
@@ -400,27 +371,17 @@ export default function TodayView() {
                             : "Focus commitment"
                     : task?.returnContext ? "Place saved" : "Your next action"}
               </span>
-              {returnStep && <p className="eyebrow">First thing when I return</p>}
               <h2 id="action-title" ref={actionHeading} tabIndex={-1}>
-                {completion ? task?.title : returnStep || task?.title || "What would you like to move forward?"}
+                {(() => { const title = !completion && returnStep && returnStep.length <= 90 ? returnStep : task?.title || "What would you like to move forward?"; return title.length > 90 ? `${title.slice(0, 90)}…` : title; })()}
               </h2>
-              {returnStep && <p className="original-action">Action: {task?.title}</p>}
-              {task && !completion && !returning && <p className="destination">Destination: checkpoint {task.checkpointSlot + 1}</p>}
-              {task && !completion && !returnStep && distinctInstruction(task.title, task.nextAction) && <p className="next-instruction">{task.nextAction}</p>}
-              {mountain && !completion && !summitPending && !summitReached && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
+              {task && task.title.length > 90 && <details><summary>Read full action title</summary><p>{task.title}</p></details>}
+              {returnStep && returnStep.length <= 90 && task && distinctInstruction(returnStep, task.title) && <p className="original-action">Action: {task.title.length > 90 ? `${task.title.slice(0, 90)}…` : task.title}</p>}
+              {task && !completion && (returnStep.length > 90 || !returnStep && distinctInstruction(task.title, task.nextAction)) && <WorkText text={returnStep || task.nextAction} label="next step" className="next-instruction" />}
               {completion && <>
-                <p className="session-time">Completed <time dateTime={completion.completedAt}>{new Date(completion.completedAt).toLocaleString()}</time></p>
+                <p className="achievement-note"><span aria-hidden="true">✓</span> Checkpoint {task ? task.checkpointSlot + 1 : ""} earned</p>
                 <button className="secondary" disabled={readOnly} onClick={() => { setCelebration(null); undo(completion.id); }}>Undo completion</button>
-                <details><summary>Completed action details</summary><p>{task?.nextAction}</p><p>Finish condition: {mountain?.finishCondition}</p>{completion.note && <p>{completion.note}</p>}</details>
               </>}
-              {mountain && !focused && !completion && <p className="session-time">{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>}
             </div>
-            {returning && context.note.trim() && (
-              <div className="context">
-                <strong>Where I stopped</strong>
-                <p>{context.note}</p>
-              </div>
-            )}
             {focused && session ? (
               <>
                 <div
@@ -431,18 +392,22 @@ export default function TodayView() {
                 >
                   {clock(remaining)}
                 </div>
-                <p className="session-time">
-                  Recorded session time: {Math.floor(session.creditedMs / 1000)}{" "}
-                  seconds
-                </p>
                 {session.status === "expired" && (
                   <p role="status">
                     Time is up. Complete the action, extend, or save your place.
                     No completion was recorded.
                   </p>
                 )}
-                <section className="return-note" aria-label="Optional return context">
-                  <h3>When you return <span>(optional)</span></h3>
+                <div className="focus-decisions">
+                  <button className="primary" disabled={readOnly} onClick={complete}>Complete action</button>
+                  <button className="secondary" disabled={readOnly} onClick={() => { if (dispatch({ type: "save" })) setFocus(false); }}>Save my place</button>
+                </div>
+                <div className="button-row">
+                  <button className="quiet" disabled={readOnly || session.status === "expired"} onClick={() => dispatch({ type: session.status === "running" ? "pause" : "resume" })}>{session.status === "running" ? "Pause" : "Continue"}</button>
+                  <button className="quiet" disabled={readOnly || session.remainingMs > 6900000} onClick={() => dispatch({ type: "extend", minutes: 5 })}>Extend 5 min</button>
+                </div>
+                <details className="return-note" open>
+                  <summary>When you return <span>(optional)</span></summary>
                   <label className="note-label" htmlFor="context-note">
                     Where I stopped <span>(optional)</span>
                     <textarea
@@ -462,60 +427,24 @@ export default function TodayView() {
                       onChange={(e) => dispatch({ type: "return-step", value: e.target.value })}
                       placeholder="Open the draft and write the next example." />
                   </label>
-                </section>
-                <div className="button-row">
-                  <button
-                    disabled={readOnly || session.status === "expired"}
-                    className="secondary"
-                    onClick={() =>
-                      dispatch({
-                        type: session.status === "running" ? "pause" : "resume",
-                      })
-                    }
-                  >
-                    {session.status === "running" ? "Pause" : "Continue"}
-                  </button>
-                  <button
-                    className="secondary"
-                    disabled={readOnly || session.remainingMs > 6900000}
-                    onClick={() => dispatch({ type: "extend", minutes: 5 })}
-                  >
-                    Extend 5 min
-                  </button>
-                </div>
-                <button
-                  className="primary"
-                  disabled={readOnly}
-                  onClick={() => {
-                    if (dispatch({ type: "save" })) setFocus(false);
-                  }}
-                >
-                  Save my place
-                </button>
-                <button
-                  className="secondary"
-                  disabled={readOnly}
-                  onClick={complete}
-                >
-                  Complete action
-                </button>
+                </details>
+                <details className="session-details"><summary>Session details</summary><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p><p>Time records your commitment, not proof of attention.</p></details>
               </>
             ) : completion ? (
               <>
-                <p>{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>
                 {next ? <section className="task-form continuation" aria-label="Next accepted action">
-                  <p className="eyebrow">Up next · Action {accepted.findIndex(t => t.id === next.id) + 1} of {accepted.length}</p>
+                  <p className="eyebrow"><span>Up next · Action {accepted.findIndex(t => t.id === next.id) + 1} of {accepted.length}</span><span>{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</span></p>
                   <h3>{next.title}</h3>
-                  {distinctInstruction(next.title, next.nextAction) && <p>{next.nextAction}</p>}
-                  {nextContext?.returnStep && <p>First thing when I return: {nextContext.returnStep}</p>}
-                  {nextContext?.note && <p>Where I stopped: {nextContext.note}</p>}
-                  {nextSession ? <>
-                    <p>Remaining commitment: {clock(nextSession.remainingMs)}</p>
-                  </> : <label>Next session length<input aria-label="Next session length" type="number" min={1} max={120} value={nextMinutes} onChange={e => setNextDuration({ id: next.id, value: e.target.value })} /></label>}
+                  {(nextContext?.returnStep || distinctInstruction(next.title, next.nextAction)) && <WorkText text={nextContext?.returnStep || next.nextAction} label="next step" className="next-instruction" />}
+                  {nextSession && <>
+                    <p>Session time remaining: {clock(nextSession.remainingMs)}</p>
+                  </>}
                   {needsChoice && <label className="check-label"><input type="checkbox" checked={deliberate} onChange={e => setDeliberate(e.target.checked)} />Work on this {disposition} action now; keep today’s plan unchanged</label>}
                   <button className="primary" disabled={readOnly || !!warning || (needsChoice && !deliberate) || (nextSession ? !nextSession.remainingMs : !Number.isInteger(Number(nextMinutes)) || Number(nextMinutes) < 1 || Number(nextMinutes) > 120)} onClick={() => {
                     if (dispatch({ type: "start-next", id: next.id, minutes: nextSession ? next.suggestedMinutes : Number(nextMinutes) })) { setMinutes(null); setDeliberate(false); setFocus(true); }
                   }}>{nextSession ? "Resume next action" : "Start this action"}</button>
+                  {!nextSession && <details className="session-settings"><summary><span>Next session settings</span><span>{nextMinutes} min</span></summary><label>Next session length<input aria-label="Next session length" type="number" min={1} max={120} value={nextMinutes} onChange={e => setNextDuration({ id: next.id, value: e.target.value })} /></label></details>}
+                  {nextContext?.note && <div className="context"><strong>Where I stopped</strong><WorkText text={nextContext.note} label="stopping note" limit={160} /></div>}
                   {nextSession?.remainingMs === 0 && <button className="secondary" disabled={readOnly} onClick={() => { if (dispatch({ type: "select", id: next.id })) setMinutes(null); }}>Open saved action</button>}
                 </section> : null}
               </>
@@ -523,13 +452,24 @@ export default function TodayView() {
               <>
                 <form
                   ref={form}
+                  onInvalid={(e) => {
+                    if (e.target instanceof HTMLInputElement) {
+                      const settings = e.target.closest("details");
+                      if (settings) settings.open = true;
+                    }
+                  }}
                   onSubmit={(e) => {
                     e.preventDefault();
                     start();
                   }}
                 >
+                  {session && session.status !== "completed" && <p className="remaining">Session time remaining: <strong>{clock(remaining)}</strong></p>}
+                  <div className="start-controls">
+                    <button className="primary" disabled={readOnly || (!!session && session.status !== "completed" && session.remainingMs === 0)}>{session && session.status !== "completed" ? "Resume" : "Start"}</button>
+                    <button type="button" ref={updateButton} className="quiet update-progress-entry" disabled={readOnly || !!warning || s.sessions.some(x => ["running", "paused"].includes(x.status))} onClick={() => setUpdateOpen(true)}>Update progress</button>
+                  </div>
                   {!session || session.status === "completed" ? (
-                    <div className="duration">
+                    <details className="session-settings"><summary><span>Session settings</span><span>{duration} min</span></summary><div className="duration">
                       <label htmlFor="minutes">
                         Session length<small>1–120 minutes</small>
                       </label>
@@ -547,30 +487,10 @@ export default function TodayView() {
                         />{" "}
                         min
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="remaining">
-                        Remaining commitment:{" "}
-                        <strong>{clock(remaining)}</strong>
-                      </p>
-                    </>
-                  )}
-                  <button
-                    className="primary"
-                    disabled={
-                      readOnly ||
-                      (!!session &&
-                        session.status !== "completed" &&
-                        session.remainingMs === 0)
-                    }
-                  >
-                    {session && session.status !== "completed"
-                      ? "Resume"
-                      : "Start"}
-                  </button>
+                    </div></details>
+                  ) : null}
                 </form>
-                <button ref={updateButton} className="secondary" disabled={readOnly || !!warning || s.sessions.some(x => ["running", "paused"].includes(x.status))} onClick={() => setUpdateOpen(true)}>Update progress</button>
+                {returning && context.note.trim() && <div className="context"><strong>Where I stopped</strong><WorkText text={context.note} label="stopping note" limit={160} /></div>}
                 {session &&
                   session.status !== "completed" &&
                   session.remainingMs === 0 && (
@@ -613,11 +533,42 @@ export default function TodayView() {
                 </button>
               </>
             )}
-            {!focused && <SummitPanel snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} dispatch={dispatch} onAdd={editBreakdown} onReveal={() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: "start", behavior: "instant" }); }} />}
-            {!focused && <div className="task-tools">
+            {!focused && <SummitPanel compact snapshot={s} mountainId={mountain?.id} disabled={readOnly || !!warning} dispatch={dispatch} onAdd={editBreakdown} onReveal={() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: "start", behavior: "instant" }); }} />}
+            {<div className="task-tools">
+              {completion && <details><summary>Completed action details</summary><p>Completed <time dateTime={completion.completedAt}>{new Date(completion.completedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</time></p><p>{task?.nextAction}</p>{completion.note && <p>{completion.note}</p>}</details>}
+              {mountain && !completion && <details className="action-details"><summary>Action details</summary>
+                {task && <p className="destination">Destination: checkpoint {task.checkpointSlot + 1}</p>}
+                {distinctInstruction(task?.title ?? "", mountain.finishCondition) && distinctInstruction(task?.nextAction ?? "", mountain.finishCondition) && <p className="finish-condition">Finish condition: {mountain.finishCondition}</p>}
+                <p className="session-time">{accepted.filter(t => activeCompletion(s, t.id)).length} / {accepted.length} accepted actions completed</p>
+              </details>}
               {returning && session && <details className="session-details"><summary>Session details</summary><p>Last saved: {new Date(session.lastHeartbeatAt).toLocaleString()}</p><p>Recorded session time: {Math.floor(session.creditedMs / 1000)} seconds</p></details>}
-              {mountain && <button className="quiet edit-breakdown" disabled={readOnly} onClick={editBreakdown}>Edit breakdown</button>}
+              {mountain && !focused && <button className="quiet edit-breakdown" disabled={readOnly} onClick={editBreakdown}>Edit breakdown</button>}
             </div>}
+          </section>
+          <section className="world" aria-labelledby="world-title">
+            <div className="world-heading"><div>
+              <p className="eyebrow">Your trail</p>
+              <h2 id="world-title" className="sr-only">Your mountain trail</h2>
+            </div></div>
+            <MountainWorld
+              count={earned.length}
+              slots={slots}
+              seed={mountain?.terrainSeed}
+              currentSlot={task?.checkpointSlot}
+              saved={(!!session || !!task?.returnContext) && !completion}
+              running={focused && session?.status === "running"}
+              celebration={!!completion && celebration === task?.id}
+              completed={!!completion}
+              positionSlot={earnedPosition(s, mountain?.id)}
+              summit={summitReached}
+              historicalSummit={summitHistory}
+              summitPending={summitPending}
+            />
+            <div className="world-footer">
+              <span className="pill">{earned.length ? `✦ ${earned.length} earned checkpoint${earned.length === 1 ? "" : "s"}` : "○ No checkpoints yet"}</span>
+              <span className="sr-only">{summitReached ? "⚑ Summit reached" : summitPending ? "○ Summit awaiting confirmation" : returning ? "⚑ Saved campsite" : focused ? "Walking in place · no progress earned" : completion ? "✦ Action complete" : "○ Next checkpoint ahead"}</span>
+              <details className="trail-key"><summary>Trail key</summary><p>Amber lanterns: completed work. Blue frame and tent: saved place. Pale path: work ahead.</p></details>
+            </div>
           </section>
         </div>
         {!focused && (
