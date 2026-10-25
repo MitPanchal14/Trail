@@ -2,7 +2,10 @@
   color-scheme:light;
   --canvas:#f8f9fc; --paper:#fff; --raised:#f0f2f8; --ink:#242732; --muted:#606674;
   --line:#dce0ea; --strong-line:#afb7cc; --blue:#4167ec; --violet:#7849df; --teal:#75d7dc; --peach:#f7b49d;
-  --focus:#355de0; --stone:#fff; --stone-side:#d8ddeb; --stone-shadow:#6275a82b;
+  --focus:#355de0;
+  --place:#7849df;
+  --terrain-top:#e6eaf4; --terrain-bottom:#d4dced; --terrain-face:#c8d1e5;
+  --ridge-back:#e9edf6; --ridge-far:#f0f2f8; --snow:#fafdff; --contour:#a2b0cd; --trail-muted:#7b8cae;
   --selection:linear-gradient(112deg,#75d7dc24,#4167ec16 40%,#7849df1a 75%,#f7b49d30);
   --button:#242732; --button-ink:#fff; --shadow:0 20px 65px #34456b0d; --radius:20px;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:var(--canvas); font-synthesis:none;
@@ -10,7 +13,10 @@
 :root[data-theme="dark"] {
   color-scheme:dark;
   --canvas:#101219; --paper:#191c25; --raised:#212530; --ink:#f0f2f7; --muted:#aab1c1;
-  --line:#333947; --strong-line:#626e89; --focus:#a9bbff; --stone:#272d3c; --stone-side:#151a26; --stone-shadow:#0007;
+  --line:#333947; --strong-line:#626e89; --focus:#a9bbff;
+  --place:#bba2ff;
+  --terrain-top:#3b4661; --terrain-bottom:#222c41; --terrain-face:#1c2436;
+  --ridge-back:#242b3c; --ridge-far:#1b2030; --snow:#8898b9; --contour:#627394; --trail-muted:#8b9ab5;
   --selection:linear-gradient(112deg,#75d7dc1c,#4167ec26 40%,#7849df26 75%,#f7b49d18);
   --button:#f0f2f7; --button-ink:#171a23; --shadow:0 20px 65px #0002;
 }
@@ -86,28 +92,49 @@ h3 { font-size:15px;font-weight:600;letter-spacing:-.2px; }
 .scene-bottom { font-size:11px;color:var(--muted);padding:0 12px;line-height:1.6; }
 .scene-bottom .tag { margin-left:5px; }
 .route-art { display:block;width:100%;height:auto;max-height:390px;overflow:visible;pointer-events:none; }
-.route-guides { stroke:var(--line);stroke-width:.6;opacity:.6; }
-.route-underlay .route-segment { stroke:var(--stone-shadow);stroke-width:20;transform:translateY(10px);opacity:.5; }
-.route-lines .route-segment { stroke-width:6;opacity:.2;stroke-linecap:round;transition:stroke-width 200ms,opacity 200ms; }
-.route-lines .route-segment:not(.earned) { stroke-dasharray:3 7; }
-.route-lines .route-segment.earned { opacity:.85; }
-.route-lines .route-segment.highlighted { opacity:1;stroke-width:10; }
-.stone-shadow { fill:var(--stone-shadow); }
-.milestone.earlier .stone-top { stroke-dasharray:3 3; }
-.stone-side { fill:var(--stone-side);stroke:var(--line);stroke-width:.6; }
-.stone-top { fill:var(--stone);stroke:var(--strong-line);stroke-width:1; }
-.stone-edge { stroke-width:1;opacity:.3;transition:opacity 180ms,stroke-width 180ms; }
-.milestone.highlighted .stone-edge { stroke-width:4;opacity:1; }
-.milestone.highlighted .stone-top { fill:var(--raised); }
-.marker-core { fill:var(--paper);stroke:var(--strong-line);stroke-width:1; }
-.earned .marker-core { fill:#5a61c7;stroke:#b1b9f9; }
-.marker-symbol { fill:var(--ink);font-size:11px;font-weight:600; }
-.earned .marker-symbol { fill:#fff; }
-.saved-ring { fill:none;stroke:var(--violet);stroke-width:2;visibility:hidden; }
-.current .saved-ring { visibility:visible; }
-.current .marker-core { stroke:var(--violet);stroke-width:2; }
-.route-label { font-family:inherit;fill:var(--ink);font-size:12px;font-weight:500; }
-.route-state { font-family:inherit;fill:var(--muted);font-size:10px; }
+.mountain-scene { margin:0;min-width:0; }
+.mountain-mobile-caption { display:none; }
+.terrain-top { stop-color:var(--terrain-top); }
+.terrain-bottom { stop-color:var(--terrain-bottom); }
+.mountain-distant { fill:var(--ridge-far); }
+.mountain-back { fill:var(--ridge-back); }
+.mountain-face { fill:var(--terrain-face); }
+.mountain-snow { fill:var(--snow); }
+.mountain-contours { fill:none;stroke:var(--contour);stroke-width:1;opacity:.42;stroke-linecap:round; }
+.mountain-path-bed { fill:none;stroke:var(--snow);stroke-width:10;stroke-linecap:round;opacity:.65; }
+.mountain-art .route-segment { fill:none;stroke:var(--trail-muted);stroke-width:2;stroke-dasharray:2 6;stroke-linecap:round; }
+.mountain-art .route-segment.earned { stroke:var(--trail-paint);stroke-width:4;stroke-dasharray:none; }
+.mountain-art .marker-core { fill:var(--paper);stroke:var(--trail-muted);stroke-width:1.5; }
+.mountain-art .earned .marker-core { fill:#5362c9;stroke:var(--snow);stroke-width:2; }
+.mountain-art .marker-symbol { fill:var(--ink);font:600 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.mountain-art .earned .marker-symbol { fill:#fff; }
+.mountain-art .saved-ring { fill:none;stroke:var(--place);stroke-width:2;visibility:hidden; }
+.mountain-art .current .saved-ring { visibility:visible; }
+.mountain-art .current .marker-core { stroke:var(--place);stroke-width:2.5; }
+.selection-ring { fill:none;stroke:var(--muted);stroke-dasharray:2 4;stroke-width:1.5;visibility:hidden; }
+.highlighted .selection-ring { visibility:visible; }
+.position-label rect { fill:var(--paper);stroke:var(--line); }
+.position-label path { stroke:var(--place);stroke-width:1.5; }
+.position-label text { fill:var(--ink);font-size:18px;font-weight:550; }
+.summit-pole { fill:none;stroke:var(--muted);stroke-width:1.5; }
+.summit-flag { fill:var(--raised);stroke:var(--muted);stroke-width:1; }
+.summit-earned .summit-flag { fill:var(--peach);stroke:var(--ink); }
+.summit-label { fill:var(--muted);font-size:18px;font-weight:500; }
+.summit-earned .summit-label { fill:var(--ink); }
+.mountain-caption text { fill:var(--muted);font-size:16px; }
+.checkpoint-spark { fill:var(--teal);opacity:0;pointer-events:none; }
+.mountain-art .route-segment.just-earned { stroke-dasharray:var(--earned-length);animation:checkpoint-trace 600ms ease-out 1; }
+.milestone.just-earned .marker-core { transform-box:fill-box;transform-origin:center;animation:checkpoint-resolve 600ms ease-out 1; }
+.milestone.just-earned .checkpoint-spark { animation:checkpoint-spark 600ms ease-out 1; }
+@keyframes checkpoint-trace { from { stroke-dashoffset:var(--earned-length); } to { stroke-dashoffset:0; } }
+@keyframes checkpoint-resolve { 0% { transform:scale(.78); } 45% { transform:scale(1.14); } 100% { transform:scale(1); } }
+@keyframes checkpoint-spark { 0%,15% { opacity:0;transform:translate(0,0) scale(.5); } 35% { opacity:1; } 100% { opacity:0;transform:translate(var(--spark-x),var(--spark-y)) scale(.2); } }
+.summit-halo { fill:none;stroke:var(--peach);stroke-width:3;opacity:0;pointer-events:none; }
+.summit-celebrating .summit-halo { transform-box:fill-box;transform-origin:center;animation:summit-halo 900ms ease-out 1; }
+.summit-celebrating .summit-flag { transform-box:fill-box;transform-origin:left bottom;animation:summit-reveal 650ms ease-out 1; }
+@keyframes summit-halo { 0% { opacity:0;transform:scale(.6); } 25% { opacity:.8; } 100% { opacity:0;transform:scale(1.8); } }
+@keyframes summit-reveal { from { transform:scaleX(.15); } to { transform:scaleX(1); } }
+.still .just-earned,.still .just-earned *,.still .summit-celebrating * { animation:none!important; }
 .lower { margin-top:32px;padding-top:24px;border-top:1px solid var(--line);display:grid;grid-template-columns:1.14fr 1fr;gap:48px; }
 .section-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px; }
 .section-heading>span { font-size:11px;color:var(--muted); }
@@ -198,7 +225,7 @@ textarea { resize:vertical;min-height:95px; }
 .finished-card .tag { color:#fff;border-color:#ffffff5c; }
 .finished-card h2 { font-size:32px;line-height:1.2;max-width:350px;margin:30px 0 18px;position:relative;z-index:1; }
 .finished-card p { font-size:12px;line-height:1.8;position:relative;z-index:1; }
-.finished-card svg { position:absolute;right:-28px;bottom:-60px;width:220px;height:240px;opacity:.3; }
+.finished-card .mountain-art { position:relative;width:100%;height:auto;max-height:290px;margin:16px 0;--ink:#f0f2f7;--muted:#c7cee0;--paper:#26344d;--line:#65708c;--raised:#36405a;--focus:#b7c9ff;--terrain-top:#64708d;--terrain-bottom:#344361;--terrain-face:#29344f;--ridge-back:#4b5474;--ridge-far:#444c70;--snow:#becbe2;--contour:#a0afcd;--trail-muted:#b6c3d9; }
 .finished-card+.finished-card { margin-top:22px; }
 .finished-card details { position:relative;z-index:1;margin:18px 0; }
 .finished-card summary { color:#fff; }
@@ -224,12 +251,16 @@ dialog>small { display:block;font-size:10px;color:var(--muted);margin-top:20px; 
 #add-form .button { margin-top:10px; }
 .notice:not(:empty) { position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:14px;max-width:calc(100% - 32px);padding:13px 18px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);box-shadow:0 8px 36px #26386318;font-size:12px;line-height:1.5;width:max-content; }
 .notice .tick { width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--selection);border-radius:50%; }
-.completion-notice:not(:empty) { animation:checkpoint-arrival 600ms ease-out; border-color:var(--strong-line);background:var(--selection),var(--paper); }
-@keyframes checkpoint-arrival { from { opacity:0;box-shadow:0 0 35px #8979de66; } to { opacity:1;box-shadow:0 8px 36px #26386318; } }
+.completion-notice:not(:empty) { border-color:var(--strong-line);background:var(--selection),var(--paper); }
 #reward { max-width:460px;overflow:visible; }
 #reward::backdrop { background:#12172540;backdrop-filter:blur(1px); }
 #reward h2 { font-size:27px;line-height:1.3; }
 #reward .review-goal { overflow-wrap:anywhere;max-height:110px;overflow:auto; }
+#reward-summit .mountain-art { max-height:175px; }
+#reward-summit .mountain-mobile-caption { display:none; }
+#reward-summit .mountain-caption { display:none; }
+#reward-summit .summit-label { display:block;font-size:23px; }
+#reward .goal-token { background:linear-gradient(135deg,var(--peach),#eecfdc); }
 #reward>.button { margin-top:20px; }
 .confetti { position:fixed;inset:0;pointer-events:none;overflow:hidden; }
 .confetti i { position:absolute;left:var(--x);top:var(--y);width:7px;height:15px;border-radius:2px;animation:confetti-pop 1.4s ease-out both; }
@@ -272,6 +303,12 @@ dialog>small { display:block;font-size:10px;color:var(--muted);margin-top:20px; 
   .action-area .hint { font-size:10px; } .scene-panel { margin-top:10px; }
   .scene-top,.scene-bottom { padding:0 2px; } .scene-top>span { font-size:10px; }
   .scene-bottom { font-size:10px; } .route-art { max-height:none; }
+  .mountain-scene .position-label,.mountain-scene .summit-label,.mountain-scene .mountain-caption { display:none; }
+  .mountain-mobile-caption { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;margin:0 4px 18px;font-size:12px;line-height:1.5;overflow-wrap:anywhere; }
+  .mountain-place-label { font-weight:550;color:var(--ink); }
+  .mountain-count-label { color:var(--muted);text-align:right; }
+  .mountain-destination-label { grid-column:1/-1;color:var(--muted); }
+  .finished-card .mountain-mobile-caption { --ink:#f0f2f7;--muted:#d5daea; }
   .lower { margin-top:20px;padding-top:20px; } .section-heading>span { font-size:10px; }
   .step-row { padding:10px 8px;gap:9px; } .step-row small { font-size:9px; }
   .journey-layout .scene-panel { padding:19px 16px; } .journey-layout .route-art { margin:8px 0; }

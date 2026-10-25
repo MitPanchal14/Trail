@@ -1,10 +1,19 @@
 # Delivery checklist
 
+## Approved mountain reward enhancement — 25 October
+- [x] User accepts current mountain direction/depth and approves small checkpoint response plus stronger confirmed-summit feedback.
+- [x] Prepare bounded dispatch OPENCODE_MOUNTAIN_REWARDS.md using MOUNTAIN_REWARD_RESEARCH.md; no runtime changes in this planning step.
+- [x] Implement identity-scoped checkpoint feedback, visible coordinated summit reward, colour roles and readable mobile labels while preserving terrain/canonical behaviour. Syntax, 20 Node tests, build, diff and final combined Chromium suite passed; see MOUNTAIN_REWARDS_EVIDENCE.md.
+- [ ] User visually reviews the reward enhancement; normal/reduced-motion captures are evidence, not visual acceptance.
+- [ ] Fix all three RETURN_EDGE_REVIEW issues before delivery; streak rules/audio remain separate decisions.
+
 ## Latest review and visual priority — 25 October
 - [x] Independently verify syntax, 20 tests, build, diff check and focused Chromium return gate; record three extra reproduced findings in RETURN_EDGE_REVIEW_2026-10-25.md.
 - [x] Collect user feedback: written layout acceptable; stronger mountain-based progress visualization is now the priority. Current motion control has no audio.
-- [ ] Publish the user-authorized saved-place checkpoint to `codex/trail-redesign`; preserve main.
-- [ ] Implement/review the newly authorized mountain graphic against actual action states, current themes and retained surrounding layout; do not restore old UI.
+- [x] Publish the user-authorized saved-place checkpoint to `codex/trail-redesign`; `4d2b9fb` verified on origin with git ls-remote. Main was not pushed.
+- [x] Prepare one mountain-graphic dispatch in OPENCODE_MOUNTAIN_GRAPHIC.md; implementation/visual acceptance remain pending.
+- [x] Implement the authorized mountain graphic against actual action IDs/statuses, current themes and retained layout; no old UI restored. Syntax, 20 Node tests, build, diff and full Chromium mountain + existing gates passed; see MOUNTAIN_EVIDENCE.md.
+- [ ] User visually reviews/accepts the mountain implementation before further graphics/features or publication.
 - [ ] Correct the three recorded edge cases in a bounded subsequent pass.
 - [ ] Agree productive-day/streak semantics before implementation; no streak is currently implemented.
 

@@ -8,7 +8,9 @@ const output=process.env.TRAIL_EVIDENCE||'/private/var/folders/xf/gtc75bps4tx93_
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch();
 try {
-  if(process.env.TRAIL_GATE==='return')await runReturn(browser);
+  if(process.env.TRAIL_GATE==='rewards')await runRewards(browser);
+  else if(process.env.TRAIL_GATE==='mountain')await runMountain(browser);
+  else if(process.env.TRAIL_GATE==='return')await runReturn(browser);
   else if(process.env.TRAIL_GATE==='correction')await runCorrections(browser);
   else {
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
@@ -70,6 +72,8 @@ try {
   await runEdges(browser);
   await runCorrections(browser);
   await runReturn(browser);
+  await runMountain(browser);
+  await runRewards(browser);
   }
 } finally {await browser.close();}
 
@@ -77,6 +81,148 @@ async function snapshot(page){return page.evaluate(async()=>{
   const {openDatabase}=await import('/storage.js');const db=await openDatabase();
   return new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readonly'),r=tx.objectStore('workspace').get('current');let value;r.onsuccess=()=>value=r.result;tx.oncomplete=()=>{db.close();resolve(value);};tx.onerror=()=>reject(tx.error);});
 });}
+async function runRewards(browser){
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[];
+  p.on('pageerror',e=>errors.push(e.message));
+  const effects=()=>p.locator('.just-earned,.summit-celebrating').count();
+  async function complete(){
+    await p.locator('[data-work="focus"],[data-work="start"],[data-work="resume"]').first().click();await p.locator('.focus-clock').waitFor();await p.click('[data-work="complete"]');await p.waitForFunction(()=>document.body.dataset.view==='today');
+  }
+  async function observe(){await p.evaluate(()=>{
+    window.feedbackLog=[];
+    new MutationObserver(records=>{for(const r of records){const n=r.target;if(!(n instanceof Element)||r.attributeName!=='class')continue;for(const kind of ['just-earned','summit-celebrating'])if(n.classList.contains(kind)&&!(r.oldValue||'').split(' ').includes(kind)){const svg=n.closest('.mountain-art');window.feedbackLog.push({kind,goal:svg?.dataset.goalId,action:n.dataset.actionId||null,node:n.tagName});}}}).observe(document,{subtree:true,attributes:true,attributeOldValue:true,attributeFilter:['class']});
+    const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const result=put.apply(this,args);if(window.abortRewardWrite){window.abortRewardWrite=false;this.transaction.abort();}return result;};
+  });}
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});await observe();
+    await create(p,'An earlier finished goal',['Its first action']);await complete();await p.locator('#review[open]').waitFor();assert.equal(await p.locator('.summit-celebrating').count(),0);await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');
+    const priorCard=await p.locator('.finished-card').evaluate(el=>el.outerHTML);let w=await snapshot(p);const priorGoal=Object.keys(w.goals)[0];
+    await p.click('.brand');await create(p,'A summit worth confirming',['Research','Outline','Write','Check','Deliver']);w=await snapshot(p);const goalId=w.openGoalId,ids=w.goals[goalId].actionOrder;
+    // Controlled DOM-only fixture: retain an unrelated finished mountain alongside the active scene,
+    // synchronously during render, before the actual applied-completion callback runs.
+    await p.evaluate(card=>{const main=document.querySelector('#main'),html=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');Object.defineProperty(main,'innerHTML',{configurable:true,get(){return html.get.call(this);},set(value){html.set.call(this,value);if(value.includes('mountain-scene'))this.insertAdjacentHTML('beforeend',`<aside data-unrelated-fixture>${card}</aside>`);}});},priorCard);
+    await p.click('[data-work="pause"]');await p.fill('#return-note','Open the outline.');await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();assert.equal(await effects(),0);assert.equal(await p.locator('.mountain-mobile-caption .mountain-place-label').first().textContent(),'Saved place · action 1');
+    await p.click('[data-work="start"]');const beforeAbort=await snapshot(p);await p.evaluate(()=>{window.feedbackLog=[];window.abortRewardWrite=true;});await p.click('[data-work="complete"]');await p.locator('#storage-status [role="alert"]').waitFor();assert.deepEqual(await snapshot(p),beforeAbort);assert.equal(await effects(),0);assert.deepEqual(await p.evaluate(()=>feedbackLog),[]);
+    await p.click('#storage-status [data-work="retry"]');await p.locator('.milestone.just-earned').waitFor();w=await snapshot(p);assert.equal(w.revision,beforeAbort.revision+1);assert.equal(w.actions[ids[0]].status,'completed');
+    assert.equal(await p.locator('[data-unrelated-fixture] .just-earned').count(),0);assert.equal(await p.locator('.milestone.just-earned').getAttribute('data-action-id'),ids[0]);assert.equal(await p.locator('.route-segment.just-earned').getAttribute('data-action-id'),ids[0]);
+    const path=p.locator('.route-segment.just-earned'),early=await path.evaluate(el=>parseFloat(getComputedStyle(el).strokeDashoffset));await p.waitForTimeout(100);const later=await path.evaluate(el=>parseFloat(getComputedStyle(el).strokeDashoffset));assert.ok(later<early,'Committed segment visibly reveals over time');
+    await p.waitForFunction(()=>[...document.querySelectorAll('.milestone.just-earned .checkpoint-spark')].some(n=>Number(getComputedStyle(n).opacity)>0),null,{timeout:600});assert.equal(await p.locator('#main [data-work="undo"]').isEnabled(),true);
+    await p.locator('.mountain-scene').first().screenshot({path:`${output}/rewards-live-checkpoint.png`});await p.waitForTimeout(650);assert.equal(await effects(),0);
+    const feedback=await p.evaluate(()=>feedbackLog);assert.equal(feedback.length,2);assert.ok(feedback.every(e=>e.goal===goalId&&e.action===ids[0]));
+    await p.click('#main [data-work="undo"]');await p.waitForFunction(id=>document.querySelector(`.milestone[data-action-id="${id}"]`)?.classList.contains('current'),ids[0]);
+    await complete();await p.locator('.milestone.just-earned').waitFor();await p.click('#main [data-work="undo"]');await p.waitForTimeout(750);w=await snapshot(p);assert.equal(w.actions[ids[0]].status,'open');assert.equal(await effects(),0);assert.equal(await p.locator('.milestone.earned').count(),1,'Only unrelated history remains checked');
+    await complete();await p.locator('.milestone.just-earned').waitFor();await p.click('[data-nav="journey"]');const afterNavigation=await snapshot(p);assert.equal(await effects(),0);await p.locator(`[data-select="${ids[4]}"]`).click();assert.equal(await p.locator('.mountain-art').first().getAttribute('data-current'),'1');assert.deepEqual(await snapshot(p),afterNavigation);
+    await p.click('[data-nav="today"]');await complete();await p.locator('.milestone.just-earned').waitFor();await p.click('[data-theme="dark"]');assert.equal(await effects(),0);await p.click('[data-theme="light"]');assert.equal(await effects(),0);
+    // Retain an existing motion control as a DOM-only fixture to exercise Off during a response.
+    await p.click('[data-work="start"]');await p.locator('.focus-clock').waitFor();await p.evaluate(()=>{const b=document.querySelector('[data-action="ambience"]').cloneNode(true);b.id='motion-fixture';document.querySelector('.header').append(b);});await p.click('[data-work="complete"]');await p.locator('.milestone.just-earned').waitFor();const beforeOff=await snapshot(p);await p.click('#motion-fixture');assert.equal(await effects(),0);assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('still')),true);assert.deepEqual(await snapshot(p),beforeOff);await p.click('#motion-fixture');assert.equal(await effects(),0);await p.evaluate(()=>document.querySelector('#motion-fixture').remove());
+    await complete();await p.locator('.milestone.just-earned').waitFor();await p.emulateMedia({reducedMotion:'reduce'});await p.waitForFunction(()=>document.body.classList.contains('still'));assert.equal(await effects(),0);await p.emulateMedia({reducedMotion:'no-preference'});await complete();await p.locator('#review[open]').waitFor();assert.equal(await p.locator('.summit-celebrating,#reward[open]').count(),0);assert.equal(await p.locator('.mountain-art').first().getAttribute('data-phase'),'review');
+    await p.evaluate(()=>{delete document.querySelector('#main').innerHTML;document.querySelector('[data-unrelated-fixture]')?.remove();});
+    // Turn motion back on before the confirmed summit, without touching canonical data.
+    await p.evaluate(()=>{const b=document.createElement('button');b.dataset.action='ambience';document.body.append(b);b.click();b.remove();});
+    const beforeFinish=await snapshot(p);await p.evaluate(()=>{window.feedbackLog=[];window.abortRewardWrite=true;});await p.click('#review [data-action="confirm"]');await p.locator('#review-status [role="alert"]').waitFor();assert.deepEqual(await snapshot(p),beforeFinish);assert.equal(await effects(),0);assert.equal(await p.locator('#reward').evaluate(e=>e.open),false);
+    await p.click('#review-status [data-work="retry"]');await p.locator('#reward[open] .summit-celebrating').waitFor();w=await snapshot(p);assert.equal(w.revision,beforeFinish.revision+1);assert.equal(w.goals[goalId].status,'completed');assert.equal(await p.locator('#reward-summit .mountain-art').getAttribute('data-goal-id'),goalId);assert.equal(await p.locator('main .summit-celebrating').count(),0);assert.equal(await p.locator('.finished-card .mountain-art').count(),2);
+    assert.equal(await p.locator('#reward [data-action="exit-celebration"]').last().isEnabled(),true);
+    assert.equal(await p.locator('#reward-summit').evaluate(el=>{const a=el.getBoundingClientRect(),d=el.closest('dialog').getBoundingClientRect();return a.width>0&&a.height>0&&a.top>=d.top&&a.bottom<=d.bottom;}),true,'Summit response is inside the visible dialog, not behind it');
+    await p.waitForTimeout(120);assert.ok(await p.locator('#reward .summit-halo').evaluate(el=>Number(getComputedStyle(el).opacity)>0));await p.locator('#reward').screenshot({path:`${output}/rewards-live-summit.png`});
+    const finishLog=await p.evaluate(()=>feedbackLog);assert.equal(finishLog.filter(e=>e.kind==='summit-celebrating').length,1);assert.equal(finishLog.at(-1).goal,goalId);assert.notEqual(finishLog.at(-1).goal,priorGoal);
+    await p.emulateMedia({reducedMotion:'reduce'});await p.waitForFunction(()=>document.body.classList.contains('still'));assert.equal(await effects(),0);assert.equal(await p.locator('.confetti').count(),0);assert.equal(await p.locator('#reward').evaluate(e=>e.open),true);await p.keyboard.press('Escape');assert.equal(await effects(),0);assert.equal(await p.locator('#reward-summit svg').count(),0);assert.equal(await p.locator('#main').evaluate(el=>el===document.activeElement),true);
+    await p.reload();await p.locator('.hero-cta').waitFor();await p.click('[data-nav="finished"]');assert.equal(await effects(),0);assert.equal(await p.locator('#reward').evaluate(e=>e.open),false);assert.equal(await p.locator('.finished-card').count(),2);
+    const stableHistory=await snapshot(p);
+    for(const theme of ['light','dark'])for(const width of [1440,390]){await p.setViewportSize({width,height:width===390?844:1000});await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(180);await p.click(`[data-theme="${theme}"]`);await p.waitForTimeout(180);const svgIds=await p.locator('svg defs [id]').evaluateAll(nodes=>nodes.map(n=>n.id));assert.equal(new Set(svgIds).size,svgIds.length);assert.equal(await effects(),0);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:`${output}/rewards-history-pair-${theme}-${width}.png`,fullPage:true});}
+    assert.deepEqual(await snapshot(p),stableHistory);
+    const beforeExample=await snapshot(p);await p.click('#example-mode');await p.selectOption('#scenario','final');await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();assert.equal(await p.locator('#reward-summit .mountain-art').getAttribute('data-mode'),'example');assert.deepEqual(await snapshot(p),beforeExample);await p.keyboard.press('Escape');await p.click('#real-mode');assert.deepEqual(await snapshot(p),beforeExample);assert.deepEqual(errors,[]);
+  }finally{await context.close();}
+  // Visual matrix uses real UI and isolated storage: normal/reduced, 1/5/30, themes and widths.
+  for(const reduced of [false,true])for(const total of [1,5,30])for(const theme of ['light','dark']){
+    const c=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:reduced?'reduce':'no-preference'}),q=await c.newPage(),pageErrors=[];q.on('pageerror',e=>pageErrors.push(e.message));
+    try{
+      await q.goto(url);await q.locator('#storage-status').waitFor({state:'hidden'});await q.click(`[data-theme="${theme}"]`);await create(q,`A ${total}-action goal`,Array.from({length:total},(_,i)=>`Action ${i+1}`));await q.click('[data-work="start"]');await q.click('[data-work="complete"]');
+      if(total===1){await q.locator('#review[open]').waitFor();await q.click('#review [data-action="confirm"]');await q.locator('#reward[open]').waitFor();if(reduced)assert.equal(await q.locator('.summit-celebrating,.confetti').count(),0);}
+      else{await q.locator('.workspace').waitFor();if(reduced)assert.equal(await q.locator('.just-earned').count(),0);}
+      await q.waitForTimeout(1600);
+      for(const width of [1440,390]){
+        await q.setViewportSize({width,height:width===390?844:1000});await q.evaluate(()=>scrollTo(0,0));await q.waitForTimeout(180);assert.ok(await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        if(width===390&&total!==1){const caption=q.locator('.mountain-mobile-caption');assert.equal(await caption.isVisible(),true);assert.match(await caption.textContent(),new RegExp(`1 of ${total} checked`));assert.equal(await caption.evaluate(el=>[...el.children].every(n=>parseFloat(getComputedStyle(n).fontSize)>=12)),true);}
+        await q.screenshot({path:`${output}/rewards-${total}-${reduced?'reduced':'normal'}-${theme}-${width}.png`,fullPage:true});
+        if(total!==1)await q.locator('.mountain-scene').screenshot({path:`${output}/rewards-${total}-${reduced?'reduced':'normal'}-scene-${theme}-${width}.png`});
+      }
+      assert.deepEqual(pageErrors,[]);
+    }finally{await c.close();}
+  }
+  console.log('Rewards gate passed: post-commit path/check/sparks, failed completion/finish and exact Retry, identity isolation, immediate Undo/navigation, theme/mid-effect Off/reduced cleanup, visible single summit dialog, review/finish distinction, note-save quietness, reload/no replay, example isolation and 1/5/30 normal/reduced light/dark desktop/390px.');
+}
+async function runMountain(browser){
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[],external=[];
+  p.on('pageerror',e=>errors.push(e.message));p.on('request',r=>{if(!r.url().startsWith(new URL(url).origin)&&!r.url().startsWith('data:'))external.push(r.url());});
+  async function capture(name){
+    const before=await snapshot(p),view=await p.locator('body').getAttribute('data-view');
+    for(const theme of ['light','dark'])for(const width of [1440,390]){
+      await p.setViewportSize({width,height:width===390?844:1000});await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(180);await p.click(`[data-theme="${theme}"]`);await p.waitForTimeout(180);
+      assert.equal(await p.locator('body').getAttribute('data-view'),view,'Theme and viewport must preserve the current view');
+      assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal overflow');
+      assert.equal(await p.locator('.mountain-art').evaluateAll(nodes=>nodes.every(n=>n.viewBox.baseVal.width===640)),true);
+      assert.equal(await p.locator('.stone-top,.stone-side').count(),0);
+      const ids=await p.locator('svg defs [id]').evaluateAll(nodes=>nodes.map(n=>n.id));assert.equal(new Set(ids).size,ids.length);
+      assert.equal(await p.locator('.mountain-art').evaluateAll(nodes=>nodes.every(svg=>[...svg.querySelectorAll('text')].every(t=>{const b=t.getBBox(),matrix=svg.getCTM().inverse().multiply(t.getCTM()),a=new DOMPoint(b.x,b.y).matrixTransform(matrix),z=new DOMPoint(b.x+b.width,b.y+b.height).matrixTransform(matrix);return a.x>=0&&z.x<=640&&a.y>=0&&z.y<=440;}))),true,'SVG labels stay inside bounded scene');
+      await p.screenshot({path:`${output}/mountain-${name}-${theme}-${width}.png`,fullPage:true});
+      await p.locator('.mountain-art').first().screenshot({path:`${output}/mountain-${name}-scene-${theme}-${width}.png`});
+    }
+    assert.deepEqual(await snapshot(p),before,'Rendering, themes and resizing cannot write records');
+  }
+  async function graphic(checked,total,phase,current){
+    await p.waitForFunction(({checked,total,phase,current})=>{const svg=document.querySelector('.mountain-art');return svg?.dataset.phase===phase&&Number(svg.dataset.current)===current&&svg.querySelectorAll('.milestone').length===total&&svg.querySelectorAll('.milestone.earned').length===checked;},{checked,total,phase,current});
+    const svg=p.locator('.mountain-art').first();assert.equal(await svg.getAttribute('data-phase'),phase);assert.equal(Number(await svg.getAttribute('data-current')),current);
+    assert.equal(await svg.locator('.milestone').count(),total);assert.equal(await svg.locator('.milestone.earned').count(),checked);assert.equal(await svg.locator('.route-segment.earned').count(),checked);
+    assert.equal(await svg.locator('.summit-earned').count(),phase==='finished'?1:0);
+    assert.equal(await svg.evaluate(svg=>{const rect=svg.querySelector('.position-label rect');if(!rect)return true;const b=rect.getBBox(),m=rect.getCTM(),a=new DOMPoint(b.x,b.y).matrixTransform(m),z=new DOMPoint(b.x+b.width,b.y+b.height).matrixTransform(m);return [...svg.querySelectorAll('.marker-core')].every(c=>{const p=new DOMPoint(0,0).matrixTransform(c.getCTM()),r=c.r.baseVal.value*c.getCTM().a;return p.x+r<=a.x||p.x-r>=z.x||p.y+r<=a.y||p.y-r>=z.y;});}),true,'Current label must not cover an action checkpoint');
+  }
+  async function complete(){
+    const focus=p.locator('[data-work="focus"]');
+    if(await focus.count())await focus.first().click();else await p.locator('[data-work="start"],[data-work="resume"]').first().click();
+    await p.locator('.focus-clock').waitFor();await p.click('[data-work="complete"]');await p.waitForFunction(()=>document.body.dataset.view==='today');
+  }
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});await capture('no-goal-home');await graphic(0,4,'illustration',-1);
+    await create(p,'A proposal worth finishing',['Research <source> & constraints','Draft the outline','Write the proposal','Check the numbers','Send the final draft']);
+    let w=await snapshot(p);const goalId=w.openGoalId,ids=w.goals[goalId].actionOrder;
+    await graphic(0,5,'active',0);assert.equal(await p.locator('.position-label text').textContent(),'Next action');
+    await p.click('[data-work="pause"]');await p.fill('#return-note','Open the actual outline.');await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();
+    assert.equal(await p.locator('.position-label text').textContent(),'Saved place');await capture('saved-today');
+    await p.click('.brand');await capture('active-home');await p.click('.hero-cta');await p.click('[data-nav="journey"]');await capture('journey');
+    const beforeSelection=await snapshot(p);await p.locator(`[data-select="${ids[3]}"]`).focus();await p.keyboard.press('Enter');
+    await graphic(0,5,'active',0);assert.equal(await p.locator('.milestone.highlighted').getAttribute('data-action-id'),ids[3]);assert.equal(await p.locator('.milestone.current').getAttribute('data-action-id'),ids[0]);assert.deepEqual(await snapshot(p),beforeSelection);
+    await p.click('[data-nav="today"]');await p.click('[data-work="start"]');await p.waitForTimeout(400);await p.click('[data-work="complete"]');
+    await p.locator('.milestone.just-earned').waitFor();const animation=await p.locator('.milestone.just-earned .marker-core').evaluate(el=>{const a=el.getAnimations()[0];return a?{name:a.animationName,iterations:a.effect.getTiming().iterations,duration:a.effect.getTiming().duration}:null;});
+    assert.deepEqual(animation,{name:'checkpoint-resolve',iterations:1,duration:600});await p.screenshot({path:`${output}/mountain-earned-transition.png`,fullPage:true});await p.waitForTimeout(750);assert.equal(await p.locator('.just-earned').count(),0);
+    await graphic(1,5,'active',1);w=await snapshot(p);const recorded=Object.values(w.intervals).reduce((n,i)=>n+i.deltaMs,0);assert.ok(recorded>0);
+    await p.click('[data-work="undo"]');await graphic(0,5,'active',0);w=await snapshot(p);assert.equal(w.sessions[w.activeSessionId].status,'paused');assert.equal(Object.values(w.intervals).reduce((n,i)=>n+i.deltaMs,0),recorded);
+    await complete();await graphic(1,5,'active',1);await p.click('[data-nav="journey"]');assert.equal(await p.locator('.just-earned').count(),0,'Navigation never replays completion');await p.click('[data-nav="today"]');
+    for(let i=1;i<5;i++)await complete();await p.locator('#review[open]').waitFor();await p.keyboard.press('Escape');await graphic(5,5,'review',-1);await capture('ready-review');
+    await p.click('[data-work="review"]');await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');await graphic(5,5,'finished',-1);await capture('finished');
+    await p.reload();await p.locator('.hero-cta').waitFor();await p.click('[data-nav="finished"]');await graphic(5,5,'finished',-1);assert.equal(await p.locator('#reward').evaluate(e=>e.open),false);const effortBeforeReopen=Object.values((await snapshot(p)).intervals).reduce((n,i)=>n+i.deltaMs,0);
+    await p.click('[data-reopen-goal]');await p.locator('#review[open]').waitFor();await p.keyboard.press('Escape');await graphic(5,5,'review',-1);
+    await p.locator(`[data-select="${ids[0]}"]`).click();await p.click('[data-work="reopen-action"]');await graphic(4,5,'active',0);
+    assert.deepEqual(await p.locator('.milestone.earned').evaluateAll(nodes=>nodes.map(n=>n.dataset.actionId)),ids.slice(1));
+    await p.locator(`[data-select="${ids[4]}"]`).click();await graphic(4,5,'active',0);await capture('reopened-earlier');assert.equal(await p.locator('.milestone.highlighted').getAttribute('data-action-id'),ids[4]);
+    w=await snapshot(p);assert.equal(Object.values(w.intervals).reduce((n,i)=>n+i.deltaMs,0),effortBeforeReopen);
+    // Complete that same goal again, then create a second to verify simultaneous SVG definitions.
+    await complete();await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');
+    await p.click('.brand');await create(p,'A one-action goal',['One <long> action '+ 'unbroken'.repeat(50)]);await graphic(0,1,'active',0);await capture('one-action-long');await complete();await p.keyboard.press('Escape');await graphic(1,1,'review',-1);await capture('one-ready-review');await p.click('[data-work="review"]');await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');await capture('two-finished-goals');assert.equal(await p.locator('.mountain-art').count(),2);
+    await p.click('.brand');await create(p,'Thirty actions, one legible mountain',Array.from({length:30},(_,i)=>`Action ${i+1}: ${'long-unbroken-name'.repeat(25)}`));await graphic(0,30,'active',0);await capture('thirty-today');await p.click('[data-nav="journey"]');const beforeThirty=await snapshot(p);await p.locator('[data-select]').nth(29).click();await graphic(0,30,'active',0);assert.equal(await p.locator('.milestone.highlighted').getAttribute('data-marker'),'29');assert.deepEqual(await snapshot(p),beforeThirty);await capture('thirty-selected');
+    // Motion Off disables the earned response without disabling the immediate checked state.
+    await p.click('[data-nav="today"]');await p.click('[data-work="start"]');await p.click('[data-action="ambience"]');assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('still')),true);await p.click('[data-work="complete"]');await graphic(1,30,'active',1);assert.equal(await p.locator('.just-earned').count(),0);
+    await p.emulateMedia({reducedMotion:'reduce'});await complete();await graphic(2,30,'active',2);assert.equal(await p.locator('.just-earned').count(),0);await capture('reduced-motion-thirty');
+    const beforeExample=await snapshot(p);await p.click('#example-mode');await graphic(2,4,'active',2);await p.selectOption('#scenario','finished');await graphic(4,4,'finished',-1);await capture('example-finished');await p.click('#real-mode');assert.deepEqual(await snapshot(p),beforeExample);
+    const pairContext=await browser.newContext(),pair=await pairContext.newPage();
+    try{
+      await pair.goto(url);await pair.locator('#storage-status').waitFor({state:'hidden'});await create(pair,'A two-action ascent',['First action','Second action']);
+      assert.equal(await pair.locator('.mountain-art .milestone').count(),2);
+      for(const theme of ['light','dark'])for(const width of [1440,390]){await pair.setViewportSize({width,height:844});await pair.evaluate(()=>scrollTo(0,0));await pair.waitForTimeout(180);await pair.click(`[data-theme="${theme}"]`);await pair.waitForTimeout(180);assert.equal(await pair.locator('body').getAttribute('data-view'),'today');await pair.locator('.mountain-art').screenshot({path:`${output}/mountain-two-actions-scene-${theme}-${width}.png`});}
+    }finally{await pairContext.close();}
+    assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+    console.log('Mountain gate passed: actual completion/Undo/review/finish/reload/reopen, noncontiguous checked IDs, independent keyboard selection, saved-context label, 1/2/5/30 actions, repeated unique SVG definitions, no render writes/external requests, finite earned transition, motion Off/reduced motion, examples and light/dark desktop/390px.');
+  }finally{await context.close();}
+}
 async function runReturn(browser){
   const requests=[];
   const fixture=http.createServer((req,res)=>{if(req.url.startsWith('/work'))requests.push({url:req.url,referer:req.headers.referer});res.writeHead(200,{'Content-Type':'text/html'});res.end('<!doctype html><title>Work reference fixture</title><p>Local test document</p>');});
@@ -384,7 +530,7 @@ async function runC(browser){
   w=await snapshot(p);assert.equal(w.actions[a].status,'open');assert.equal(w.activeSessionId,null);assert.equal(Object.values(w.intervals).reduce((s,i)=>s+i.deltaMs,0),completedEffort);
   // Explicit correction does not silently restart a block or reopen other actions.
   assert.equal(w.actions[b].status,'completed');await p.click('[data-nav="journey"]');
-  assert.equal(await p.locator(`[data-action-id="${a}"].current`).count(),1);assert.equal(await p.locator(`[data-action-id="${b}"].earned`).count(),1);
+  assert.equal(await p.locator(`.milestone[data-action-id="${a}"].current`).count(),1);assert.equal(await p.locator(`.milestone[data-action-id="${b}"].earned`).count(),1);assert.equal(await p.locator(`.route-segment[data-action-id="${b}"].earned`).count(),1);
   await p.click('[data-nav="today"]');await p.click('[data-work="start"]');await p.click('[data-work="complete"]');await p.locator('#review[open]').waitFor();await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.click('#reward .primary');
   assert.equal(await p.locator('.finished-card').count(),1);assert.equal(Object.keys((await snapshot(p)).goals).length,1);
   await p.click('[data-work="create"]');await p.fill('#goal-title','Second real goal');await p.fill('#goal-definition','Two actions done');await p.locator('[data-draft-id]').fill('One next move');await p.click('#goal-form [type="submit"]');await p.locator('.workspace').waitFor();

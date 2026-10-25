@@ -49,10 +49,11 @@ export async function bootWork(ui){
       $('#review-status').innerHTML=error?`<p role="alert">Not saved: ${e(error)}. Review and draft are unchanged.</p>${pending?'<button class="button" data-work="retry">Retry save</button>':''}`:'';
     }
   }
-  function art(){
-    const actions=goal().actionOrder.map(id=>workspace.actions[id]);
-    return ui.routeSVG({goal:true,real:true,finished:false,model:{steps:actions,completed:actions.filter(a=>a.status==='completed').length,selected:Math.max(0,actions.findIndex(a=>a.id===selected))}});
+  function mountainModel(g){
+    const actions=g.actionOrder.map(id=>({...workspace.actions[id],hasSavedContext:!!workspace.contexts[id]}));
+    return {goalId:g.id,steps:actions,selected:actions.findIndex(a=>a.id===selected)};
   }
+  const art=(g=goal())=>ui.routeSVG({goal:true,real:true,finished:g.status==='completed',model:mountainModel(g)});
   function rows(){return goal().actionOrder.map((id,i)=>`<button class="step-row ${workspace.actions[id].status==='completed'?'done':id===action()?.id?'current':''}" data-select="${id}" aria-pressed="${selected===id}"><span class="step-number">${workspace.actions[id].status==='completed'?'✓':i+1}</span><span class="step-name">${e(workspace.actions[id].title)}</span><small>${workspace.actions[id].status==='completed'?'Checked':'Unfinished'}</small></button>`).join('');}
   function detail(){const a=workspace.actions[selected]||action();if(!a)return '';const c=workspace.contexts[a.id];return `<div class="selected-detail" tabindex="0"><span class="eyebrow">Behind this action</span><h3>${e(a.title)}</h3><p class="record-detail">${e([c?.nextInstruction,c?.context].filter(Boolean).join('\n')||'No saved context yet.')}</p></div>${correction()}`;}
   function empty(){return `<section class="empty"><div class="empty-mark" aria-hidden="true">↗</div><h1>A place for your next step.</h1><p>Create a real goal with ordered actions. One open goal at a time.</p>${button('Create a goal','create',true)}<p class="hint">Saved only in this browser on this site address. No sync.</p></section>`;}
@@ -71,8 +72,8 @@ export async function bootWork(ui){
     find('.hero-art-heading .tag').textContent=g?'Your goal · illustrative route':'Illustration · not your progress';
     find('.hero-saved .muted').textContent=g?(a?(context()?.nextInstruction?'Your next move, kept.':'Next unfinished action.'): 'Ready for your review.'):finishedCount?'Work you’ve finished.':'Start with one thing.';
     find('.hero-saved p').textContent=g?(a?instruction():'All actions are checked. Review the goal, add another action, or confirm it’s finished.'):finishedCount?`${finishedCount} finished ${finishedCount===1?'goal':'goals'}. Revisit your work or make room for something new.`:'Choose a goal and the first action you want to take.';
-    const illustration={steps:['Choose a goal','Take one step','Save your place','Come back'].map((title,i)=>({id:`illustration-${i}`,title,status:'planned'})),completed:0,selected:-1};
-    find('.route-art').outerHTML=g?art():ui.routeSVG({goal:true,real:true,finished:false,model:illustration});
+    const illustration={steps:['Choose a goal','Take one step','Save your place','Come back'].map((title,i)=>({id:`illustration-${i}`,title,status:'planned'})),illustration:true,selected:-1};
+    find('.mountain-scene').outerHTML=g?art():ui.routeSVG({goal:true,real:true,finished:false,model:illustration});
     return template.innerHTML;
   }
   function today(){
@@ -100,7 +101,7 @@ export async function bootWork(ui){
   }
   function history(){
     const goals=Object.values(workspace.goals).filter(g=>g.status==='completed').sort((a,b)=>b.completedAt-a.completedAt);
-    return `${heading('Work worth looking back on.','Actual local goals · outcomes and effort are separate')}<div class="finished-grid">${goals.length?goals.map(g=>`<article class="finished-card"><span class="completed-stamp">✓ Goal explicitly confirmed</span><h2>${e(g.title)}</h2><p>${g.actionOrder.length} actions checked · ${formatTime(effort(workspace,g.id)/1000)} recorded effort</p><p>Completed ${e(new Date(g.completedAt).toLocaleString())}</p><details><summary>Review actions & saved context</summary><p>${e(g.definitionOfFinished)}</p>${g.actionOrder.map(historyAction).join('')}</details><button class="button" data-reopen-goal="${g.id}" ${disabled()||goal()?'disabled':''}>Reopen goal</button>${goal()?'<p>Another goal is open. Finish it before reopening this one.</p>':'<p>Correction preserves IDs, context and recorded effort.</p>'}</article>`).join(''):'<section class="empty"><h2>Room for what you finish.</h2><p>No finished goals yet. All-checked goals still need explicit confirmation.</p></section>'}<div class="work-actions">${button(goal()?'Return to open goal':'Create a new goal',goal()?'today':'create',true)}</div></div>`;
+    return `${heading('Work worth looking back on.','Actual local goals · outcomes and effort are separate')}<div class="finished-grid">${goals.length?goals.map(g=>`<article class="finished-card"><span class="completed-stamp">✓ Goal explicitly confirmed</span><h2>${e(g.title)}</h2><p>${g.actionOrder.length} actions checked · ${formatTime(effort(workspace,g.id)/1000)} recorded effort</p><p>Completed ${e(new Date(g.completedAt).toLocaleString())}</p>${art(g)}<details><summary>Review actions & saved context</summary><p>${e(g.definitionOfFinished)}</p>${g.actionOrder.map(historyAction).join('')}</details><button class="button" data-reopen-goal="${g.id}" ${disabled()||goal()?'disabled':''}>Reopen goal</button>${goal()?'<p>Another goal is open. Finish it before reopening this one.</p>':'<p>Correction preserves IDs, context and recorded effort.</p>'}</article>`).join(''):'<section class="empty"><h2>Room for what you finish.</h2><p>No finished goals yet. All-checked goals still need explicit confirmation.</p></section>'}<div class="work-actions">${button(goal()?'Return to open goal':'Create a new goal',goal()?'today':'create',true)}</div></div>`;
   }
   function undoHTML(){return workspace.undo?`<aside class="focus-return" aria-label="Latest action completion"><span>Action complete. Undo is available until the next saved change; navigation alone keeps it.</span>${button('Undo latest completion','undo')}</aside>`:'';}
   function showReview(){
@@ -112,6 +113,7 @@ export async function bootWork(ui){
   }
   function strip(){const s=session();return s&&!['focus','pause','edit'].includes(view)?`<aside class="focus-return" aria-label="Local focus status"><span>${running()?'Focus running':s.remainingMs?'Focus paused':'Block ended · unfinished'} · <span id="return-clock">${formatTime(s.remainingMs/1000)}</span></span><button class="text-button" data-work="focus" data-readonly="true">Return to focus</button>${running()?button('Pause','pause'):''}</aside>`:'';}
   function render(moveFocus=false){
+    ui.clearMountainFeedback();
     if(!real)return;
     document.body.dataset.view=view;
     main.innerHTML=undoHTML()+strip()+(view==='landing'?home():view==='edit'&&draft?editor():view==='focus'?focus():view==='pause'&&action()?pause():view==='journey'?journey():view==='finished'?history():today());
@@ -198,7 +200,8 @@ export async function bootWork(ui){
       if(type==='add'){$('#add-form').hidden=false;$('#new-step').focus();}
       if(type==='keep-open')await write(command('keep-open'),()=>{$('#review').close();go('today');});
       if(type==='confirm'){
-        const title=goal().title;await write(command('finish-goal',{goalId:goal().id}),applied=>{$('#review').close();go('finished');if(applied)ui.showReward(title);});
+        const title=goal().title,goalId=goal().id;let celebrated=false;
+        await write(command('finish-goal',{goalId}),applied=>{$('#review').close();go('finished');if(applied&&!celebrated){celebrated=true;ui.showReward(title,false,mountainModel(workspace.goals[goalId]));}});
       }
       return;
     }
@@ -237,7 +240,8 @@ export async function bootWork(ui){
     else if(type==='review')showReview();
     else if(type==='complete'){
       const cmd=running()?timed('complete-action',{actionId:action().id}):command('complete-action',{actionId:action().id});
-      frozen=true;anchor=null;await write(cmd,()=>{selected=action()?.id||selected;go('today');if(!action())showReview();});
+      const completedGoalId=goal().id,completedActionId=action().id;let celebrated=false;
+      frozen=true;anchor=null;await write(cmd,applied=>{selected=action()?.id||selected;go('today');if(applied&&!celebrated){celebrated=true;ui.respondToCompletion(completedGoalId,completedActionId);}if(!action())showReview();});
     }
     else if(type==='undo'){
       const u=workspace.undo;if(!u)return;await write(command('undo',{eventId:u.eventId,expectedRevision:workspace.revision}),()=>{if($('#review').open)$('#review').close();selected=action()?.id;go('today');});

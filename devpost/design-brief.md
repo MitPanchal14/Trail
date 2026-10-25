@@ -1,5 +1,21 @@
 # Design brief
 
+## Reward enhancement implemented — visual acceptance pending
+
+OPENCODE_MOUNTAIN_REWARDS.md is implemented locally: one 600ms applied-completion segment/check/spark response replaces the ring, scoped by real/example goal/action identity. Confirmed finish shows the same mountain with a finite warm summit halo/flag visibly inside the existing dismissible reward. Scoped current violet, earned cyan/blue and confirmed peach distinguish state; terrain/depth and surrounding written layout are preserved. Mobile-only 12px HTML current/summit/count captions replace tiny duplicate SVG labels; full action access remains in the existing list. Note save is not earned ascent. Off/reduced motion stops effects/confetti cleanly; final states are immediate, Undo/navigation cannot be overwritten by cleanup, and static history never replays rewards.
+
+Syntax/20 tests/build/diff and the complete Chromium suite, including live effects/failure/Retry/isolation checks and normal/reduced light/dark desktop/390px captures, passed. See MOUNTAIN_REWARDS_EVIDENCE.md. Stop for visual review; no publication. Three recorded return-edge findings remain open for the following correction pass. This is a design hypothesis, not a proven dopamine/productivity/retention effect. Earlier planned-only reward wording below is historical.
+
+## User visual acceptance and reward direction — 25 October
+
+The user likes the implemented mountain silhouette/depth and confirmed the proposed small checkpoint reward plus stronger summit celebration. Preserve terrain and written layout; do not follow earlier reviewer suggestions for another terrain redesign. Approved next scope: brief post-commit earned-trail/checkpoint feedback, coordinated summit/reward, existing violet/cyan/blue roles with restrained warm summit accent, and improved mobile labels. See OPENCODE_MOUNTAIN_REWARDS.md. These refinements are planned, not implemented. Streaks/audio remain separate.
+
+## Mountain pass implemented locally — awaiting visual review
+
+The bounded OPENCODE_MOUNTAIN_GRAPHIC.md pass replaces floating stones with one shared custom SVG mountain: layered theme-token terrain, restrained contours, winding ascent, actual checked-ID checkpoints, independent selected/current markers and a saved-place cue only for the next action with saved context. All-checked remains Ready for review; only explicitly finished goals earn the summit. Dense goals retain a bounded overview and the full accessible list. Real/example home, Today/Journey and finished-card consumers share the renderer; Focus composition, typography and surrounding colours/layout remain unchanged. A single 650ms post-commit earned response respects Background motion Off/reduced motion and never runs just for rendering/navigation. No time-to-height/distance mapping or stored coordinates.
+
+Syntax, 20 Node tests, build, diff checks and the full Chromium suite including the new mountain gate passed. Light/dark desktop/390px scenes and the actual response were inspected; see MOUNTAIN_EVIDENCE.md. This is a first implementation for the user's visual decision, not visual acceptance. All three RETURN_EDGE_REVIEW findings remain open; no audio/streaks or publication in this pass. Older no-graphic receipts below describe prior checkpoints.
+
 ## Latest user direction — 25 October, after saved-place review
 
 The written layout is accepted as a baseline. The user finds the graphic underdeveloped and wants it prioritized now: explore a mountain ascent that makes completing the trail feel rewarding, using the website's current typography, blue/violet/cyan palette and coherent light/dark themes. Preserve surrounding home/Focus composition. This supersedes earlier instructions to defer graphics; it does not authorize restoration of historical pixel mountain code or another runnable app. Actual action outcomes should drive milestone states; elapsed time is separate and must not imply measured productivity. Streaks are a proposed later enhancement whose rules still need agreement. The current Background motion control does not implement sound.
