@@ -2,6 +2,8 @@
 
 ## Current deliverable
 
+25 October cloud completion: the accepted terrain/layout now includes one travelling expedition marker on the same route, a useful stopped-place campsite and review/confirmed-summit distinction. No schema, timing/storage engine, framework or dependency change. Marker visual acceptance remains pending. Current technical evidence and delivery drafts are linked in CLOUD_COMPLETION_EVIDENCE.md; this supersedes the older graphic-deferral wording below for this bounded presentation pass only.
+
 A single dependency-free local Trail prototype using the approved 01b home/Focus composition. The authorized day-build adds real manual goal/actions, conservative focus timing, pause context, IndexedDB persistence, exclusive tab ownership, explicit Resume, action completion/limited Undo, final review, durable finished history and guarded corrections. Fictional scenarios remain separate and labelled. The approved UI corrections remove the decorative Focus rail, clarify Background motion and replace the timed full-screen reward with an immediate compact dialog and finite confetti. No historical UI/framework is restored.
 
 ## Bounded return pass
@@ -16,4 +18,4 @@ The first core-loop milestone is implemented locally for review; see DAY_BUILD_E
 
 ## Outside this local build
 
-Graphic redesign, AI, authentication/sync/backend, push delivery, PiP, streaks, priority scoring, hosted deployment and hackathon submission remain outside scope. No commit/push/deploy/submit during this task. Physical-device acceptance and submission readiness are separate from automated/local prototype evidence.
+Further graphic redesign, AI, authentication/sync/backend, push delivery, PiP, streaks, priority scoring, hosted deployment and hackathon submission remain outside scope. No push/deploy/submit or main changes during this task. Physical-device/user acceptance and submission readiness are separate from automated/local prototype evidence.

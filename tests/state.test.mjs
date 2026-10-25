@@ -44,6 +44,41 @@ test('structural edits are rejected while block exists, titles preserved by ID',
   w=run(w,'save-goal',{goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'a',title:'First edited'},{id:'b',title:'Second'}]});
   assert.equal(activeSession(w).actionId,'a');assert.equal(w.actions.a.title,'First edited');
 });
+test('end stopped blocks releases replanning without completing work or changing saved effort/context',()=>{
+  for(const status of ['paused','interrupted','expired']){
+    let w=run(setup(),'start',{minutes:20});w=run(w,'checkpoint',{deltaMs:5000});
+    if(status==='expired'){for(let i=0;i<79;i++)w=run(w,'checkpoint',{deltaMs:15000});w=run(w,'checkpoint',{deltaMs:10000});}
+    else w=run(w,'pause',{deltaMs:123,interrupted:status==='interrupted'});
+    w=run(w,'notes',{instruction:'Find prerequisite',context:'Keep draft',resourceUrl:'https://example.com/work#next'});
+    const before=structuredClone(w),s=activeSession(w),edit={goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'prerequisite',title:'Prerequisite'},{id:'b',title:'Second'},{id:'a',title:'First'}]};
+    assert.throws(()=>run(w,'save-goal',edit),/locked/);
+    const end=cmd('end-block',{sessionId:s.id,ownerToken:w.ownerToken,expectedRevision:w.revision});w=transition(w,end,20000);
+    assert.equal(w.activeSessionId,null);assert.deepEqual(w.sessions[s.id],{...s,status:'ended',ownerToken:null});
+    for(const key of ['intervals','contexts','actions','goals','events'])assert.deepEqual(w[key],before[key]);
+    assert.equal(w.undo,null);assert.equal(w.revision,before.revision+1);assert.equal(transition(w,end,22000),w);
+    assert.throws(()=>run(w,'resume'));assert.throws(()=>run(w,'extend',{minutes:5}));
+    for(const mutate of [bad=>bad.activeSessionId=s.id,bad=>bad.sessions[s.id].ownerToken='owner']){const bad=structuredClone(w);mutate(bad);assert.throws(()=>validate(bad));}
+    const ended=structuredClone(w.sessions[s.id]);w=run(w,'save-goal',edit);assert.equal(w.goals[w.openGoalId].actionOrder[0],'prerequisite');assert.deepEqual(w.contexts,before.contexts);assert.equal(effort(w,w.openGoalId),effort(before,before.openGoalId));
+    w=run(w,'start',{minutes:25});assert.notEqual(w.activeSessionId,s.id);assert.equal(activeSession(w).actionId,'prerequisite');assert.deepEqual(w.sessions[s.id],ended);
+    const stale=structuredClone(w);assert.throws(()=>run(w,'end-block',{sessionId:s.id,ownerToken:w.ownerToken,expectedRevision:w.revision}));assert.deepEqual(w,stale);
+  }
+});
+test('end rejects missing, running, stale revision/session and foreign owner without mutation',()=>{
+  const empty=setup(),running=run(empty,'start',{minutes:20}),paused=run(running,'pause',{deltaMs:10});
+  for(const [w,fields,message] of [[empty,{},/No active/],[running,{},/Pause first/],[paused,{sessionId:'old'},/changed/],[paused,{ownerToken:'foreign'},/ownership/],[paused,{expectedRevision:0},/changed/]]){
+    const before=structuredClone(w);assert.throws(()=>run(w,'end-block',{sessionId:w.activeSessionId,ownerToken:w.ownerToken,expectedRevision:w.revision,...fields}),message);assert.deepEqual(w,before);
+  }
+});
+test('multiple ended blocks retain aggregate effort through completion, Undo and finished history',()=>{
+  let w=run(setup(),'notes',{instruction:'Next',context:'Context'});const goalId=w.openGoalId,context=structuredClone(w.contexts.a),ended=[];
+  for(const deltaMs of [1100,2300]){w=run(w,'start',{minutes:20});w=run(w,'pause',{deltaMs});const id=w.activeSessionId;w=run(w,'end-block',{sessionId:id,ownerToken:w.ownerToken,expectedRevision:w.revision});ended.push(id);}
+  assert.equal(effort(w,goalId),3400);assert.throws(()=>run(w,'save-goal',{goalId,title:'Goal',definition:'Done',actions:[{id:'b',title:'Second'}]}),/cannot be removed/);
+  w=run(w,'start',{minutes:20});w=run(w,'complete-action',{actionId:'a',deltaMs:700});const u=w.undo;
+  w=run(w,'undo',{eventId:u.eventId,expectedRevision:w.revision});assert.equal(effort(w,goalId),4100);assert.deepEqual(w.contexts.a,context);
+  w=run(w,'end-block',{sessionId:w.activeSessionId,ownerToken:w.ownerToken,expectedRevision:w.revision});assert.equal(w.undo,null);
+  w=run(w,'complete-action',{actionId:'a'});w=run(w,'complete-action',{actionId:'b'});w=run(w,'finish-goal',{goalId});
+  assert.equal(effort(w,goalId),4100);assert.deepEqual(w.contexts.a,context);for(const id of ended)assert.equal(w.sessions[id].status,'ended');validate(w);
+});
 test('completion is atomic/idempotent; Undo retains exact trusted tail, notes, IDs and paused timer',()=>{
   let w=setup();w=run(w,'notes',{instruction:'Saved instruction',context:'Saved context'});w=run(w,'start',{minutes:20});
   const completed=cmd('complete-action',{actionId:'a',deltaMs:4231});w=transition(w,completed,15000);

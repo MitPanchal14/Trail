@@ -29,14 +29,37 @@ export async function bootWork(ui){
     let url;try{url=normalizeResourceUrl(c.resourceUrl);}catch{return '';}
     return `<a class="button work-link" href="${e(url)}" target="_blank" rel="noopener noreferrer" title="${e(url)}"><span>Open work · ${e(new URL(url).hostname)}</span><span aria-hidden="true">↗</span></a>`;
   }
+  function copyControl(){
+    const c=context();return c&&(c.nextInstruction.trim()||c.context.trim()||c.resourceUrl)?`<div class="saved-place-copy"><button type="button" class="text-button" data-copy-place="${e(action().id)}">Copy saved place</button><span class="copy-status" role="status" aria-live="polite"></span><div class="copy-fallback" hidden></div></div>`:'';
+  }
+  async function copySavedPlace(b){
+    if(b.disabled||b.dataset.copyPlace!==action()?.id)return;
+    const c=context(),g=goal(),a=action();if(!c||!g||!a)return;
+    const brief=[`Goal: ${g.title}`,`Action: ${a.title}`,c.nextInstruction?`Saved next move: ${c.nextInstruction}`:'',c.context?`Where I stopped: ${c.context}`:'',c.resourceUrl?`Work link: ${c.resourceUrl}`:''].filter(Boolean).join('\n\n');
+    const area=b.closest('.saved-place-copy'),notice=area.querySelector('.copy-status'),fallback=area.querySelector('.copy-fallback');
+    b.disabled=true;notice.textContent='';fallback.replaceChildren();fallback.hidden=true;
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(brief);
+      if(b.isConnected&&real)notice.textContent='Saved place copied.';
+    }catch{
+      if(!b.isConnected||!real)return;
+      notice.textContent='Clipboard unavailable. Copy the text below manually.';
+      const label=document.createElement('label'),text=document.createElement('textarea'),help=document.createElement('p'),close=document.createElement('button');
+      text.id='saved-place-brief';text.dataset.copyText='true';text.readOnly=true;text.value=brief;text.rows=7;text.spellcheck=false;text.setAttribute('aria-describedby','saved-place-copy-help');
+      label.htmlFor=text.id;label.textContent='Saved-place brief';help.id='saved-place-copy-help';help.className='hint';help.textContent='Select this text and use your device’s Copy command. This is a copy convenience, not a backup.';
+      close.type='button';close.className='text-button';close.textContent='Close copy text';close.addEventListener('click',()=>{fallback.replaceChildren();fallback.hidden=true;notice.textContent='';b.focus();});
+      fallback.append(label,text,help,close);fallback.hidden=false;text.focus();
+    }finally{b.disabled=false;}
+  }
   function notes(referenceFirst=false){
     const c=context(),original=c?.nextInstruction?`<p class="original-step">Action: ${e(action().title)}</p>`:'',stopped=c?.context?`<div class="saved-context"><strong>Where I stopped</strong><p>${e(c.context)}</p></div>`:'',reference=savedAt(c)+workLink(c);
-    return original+(referenceFirst?reference+stopped:stopped+reference);
+    return original+(referenceFirst?reference+stopped:stopped+reference)+copyControl();
   }
   const needsPreview=text=>text.length>240||text.split('\n').length>4;
   const returnPreview=text=>needsPreview(text)?`${Array.from(text.split('\n').slice(0,3).join('\n')).slice(0,160).join('')}…`:text;
   function returnReference(){
-    const c=context();return `${c?.nextInstruction?`<p class="original-step">Action: ${e(action().title)}</p>`:''}${savedAt(c)}${workLink(c)}`;
+    const c=context();return `${c?.nextInstruction?`<p class="original-step">Action: ${e(action().title)}</p>`:''}${savedAt(c)}${workLink(c)}${copyControl()}`;
   }
   function expandedReturn(){
     const c=context(),fullMove=needsPreview(instruction()),fullContext=needsPreview(c?.context||'');
@@ -44,6 +67,7 @@ export async function bootWork(ui){
   }
   const actionLabel=()=>`${context()?.nextInstruction?'Saved next move':'Next unfinished action'} · ${goal().actionOrder.indexOf(action().id)+1} of ${goal().actionOrder.length}`;
   const completedCount=()=>goal().actionOrder.filter(id=>workspace.actions[id].status==='completed').length;
+  function endBlockControl(){return session()&&session().status!=='running'?`<div class="end-block-control">${button('End focus block','end-block')}<p class="hint">Keeps the action unfinished, your saved place and recorded effort. Frees the action order for editing.</p></div>`:'';}
   function clearFormValidation(formId){
     if(busy||pending||!formId||validationError!==formId)return false;
     validationError=null;error='';return true;
@@ -54,7 +78,7 @@ export async function bootWork(ui){
     box.hidden=!real||!box.innerHTML;
     if(real){
       main.querySelectorAll('[data-work],form button[type="submit"]').forEach(b=>{if(!b.dataset.readonly)b.disabled=disabled()||(b.dataset.work==='edit'&&running())||(b.dataset.work==='reopen-action'&&!!session());});
-      if(busy||pending)main.querySelectorAll('input,textarea,select,[data-draft]').forEach(el=>el.disabled=true);
+      if(busy||pending)main.querySelectorAll('input,textarea:not([data-copy-text]),select,[data-draft]').forEach(el=>el.disabled=true);
     }
     if(real&&$('#review').open){
       document.querySelectorAll('#review [data-action],#review button[type="submit"],#review [data-work="undo"]').forEach(b=>b.disabled=disabled());
@@ -63,8 +87,8 @@ export async function bootWork(ui){
     }
   }
   function mountainModel(g){
-    const actions=g.actionOrder.map(id=>({...workspace.actions[id],hasSavedContext:!!workspace.contexts[id]}));
-    return {goalId:g.id,steps:actions,selected:actions.findIndex(a=>a.id===selected)};
+    const actions=g.actionOrder.map(id=>{const c=workspace.contexts[id];return {...workspace.actions[id],hasSavedContext:!!(c?.nextInstruction?.trim()||c?.context?.trim()||c?.resourceUrl)};});
+    return {goalId:g.id,steps:actions,selected:actions.findIndex(a=>a.id===selected),running:g.id===goal()?.id&&running()};
   }
   const art=(g=goal())=>ui.routeSVG({goal:true,real:true,finished:g.status==='completed',model:mountainModel(g)});
   function rows(){return goal().actionOrder.map((id,i)=>`<button class="step-row ${workspace.actions[id].status==='completed'?'done':id===action()?.id?'current':''}" data-select="${id}" aria-pressed="${selected===id}"><span class="step-number">${workspace.actions[id].status==='completed'?'✓':i+1}</span><span class="step-name">${e(workspace.actions[id].title)}</span><small>${workspace.actions[id].status==='completed'?'Checked':'Unfinished'}</small></button>`).join('');}
@@ -77,9 +101,14 @@ export async function bootWork(ui){
     const finishedCount=Object.values(workspace.goals).filter(g=>g.status==='completed').length;
     const cta=find('.hero-cta');delete cta.dataset.action;
     cta.dataset.work=g?'today':'create';
-    cta.innerHTML=`${g?(a?'Continue your goal':'Review your goal'):finishedCount?'Create a new goal':'Create a goal'} <span aria-hidden="true">↗</span>`;
-    find('.hero-lead').innerHTML=g?'Your work is here.<br>Come back knowing what to do next.':'Choose one goal. Take one small step.<br>Leave a way back when you pause.';
+    cta.innerHTML=`${g?(a?'Continue your goal':'Review your goal'):finishedCount?'Create a new goal':'Start working'} <span aria-hidden="true">↗</span>`;
+    find('.hero-lead').innerHTML=g?'Your work is here.<br>Come back knowing what to do next.':'For work you have to leave unfinished.<br>Keep the next move and the place to use it.';
     find('.hero-copy .hint').textContent=g?'Opening your goal won’t start the timer. Choose Start or Resume when you’re ready.':finishedCount?'Your finished work is here. Start a new goal whenever you’re ready.':'Give your goal a name and add a first action. Nothing is saved until you choose Save.';
+    if(!g&&!finishedCount){
+      const discovery=document.createElement('div');discovery.className='hero-discovery';
+      discovery.innerHTML='<button type="button" class="text-button" data-example-entry>Try a saved place</button><p class="hint">Fictional example. Use Real work at the top to return to your own work.</p>';
+      find('.hero-copy').append(discovery);
+    }
     find('.hero-art-heading .eyebrow').textContent=g?g.title:'One step becomes a journey';
     find('.hero-art-heading .eyebrow').classList.add('instruction');
     find('.hero-art-heading .tag').textContent=g?'Your goal · illustrative route':'Illustration · not your progress';
@@ -97,7 +126,7 @@ export async function bootWork(ui){
   }
   function focus(){
     if(!action())return today();const s=session(),expired=s?.remainingMs===0;
-    return `<div class="focus-surround" aria-hidden="true"><i></i><i></i><i></i></div><div class="focus-topline"><span class="eyebrow">One thing at a time.</span><button class="text-button ambience-control" data-action="ambience"></button></div><section class="focus-layout" aria-label="Focus work window">${label()}<p class="step-label">${actionLabel()}</p><div class="focus-copy" tabindex="0" aria-label="Current instruction and optional context"><h2 class="instruction">${e(instruction())}</h2><details class="focus-details"><summary>Saved place & original action</summary>${notes(true)}</details></div><div class="focus-clock" id="clock">${formatTime((s?.remainingMs??duration*60000)/1000)}</div><p class="timer-label">${expired?'Block ended. Action still unfinished.':running()?'remaining · running':'remaining · paused; explicit Resume required'}</p><div class="expiry" aria-label="Extend block">${s?[5,10,20].map(n=>button(`+${n} min`,`extend-${n}`)).join(''):''}</div><div class="work-actions">${!running()&&!expired?button(s?'Resume focus':'Start focus',s?'resume':'start',true):''}${button(running()?'Ⅱ Pause':'Save my place','pause',running())}${button('✓ Complete action','complete')}</div><p class="hint">Conservative local timing. Gaps over 15 seconds interrupt; unverified time is not credited.</p></section><p class="focus-footnote">Work in another tab; Trail doesn’t observe it.</p>`;
+    return `<div class="focus-surround" aria-hidden="true"><i></i><i></i><i></i></div><div class="focus-topline"><span class="eyebrow">One thing at a time.</span><button class="text-button ambience-control" data-action="ambience"></button></div><section class="focus-layout" aria-label="Focus work window">${label()}<p class="step-label">${actionLabel()}</p><div class="focus-copy" tabindex="0" aria-label="Current instruction and optional context"><h2 class="instruction">${e(instruction())}</h2><details class="focus-details"><summary>Saved place & original action</summary>${notes(true)}</details></div><div class="focus-clock" id="clock">${formatTime((s?.remainingMs??duration*60000)/1000)}</div><p class="timer-label">${!s?'No active focus block. Action still unfinished. Start a new block when ready.':expired?'Block ended. Action still unfinished.':running()?'remaining · running':'remaining · paused; explicit Resume required'}</p><div class="expiry" aria-label="Extend block">${s?[5,10,20].map(n=>button(`+${n} min`,`extend-${n}`)).join(''):''}</div><div class="work-actions">${!running()&&!expired?button(s?'Resume focus':'Start focus',s?'resume':'start',true):''}${button(running()?'Ⅱ Pause':'Save my place','pause',running())}${button('✓ Complete action','complete')}${!s?button('Edit goal / actions','edit'):''}</div>${endBlockControl()}<p class="hint">Conservative local timing. Gaps over 15 seconds interrupt; unverified time is not credited.</p></section><p class="focus-footnote">Work in another tab; Trail doesn’t observe it.</p>`;
   }
   function pause(){return `${heading('Paused')}<section class="pause-area"><span class="pause-marker" aria-hidden="true">Ⅱ</span><h1>Leave yourself a way back.</h1><p class="muted">Timing is stopped. Save a small next move for your return.</p><div class="pause-task">${e(action().title)}</div>
     <form id="real-pause-form"><label for="return-note">When I return, the first thing I’ll do is… <span class="muted">(optional)</span></label><textarea id="return-note" maxlength="4000" placeholder="For example: Open the draft and write the first paragraph.">${e(context()?.nextInstruction||'')}</textarea><p class="hint">Up to 4,000 characters. Leave it blank to keep your saved next move.</p>
@@ -105,7 +134,7 @@ export async function bootWork(ui){
     <div class="work-actions"><button class="button primary" type="submit">Save & return to Today</button>${button('Skip for now','skip')}</div><p class="hint">Blank notes keep what you saved before. Skip changes nothing. <kbd>⌘/Ctrl + Enter</kbd> to save.</p></form></section>`;}
   function journey(){if(!goal())return empty();return `${heading('Look at the ground you’ve covered.',goal().title)}<div class="journey-layout"><section class="scene-panel"><div class="scene-top"><strong>Your goal trail</strong><span>${completedCount()} of ${goal().actionOrder.length} actions checked</span></div>${art()}<div class="scene-bottom">${formatTime(effort(workspace,goal().id)/1000)} recorded effort · illustrative route</div><p class="hint">${e(goal().definitionOfFinished)}</p></section><section class="records">${rows()}${detail()}</section></div>`;}
   function editor(){
-    return `${heading(draft.goalId?'Edit your goal.':'Choose one thing.','One goal at a time. Save when you’re ready.')}<section class="pause-area"><form id="goal-form"><label for="goal-title">Goal title (required, up to 160 characters)</label><input id="goal-title" maxlength="160" required value="${e(draft.title)}"><label for="goal-definition">What does finished mean? (required, up to 2,000 characters)</label><textarea id="goal-definition" maxlength="2000" required>${e(draft.definition)}</textarea><h3>Your actions · 1–30</h3><p class="hint">Required, up to 500 characters each. ${session()?'You can rename actions while paused. Finish the current action before adding, removing or moving steps.':'Put your actions in the order you want to work on them.'}</p><div id="action-drafts">${draft.actions.map((a,i)=>`<div class="action-draft"><label for="action-${a.id}">Action ${i+1}</label><input id="action-${a.id}" data-draft-id="${a.id}" maxlength="500" required value="${e(a.title)}"><div class="draft-controls">${['up','down','remove'].map(t=>`<button class="text-button" type="button" data-draft="${t}" data-id="${a.id}" ${session()||t==='up'&&i===0||t==='down'&&i===draft.actions.length-1||t==='remove'&&draft.actions.length===1?'disabled':''} aria-label="${t==='up'?'Move up':t==='down'?'Move down':'Remove'} action ${i+1}">${t==='up'?'↑ Move up':t==='down'?'↓ Move down':'Remove'}</button>`).join('')}</div></div>`).join('')}</div><button class="button" type="button" data-draft="add" ${session()||draft.actions.length>=30?'disabled':''}>Add action</button><div class="work-actions"><button class="button primary" type="submit">Save goal</button><button class="text-button" type="button" data-work="cancel">Cancel</button></div></form></section>`;
+    return `${heading(draft.goalId?'Edit your goal.':'Choose one thing.','One goal at a time. Save when you’re ready.')}<section class="pause-area"><form id="goal-form"><label for="goal-title">Goal title (required, up to 160 characters)</label><input id="goal-title" maxlength="160" required value="${e(draft.title)}"><label for="goal-definition">What does finished mean? (required, up to 2,000 characters)</label><textarea id="goal-definition" maxlength="2000" required>${e(draft.definition)}</textarea><h3>Your actions · 1–30</h3><p class="hint">Required, up to 500 characters each. ${session()?'You can rename actions while paused. End the focus block below to add or move steps without completing the action.':'Put your actions in the order you want to work on them.'}</p>${endBlockControl()}<div id="action-drafts">${draft.actions.map((a,i)=>`<div class="action-draft"><label for="action-${a.id}">Action ${i+1}</label><input id="action-${a.id}" data-draft-id="${a.id}" maxlength="500" required value="${e(a.title)}"><div class="draft-controls">${['up','down','remove'].map(t=>`<button class="text-button" type="button" data-draft="${t}" data-id="${a.id}" ${session()||t==='up'&&i===0||t==='down'&&i===draft.actions.length-1||t==='remove'&&draft.actions.length===1?'disabled':''} aria-label="${t==='up'?'Move up':t==='down'?'Move down':'Remove'} action ${i+1}">${t==='up'?'↑ Move up':t==='down'?'↓ Move down':'Remove'}</button>`).join('')}</div></div>`).join('')}</div><button class="button" type="button" data-draft="add" ${session()||draft.actions.length>=30?'disabled':''}>Add action</button><div class="work-actions"><button class="button primary" type="submit">Save goal</button><button class="text-button" type="button" data-work="cancel">Cancel</button></div></form></section>`;
   }
   function correction(){return workspace.actions[selected]?.status==='completed'?`<p class="hint">Correct a checked action without changing its recorded effort. ${session()?'Finish the current block/action before reopening another.':''}</p>${button('Reopen selected action','reopen-action')}`:'';}
   function historyAction(id){
@@ -114,7 +143,7 @@ export async function bootWork(ui){
   }
   function history(){
     const goals=Object.values(workspace.goals).filter(g=>g.status==='completed').sort((a,b)=>b.completedAt-a.completedAt);
-    return `${heading('Work worth looking back on.','Actual local goals · outcomes and effort are separate')}<div class="finished-grid">${goals.length?goals.map(g=>`<article class="finished-card"><span class="completed-stamp">✓ Goal explicitly confirmed</span><h2>${e(g.title)}</h2><p>${g.actionOrder.length} actions checked · ${formatTime(effort(workspace,g.id)/1000)} recorded effort</p><p>Completed ${e(new Date(g.completedAt).toLocaleString())}</p>${art(g)}<details><summary>Review actions & saved context</summary><p>${e(g.definitionOfFinished)}</p>${g.actionOrder.map(historyAction).join('')}</details><button class="button" data-reopen-goal="${g.id}" ${disabled()||goal()?'disabled':''}>Reopen goal</button>${goal()?'<p>Another goal is open. Finish it before reopening this one.</p>':'<p>Correction preserves IDs, context and recorded effort.</p>'}</article>`).join(''):'<section class="empty"><h2>Room for what you finish.</h2><p>No finished goals yet. All-checked goals still need explicit confirmation.</p></section>'}<div class="work-actions">${button(goal()?'Return to open goal':'Create a new goal',goal()?'today':'create',true)}</div></div>`;
+    return `${heading('Work worth looking back on.','Actual local goals · outcomes and effort are separate')}<div class="finished-grid">${goals.length?goals.map(g=>`<article class="finished-card" data-finished-goal="${g.id}">${ui.finishedArt()}<span class="completed-stamp">✓ Goal explicitly confirmed</span><h2>${e(g.title)}</h2><p>${g.actionOrder.length} actions checked · ${formatTime(effort(workspace,g.id)/1000)} recorded effort</p><p>Completed ${e(new Date(g.completedAt).toLocaleString())}</p><details><summary>Review actions & saved context</summary><p>${e(g.definitionOfFinished)}</p>${g.actionOrder.map(historyAction).join('')}<p>Correction preserves IDs, context and recorded effort.</p></details><button class="button" data-reopen-goal="${g.id}" ${disabled()||goal()?'disabled':''}>Reopen goal</button>${goal()?'<p class="finished-help">Another goal is open. Finish it before reopening this one.</p>':''}</article>`).join(''):'<section class="empty"><h2>Room for what you finish.</h2><p>No finished goals yet. All-checked goals still need explicit confirmation.</p></section>'}<div class="work-actions">${button(goal()?'Return to open goal':'Create a new goal',goal()?'today':'create',true)}</div></div>`;
   }
   function undoHTML(){return workspace.undo?`<aside class="focus-return" aria-label="Latest action completion"><span>Action complete. Undo is available until the next saved change; navigation alone keeps it.</span>${button('Undo latest completion','undo')}</aside>`:'';}
   function showReview(){
@@ -195,13 +224,15 @@ export async function bootWork(ui){
       const cmd=timed('pause');frozen=true;anchor=null;
       if(!await write(cmd,()=>{}))return;
     }
-    real=toReal;$('#mode-label').textContent=real?'Real work · local to this browser':'Fictional example · resets on reload';$('#example-controls').hidden=real;
+    real=toReal;$('#mode-label').textContent=real?'Real work · local to this browser':'Fictional example · resets on reload · Use Real work to return';$('#example-controls').hidden=real;
     if(real){ui.leaveExample();try{if(ready)workspace=await store.read();}catch(err){validationError=null;error=err.message;}view=goal()?'today':'landing';render();}
     else{ui.enterExample();$('.footer').innerHTML='<span>Fictional example — not your real records.</span><span>In memory only. Reload resets this example.</span>';status();}
   }
   $('#real-mode').addEventListener('click',()=>changeMode(true));$('#example-mode').addEventListener('click',()=>changeMode(false));
   document.addEventListener('click',async event=>{
     if(!real)return;const b=event.target.closest('button,a.brand');if(!b)return;
+    if(b.hasAttribute('data-example-entry')){await changeMode(false);return;}
+    if(b.dataset.copyPlace){await copySavedPlace(b);return;}
     if(b.dataset.nav){go(b.dataset.nav);return;}
     if(b.matches('.brand')){event.preventDefault();go('landing');return;}
     if(b.dataset.action==='today'){go('today');return;}
@@ -253,6 +284,10 @@ export async function bootWork(ui){
     else if(type==='start')await write(command('start',{minutes:duration}),()=>go('focus'));
     else if(type==='resume')await write(command('resume'),()=>go('focus'));
     else if(type==='pause')await stopForNotes();
+    else if(type==='end-block'){
+      if(session()?.status==='running'){validationError='command';error='Pause first before ending this focus block.';status();return;}
+      captureDraft();await write(command('end-block',{sessionId:session()?.id,ownerToken:workspace.ownerToken,expectedRevision:workspace.revision}),()=>render(true));
+    }
     else if(type==='review')showReview();
     else if(type==='complete'){
       const cmd=running()?timed('complete-action',{actionId:action().id}):command('complete-action',{actionId:action().id});

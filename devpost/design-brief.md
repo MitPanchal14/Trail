@@ -1,5 +1,17 @@
 # Design brief
 
+## User-requested replacement — compact history / circle, 25 October
+
+The user rejected the human climber. It is now replaced locally by a small solid violet circle with a contrasting border (warm confirmed summit), inside the unchanged travelling group/path/anchor. No face/limbs/backpack remain. A useful saved place still shows the existing tent when stopped. Selection and review remain distinct; post-commit 780ms travel, Off/reduced cancellation and no replay are retained. Active terrain/depth and reward layout are preserved.
+
+Finished work cards intentionally no longer contain filled mountains, routes, checkpoints or duplicate captions. One original minimal white outline mountain is decorative, card-local and lower-right/bottom cropped inside its own non-interactive clipped wrapper. Foreground text reserves separate left space; card contents/focus are not clipped. Ordinary collapsed cards target ~250px desktop and 280–320px phone, while max titles/expanded contexts grow naturally. Titles/counts/effort/dates, saved context/safe links and Reopen/blocked explanations remain reachable. Muted blue/violet/warm gradient is retained, with light card-local supporting text in both themes. COMPACT_FINISH_VISUALS_EVIDENCE.md records verification/captures; **independent review and user visual acceptance remain pending**. Older person/history-route descriptions below are dated history.
+
+## Current cloud prototype — visual decision pending, 25 October
+
+One backpacked expedition marker now follows the existing ascent after committed action completion; useful saved notes or a link with timing stopped show a campsite at the same anchor. Blank context records do not create campsites. Checked checkpoints remain visible, selection is independent, all-checked stops below the summit for review, and explicit confirmed finish coordinates the same marker inside the one existing reward. The 780ms travel replaces checkpoint trace/check/sparks; terrain/depth, typography and written composition are retained. Off/reduced motion and cancellations settle instantly without replay or domain writes.
+
+The user accepted the terrain and written layout, then found the previous rewards too similar to an ordinary chart. The new marker is implemented for their decision; **visual satisfaction remains pending**. CLOUD_COMPLETION_EVIDENCE.md records current checks/captures. All earlier sections below are dated historical design receipts, superseded where they call graphic work deferred, return fixes open or marker unimplemented. They are retained as history, not current next-task instructions.
+
 ## Reward enhancement implemented — visual acceptance pending
 
 OPENCODE_MOUNTAIN_REWARDS.md is implemented locally: one 600ms applied-completion segment/check/spark response replaces the ring, scoped by real/example goal/action identity. Confirmed finish shows the same mountain with a finite warm summit halo/flag visibly inside the existing dismissible reward. Scoped current violet, earned cyan/blue and confirmed peach distinguish state; terrain/depth and surrounding written layout are preserved. Mobile-only 12px HTML current/summit/count captions replace tiny duplicate SVG labels; full action access remains in the existing list. Note save is not earned ascent. Off/reduced motion stops effects/confetti cleanly; final states are immediate, Undo/navigation cannot be overwritten by cleanup, and static history never replays rewards.

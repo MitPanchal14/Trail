@@ -56,10 +56,11 @@ export function validate(w){
   let running=0;
   for(const [key,s] of Object.entries(w.sessions)){
     checkRecord(key,s);
-    if(w.actions[s.actionId]?.goalId!==s.goalId||!['running','paused','interrupted','expired','completed'].includes(s.status)||!integer(s.allocatedMs)||s.allocatedMs>86400000||!integer(s.remainingMs)||!integer(s.creditedMs)||s.allocatedMs!==s.remainingMs+s.creditedMs||s.creditedMs!==(totals[key]||0)||!integer(s.sequence)||!integer(s.lastCheckpointAt)||!(s.ownerToken===null||validId(s.ownerToken))||!(s.interruptionReason===null||text(s.interruptionReason,500)))fail('Invalid focus session.');
+    if(w.actions[s.actionId]?.goalId!==s.goalId||!['running','paused','interrupted','expired','completed','ended'].includes(s.status)||!integer(s.allocatedMs)||s.allocatedMs>86400000||!integer(s.remainingMs)||!integer(s.creditedMs)||s.allocatedMs!==s.remainingMs+s.creditedMs||s.creditedMs!==(totals[key]||0)||!integer(s.sequence)||!integer(s.lastCheckpointAt)||!(s.ownerToken===null||validId(s.ownerToken))||!(s.interruptionReason===null||text(s.interruptionReason,500)))fail('Invalid focus session.');
     if((counts[key]||0)!==s.sequence||(sequences[key]||0)!==s.sequence)fail('Invalid effort sequence.');
     if(s.status==='running'){running++;if(key!==w.activeSessionId||!validId(s.ownerToken)||s.ownerToken!==w.ownerToken||s.remainingMs===0)fail('Invalid running owner.');}
     if(s.status==='expired'&&s.remainingMs!==0)fail('Invalid expired block.');
+    if(s.status==='ended'&&(key===w.activeSessionId||s.ownerToken!==null))fail('Ended blocks cannot be active or owned.');
   }
   if(running>1||(w.activeSessionId!==null&&!activeSession(w)))fail('Invalid active block.');
   if(activeSession(w)&&activeSession(w).actionId!==nextAction(w)?.id)fail('Block target differs from next action.');
@@ -127,6 +128,13 @@ export function transition(input,command,now){
     case 'resume':
       requireAction();if(!s||!['paused','interrupted'].includes(s.status)||s.remainingMs<=0)fail('This block cannot resume.');
       s.status='running';s.ownerToken=w.ownerToken;s.lastCheckpointAt=now;s.interruptionReason=null;break;
+    case 'end-block':
+      if(!s)fail('No active focus block to end.');
+      if(command.sessionId!==s.id||command.expectedRevision!==w.revision)fail('Focus block changed. Review it before ending.');
+      if(!validId(w.ownerToken)||command.ownerToken!==w.ownerToken)fail('Writer ownership changed. Reload before continuing.');
+      if(s.status==='running')fail('Pause first before ending this focus block.');
+      if(!['paused','interrupted','expired'].includes(s.status))fail('This focus block cannot end.');
+      s.status='ended';s.ownerToken=null;w.activeSessionId=null;break;
     case 'checkpoint':case 'pause':
       applyTime();if(command.type==='pause'&&s.status==='running'){s.status='paused';s.ownerToken=null;}break;
     case 'recover':
@@ -143,7 +151,7 @@ export function transition(input,command,now){
       if(command.instruction.trim())old.nextInstruction=command.instruction.trim();if(command.context.trim())old.context=command.context.trim();old.updatedAt=now;w.contexts[a.id]=old;break;
     }
     case 'extend':
-      if(!s||s.status==='running'||![5,10,20].includes(command.minutes))fail('Pause before extending this block.');
+      if(!s||!['paused','interrupted','expired'].includes(s.status)||![5,10,20].includes(command.minutes))fail('Pause before extending this block.');
       s.allocatedMs+=command.minutes*60000;s.remainingMs+=command.minutes*60000;s.status='paused';s.ownerToken=null;break;
     case 'extend-running':
       if(![5,10,20].includes(command.minutes))fail('Choose a supported extension.');applyTime();

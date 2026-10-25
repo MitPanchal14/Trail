@@ -1,0 +1,13 @@
+# Independent local cloud-branch review — 25 October 2026
+
+- Fetched and verified origin/codex/cloud-review-final at **24b7126c25e582cda3ddb1286d3c7444bf516395**. Baseline 041fe89 is an ancestor. Remote pass changes 22 files.
+- Runtime and tests/browser.mjs exactly match the original review ZIP; subsequent research/delivery changes are now imported. Both downloaded ZIPs had identical SHA-256, so GitHub supplied the missing later revision.
+- Imported source into the existing local working tree on codex/trail-redesign, HEAD 041fe89; no local merge/reset/new commit. Main unchanged. Pre-existing fuller local cloud checklist, critical review and reconciliation plan preserved. Overlapping pre-import documents backed up under /tmp/trail-cloud-reconcile/.
+- Fresh local syntax, **22/22 Node tests**, seven-asset build and diff check passed after reconciliation.
+- Full independent Chromium suite **exit 0**: A, B, C, edge, correction, return, travelling, mountain, rewards and return-fixes gates passed. Actual 61-second navigation/timing, IDB abort/exact Retry, ownership, saved place, Undo/review/history, motion cancellation and phone-sized layouts covered. Physical sleep/phone hardware/native BFCache remain unverified.
+- Command: `TRAIL_EVIDENCE=/tmp/trail-independent-cloud-review node tests/browser.mjs`. Log: `/tmp/trail-independent-cloud-review.log`; captures: `/tmp/trail-independent-cloud-review/`. Browser/server required subprocess/network permissions; the initial sandbox launch was blocked, then the authorized subprocess-capable run completed. No unresolved automated failure.
+- Inspected fresh local desktop campsite and cloud desktop/phone captures. Icon glyphs that appeared as fallback squares in Linux captures render on this Mac. This is technical inspection, not user visual acceptance or human-value research.
+- Independent pure-domain probes reproduced two existing product restrictions: paused structural replanning is rejected until the block is released; blank instruction/context retain obsolete saved strings with no explicit clear UI. These are existing design limitations, not regressions introduced by the travelling marker.
+- User approved making the end-block-with-unfinished-action correction next. Exact bounded task: OPENCODE_END_FOCUS_BLOCK.md. Explicit note clearing stays separate.
+
+No new push, deployment, video upload or submission by this review. The fetched cloud commit is remotely saved; local review documents and reconciled working-tree changes remain uncommitted. ZIPs are transfer artifacts and must not be included in a later source checkpoint.
