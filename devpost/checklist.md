@@ -1,5 +1,20 @@
 # Delivery checklist
 
+## Latest review and visual priority — 25 October
+- [x] Independently verify syntax, 20 tests, build, diff check and focused Chromium return gate; record three extra reproduced findings in RETURN_EDGE_REVIEW_2026-10-25.md.
+- [x] Collect user feedback: written layout acceptable; stronger mountain-based progress visualization is now the priority. Current motion control has no audio.
+- [ ] Publish the user-authorized saved-place checkpoint to `codex/trail-redesign`; preserve main.
+- [ ] Implement/review the newly authorized mountain graphic against actual action states, current themes and retained surrounding layout; do not restore old UI.
+- [ ] Correct the three recorded edge cases in a bounded subsequent pass.
+- [ ] Agree productive-day/streak semantics before implementation; no streak is currently implemented.
+
+## Bounded return-experience pass — implemented locally, 25 October
+- [x] Research closer alternatives and write explicit problem/solution/validation decisions in RETURN_EXPERIENCE_PLAN_2026-10-25.md; no uniqueness or winning guarantee.
+- [x] Prepare one sequential editor-neutral dispatch in OPENCODE_RETURN_EXPERIENCE.md, with compatibility, exact saved-place/URL semantics, tests and a two-hour scope boundary.
+- [x] Implement low-friction saved-place capture, optional safe work URL and clear return presentation; preserve retained UI and timing/storage/Undo contracts. Syntax, 20 Node tests, build, diff check, focused return gate and final full Chromium suite passed; see RETURN_EXPERIENCE_EVIDENCE.md. No publication by this pass.
+- [ ] Independently review implementation/evidence, then observe real interruption/return usage and physical primary-browser behaviour.
+- [ ] Fix observed blockers, freeze features by the user's evening target, and prepare judge-access/video/submission materials. New publication requires authorization.
+
 **Checkpoint request, 25 October:** user authorized committing and pushing the reviewed prototype and supporting documents to `codex/trail-redesign`. Earlier no-publication receipts below are historical. Deployment, submission and physical-device acceptance remain separate.
 
 **Current local result, 25 October:** the three increments in [the day-build dispatch](OPENCODE_DAY_BUILD.md) are implemented for combined review, ahead of the 17:00–18:00 target. Home/Focus layouts retained; graphic redesign deferred. See [execution plan](DAY_BUILD_PLAN.md) and [fresh evidence/limitations](DAY_BUILD_EVIDENCE.md). No commit, push, deployment or submission by this task. Physical-device acceptance remains open.

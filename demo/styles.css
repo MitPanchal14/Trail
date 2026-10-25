@@ -183,6 +183,15 @@ textarea,input { display:block;width:100%;background:var(--paper);border:1px sol
 textarea { resize:vertical;min-height:95px; }
 #pause-form details { margin-top:18px; }
 #pause-form details label { margin-top:12px; }
+#real-pause-form details { margin-top:18px; }
+#real-pause-form details label { margin-top:16px; }
+#real-pause-form .remove-link { display:flex;align-items:center;gap:10px;font-size:12px;line-height:1.5; }
+.remove-link input { width:20px;min-height:20px;flex-shrink:0; }
+.work-link { max-width:100%;margin-top:12px;text-align:left; }
+.work-link span { min-width:0;overflow-wrap:anywhere; }
+.saved-at { overflow-wrap:anywhere; }
+.finished-action { margin-top:18px; }
+.finished-action .work-link { color:var(--ink); }
 .finished-grid { max-width:740px; }
 .finished-card { position:relative;overflow:hidden;min-height:290px;padding:32px 36px;border-radius:20px;color:#fff;background:radial-gradient(ellipse at 110% 0,#e0a8ad88,transparent 55%),linear-gradient(125deg,#203f66,#3d367a 55%,#594477);box-shadow:var(--shadow); }
 .completed-stamp { display:block;font-size:12px;margin-bottom:12px; }

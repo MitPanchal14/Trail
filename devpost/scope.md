@@ -4,6 +4,10 @@
 
 A single dependency-free local Trail prototype using the approved 01b home/Focus composition. The authorized day-build adds real manual goal/actions, conservative focus timing, pause context, IndexedDB persistence, exclusive tab ownership, explicit Resume, action completion/limited Undo, final review, durable finished history and guarded corrections. Fictional scenarios remain separate and labelled. The approved UI corrections remove the decorative Focus rail, clarify Background motion and replace the timed full-screen reward with an immediate compact dialog and finite confetti. No historical UI/framework is restored.
 
+## Bounded return pass
+
+The bounded return pass adds a prominent optional next move, collapsed where-stopped context/work URL, actual save time and safe user-triggered Open work references in Today/Focus/history. Blank/Skip preserve useful fields; only explicit removal plus Save deletes a link. Older schema-v1 records remain compatible without migration. No automatic context capture, fetching, reopening or timing mutation on link opening. Full-goal completed counts remain separate from recorded effort. Current evidence: RETURN_EXPERIENCE_EVIDENCE.md; independent and physical/user-value acceptance remain separate.
+
 ## Intended product
 
 A calm work companion for students and independent builders. Its main job is helping someone continue meaningful work without reconstructing where they stopped. The next saved action is primary; route graphics and rewards support it.

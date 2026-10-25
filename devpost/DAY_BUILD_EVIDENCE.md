@@ -1,5 +1,7 @@
 # Local prototype evidence — 25 October 2026
 
+**Current return-experience pass:** see [RETURN_EXPERIENCE_EVIDENCE.md](RETURN_EXPERIENCE_EVIDENCE.md) for optional saved work references/time, compatibility and fresh 20-test/full Chromium results at HEAD 6d9a930. The correction/day-build receipts below are historical, not evidence of additional runs or current publication authorization.
+
 ## Current bounded correction pass — after combined local review
 
 Scope was recorded in DAY_BUILD_PLAN.md before edits. Research was context only; no roadmap features were added. Only `demo/work.js`, `tests/browser.mjs`, DAY_BUILD_PLAN.md, this evidence file, HANDOFF.md and checklist.md were changed in this pass. All prior uncommitted work was preserved.

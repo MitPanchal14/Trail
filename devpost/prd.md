@@ -16,6 +16,10 @@ Pause stops timing immediately. An optional short note records where work stoppe
 
 Expiry does not complete a subtask. Offer +5/+10/+20 minutes without losing context or double-counting effort. Undo must restore the exact task context and paused timer state. Only one active session can own timing, including across tabs.
 
+The bounded return pass adds an optional concrete next-move prompt, collapsed optional where-stopped context and one user-supplied HTTP(S) work reference. Blank fields preserve prior useful values; only an explicit Remove saved link plus Save clears a reference. Skip changes nothing. Pause drafts survive in-app navigation/mode changes, not reload. Cmd/Ctrl+Enter saves only this form and ignores IME composition. Invalid/failed saves retain the draft for correction/exact Retry.
+
+Today distinguishes an actual saved next move from the next unfinished-action fallback and shows the actual context-save time, never “last activity.” Open work is available there, in Focus saved context and finished history; opening the supplied page in an isolated new tab neither starts/resumes timing nor claims external work was resumed. Trail does not fetch, inspect or automatically reopen references. Goal-wide counts and recorded effort remain distinct; no daily mapping is implied.
+
 ## Completion and history
 
 Completing a subtask earns restrained visual feedback and a differentiated completed state. When all subtasks are checked, offer final review: add a subtask, keep the goal open or confirm completion. Completing a whole goal shows a compact window with a stable message and finite colourful ribbons; preserve the surrounding page, allow dismissal, respect reduced motion and never replay celebration through navigation. The local day-build implements this bounded flow; user acceptance is still pending.
@@ -38,4 +42,4 @@ Use minimal composition, legible hierarchy, coherent light/dark styling and sele
 
 ## Current implementation boundary
 
-The local day-build implements manual goal/actions, focus/pause/explicit return, transactional local storage, tab ownership, completion/limited Undo/review/history and guarded reopening. Fictional examples remain separate. Route mapping, priority scoring, streak rules, AI, push delivery, sync and floating browser windows remain future work. Passing local tests is not physical-device, deployment or user product acceptance. See DAY_BUILD_EVIDENCE.md.
+The local day-build and bounded return pass implement manual goal/actions, focus/pause/explicit return, optional saved work references, transactional local storage, tab ownership, completion/limited Undo/review/history and guarded reopening. Fictional examples remain separate. Route mapping, priority scoring, streak rules, AI, push delivery, sync and floating browser windows remain future work. Passing local tests is not physical-device, deployment or user product acceptance. See RETURN_EXPERIENCE_EVIDENCE.md and historical DAY_BUILD_EVIDENCE.md.

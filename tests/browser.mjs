@@ -2,12 +2,14 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
+import http from 'node:http';
 const url=process.env.TRAIL_URL||'http://127.0.0.1:3000/';
 const output=process.env.TRAIL_EVIDENCE||'/private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/trail-evidence';
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch();
 try {
-  if(process.env.TRAIL_GATE==='correction')await runCorrections(browser);
+  if(process.env.TRAIL_GATE==='return')await runReturn(browser);
+  else if(process.env.TRAIL_GATE==='correction')await runCorrections(browser);
   else {
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -67,6 +69,7 @@ try {
   await runC(browser);
   await runEdges(browser);
   await runCorrections(browser);
+  await runReturn(browser);
   }
 } finally {await browser.close();}
 
@@ -74,6 +77,96 @@ async function snapshot(page){return page.evaluate(async()=>{
   const {openDatabase}=await import('/storage.js');const db=await openDatabase();
   return new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readonly'),r=tx.objectStore('workspace').get('current');let value;r.onsuccess=()=>value=r.result;tx.oncomplete=()=>{db.close();resolve(value);};tx.onerror=()=>reject(tx.error);});
 });}
+async function runReturn(browser){
+  const requests=[];
+  const fixture=http.createServer((req,res)=>{if(req.url.startsWith('/work'))requests.push({url:req.url,referer:req.headers.referer});res.writeHead(200,{'Content-Type':'text/html'});res.end('<!doctype html><title>Work reference fixture</title><p>Local test document</p>');});
+  await new Promise(resolve=>fixture.listen(0,'127.0.0.1',resolve));
+  const reference=`http://127.0.0.1:${fixture.address().port}/work?draft=1&view=notes#paragraph-2`;
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[];
+  p.on('pageerror',e=>errors.push(e.message));
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});
+    await p.click('.hero-cta');const empty=await snapshot(p);await p.fill('#goal-title','A draft, not yet saved');await p.locator('#goal-title').press('Control+Enter');
+    assert.deepEqual(await snapshot(p),empty);assert.equal(await p.locator('#goal-form').count(),1);await p.click('[data-work="cancel"]');await p.click('.brand');
+    await create(p,'Finish the actual proposal',['Write the budget section','Read the final draft']);
+    let w=await snapshot(p);const goalId=w.openGoalId,[a,b]=w.goals[goalId].actionOrder;
+    assert.match(await p.locator('.action-area .step-label').textContent(),/Next unfinished action/);
+    assert.equal(await p.locator('.action-area time').count(),0);assert.equal(await p.locator('.action-area .work-link').count(),0);
+    await p.click('[data-work="start"]');await p.waitForTimeout(500);await p.click('[data-work="pause"]');await p.locator('#real-pause-form').waitFor();
+    w=await snapshot(p);const sessionId=w.activeSessionId;assert.equal(w.sessions[sessionId].status,'paused');
+    assert.equal(await p.inputValue('#return-note'),'');assert.match(await p.locator('#return-note').getAttribute('placeholder'),/For example/);
+    assert.equal(await p.locator('#pause-extras').evaluate(e=>e.open),false);assert.equal(await p.locator('#work-url').isVisible(),false);
+    const move='Open <draft> and add the hosting estimate.',stopped='Staffing costs are written. Equipment costs are still blank.';
+    await p.fill('#return-note',move);await p.locator('#pause-extras summary').click();await p.fill('#pause-context',stopped);await p.fill('#work-url',reference);
+    const beforeSave=await snapshot(p);
+    await p.locator('#work-url').dispatchEvent('keydown',{key:'Enter',ctrlKey:true,isComposing:true,bubbles:true});assert.deepEqual(await snapshot(p),beforeSave);
+    await p.locator('#work-url').press('Control+Enter');await p.locator('.workspace').waitFor();
+    w=await snapshot(p);assert.equal(w.contexts[a].resourceUrl,reference);const saved=structuredClone(w.contexts[a]);
+    await p.reload();await p.locator('.workspace').waitFor();
+    assert.equal(await p.locator('.action-area .instruction').textContent(),move);assert.equal(await p.locator('.action-area .saved-context p').textContent(),stopped);
+    assert.match(await p.locator('.action-area .step-label').textContent(),/Saved next move/);
+    assert.equal(Number(await p.locator('.action-area time').getAttribute('data-saved-at')),saved.updatedAt);
+    assert.equal(await p.locator('.action-area time').getAttribute('datetime'),new Date(saved.updatedAt).toISOString());
+    assert.equal((await snapshot(p)).contexts[a].updatedAt,saved.updatedAt);
+    assert.match(await p.locator('.scene-top').textContent(),/Your goal trail.*0 of 2 actions checked/);assert.doesNotMatch(await p.locator('.scene-top').textContent(),/Today/);
+    const link=p.locator('.action-area .work-link');assert.equal(await link.getAttribute('href'),reference);assert.equal(await link.getAttribute('target'),'_blank');assert.equal(await link.getAttribute('rel'),'noopener noreferrer');
+    const beforeOpen=await snapshot(p);assert.equal(requests.length,0,'Saving/rendering a reference must not fetch it.');const [opened]=await Promise.all([context.waitForEvent('page'),link.click()]);await opened.waitForLoadState();
+    assert.equal(opened.url(),reference);assert.equal(await opened.evaluate(()=>window.opener),null);assert.equal(await opened.evaluate(()=>document.referrer),'');assert.equal(requests[0].referer,undefined);
+    assert.deepEqual(await snapshot(p),beforeOpen);assert.equal((await snapshot(p)).sessions[sessionId].status,'paused');await opened.close();
+    await p.click('[data-work="resume"]');await p.locator('.focus-clock').waitFor();assert.equal((await snapshot(p)).sessions[sessionId].status,'running');
+    await p.click('[data-work="pause"]');await p.locator('#real-pause-form').waitFor();await p.click('[data-work="skip"]');
+    async function capture(view){
+      for(const theme of ['light','dark'])for(const width of [1440,390]){
+        await p.setViewportSize({width,height:width===390?844:1000});await p.click(`[data-theme="${theme}"]`);await p.waitForTimeout(180);
+        assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        await p.screenshot({path:`${output}/return-${view}-${theme}-${width}.png`,fullPage:true});
+      }
+    }
+    await capture('today');await p.click('[data-work="focus"]');await p.locator('.focus-details summary').click();await p.locator('.focus-details .work-link').waitFor({state:'visible'});await p.locator('.focus-details .work-link').focus();assert.equal(await p.locator('.focus-details .work-link').evaluate(e=>e===document.activeElement),true);await capture('focus');
+    assert.equal((await snapshot(p)).sessions[sessionId].status,'paused');
+    await p.click('[data-work="pause"]');await p.locator('#pause-extras summary').click();
+    await p.fill('#return-note','Unsaved next move');await p.fill('#pause-context','Unsaved context');await p.fill('#work-url',reference.replace('draft=1','draft=unsaved'));await p.check('#remove-resource');
+    const prior=await snapshot(p);
+    async function assertDraft(){assert.equal(await p.inputValue('#return-note'),'Unsaved next move');assert.equal(await p.inputValue('#pause-context'),'Unsaved context');assert.match(await p.inputValue('#work-url'),/draft=unsaved/);assert.equal(await p.isChecked('#remove-resource'),true);assert.equal(await p.locator('#work-url').evaluate(e=>e.readOnly),true);assert.equal(await p.locator('#pause-extras').evaluate(e=>e.open),true);assert.deepEqual(await snapshot(p),prior);}
+    await p.click('[data-nav="journey"]');await p.click('[data-nav="today"]');await p.click('[data-work="pause"]');await assertDraft();
+    await p.click('#example-mode');await p.click('#reset');await p.click('#real-mode');await p.click('[data-work="pause"]');await assertDraft();
+    await capture('pause-removal-draft');await p.click('[data-work="skip"]');assert.deepEqual(await snapshot(p),prior);
+    await p.click('[data-work="pause"]');assert.equal(await p.inputValue('#return-note'),move);await p.locator('#pause-extras summary').click();assert.equal(await p.inputValue('#work-url'),reference);assert.equal(await p.isChecked('#remove-resource'),false);
+    await p.fill('#return-note','  ');await p.fill('#pause-context','  ');await p.fill('#work-url','  ');await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();
+    w=await snapshot(p);assert.equal(w.contexts[a].nextInstruction,move);assert.equal(w.contexts[a].context,stopped);assert.equal(w.contexts[a].resourceUrl,reference);
+    await p.click('[data-work="pause"]');await p.locator('#pause-extras summary').click();await p.fill('#return-note','Retain my invalid-link draft');await p.fill('#work-url','javascript:alert(1)');
+    const beforeInvalid=await snapshot(p);await p.click('#real-pause-form [type="submit"]');await p.getByRole('alert').waitFor();
+    assert.deepEqual(await snapshot(p),beforeInvalid);assert.equal(await p.inputValue('#work-url'),'javascript:alert(1)');assert.equal(await p.inputValue('#return-note'),'Retain my invalid-link draft');
+    const longReference=reference.replace('draft=1',`draft=${'x'.repeat(1700)}`),longContext='Remember <source> notes. '.repeat(120);
+    await p.fill('#work-url',longReference);await p.fill('#pause-context',longContext);await p.fill('#return-note','Line one');await p.locator('#return-note').press('End');await p.locator('#return-note').press('Enter');await p.keyboard.type('Line two');
+    assert.equal(await p.inputValue('#return-note'),'Line one\nLine two');assert.deepEqual(await snapshot(p),beforeInvalid);await capture('pause-long');
+    await p.evaluate(()=>{const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const result=put.apply(this,args);if(window.abortReturnWrite){window.abortReturnWrite=false;this.transaction.abort();}return result;};window.abortReturnWrite=true;});
+    await p.click('#real-pause-form [type="submit"]');await p.getByRole('alert').waitFor();assert.deepEqual(await snapshot(p),beforeInvalid);assert.equal(await p.inputValue('#work-url'),longReference);assert.equal(await p.inputValue('#pause-context'),longContext);
+    await p.click('[data-work="retry"]');await p.locator('.workspace').waitFor();w=await snapshot(p);assert.equal(w.revision,beforeInvalid.revision+1);assert.equal(Object.keys(w.operations).length,Object.keys(beforeInvalid.operations).length+1);assert.equal(w.contexts[a].resourceUrl,longReference);assert.equal(w.contexts[a].context,longContext.trim());assert.equal(w.sessions[sessionId].status,'paused');assert.equal(w.sessions[sessionId].creditedMs,beforeInvalid.sessions[sessionId].creditedMs);await capture('today-long');
+    await p.click('[data-work="pause"]');await p.locator('#pause-extras summary').click();await p.check('#remove-resource');const beforeRemove=await snapshot(p);await p.evaluate(()=>window.abortReturnWrite=true);
+    await p.click('#real-pause-form [type="submit"]');await p.getByRole('alert').waitFor();assert.equal(await p.isChecked('#remove-resource'),true);assert.deepEqual(await snapshot(p),beforeRemove);
+    await p.click('[data-work="retry"]');await p.locator('.workspace').waitFor();w=await snapshot(p);assert.equal(w.revision,beforeRemove.revision+1);assert.equal(Object.hasOwn(w.contexts[a],'resourceUrl'),false);assert.equal(await p.locator('.action-area .work-link').count(),0);
+    await p.click('[data-work="pause"]');await p.locator('#pause-extras summary').click();await p.fill('#work-url',reference);await p.locator('#work-url').press('Meta+Enter');await p.locator('.workspace').waitFor();
+    const forUndo=await snapshot(p),exactContext=structuredClone(forUndo.contexts[a]);
+    await p.click('[data-work="focus"]');await p.click('[data-work="complete"]');await p.locator('[data-work="undo"]').waitFor();
+    assert.equal(await p.locator('.action-area .work-link').count(),0);assert.match(await p.locator('.action-area .step-label').textContent(),/Next unfinished action/);
+    await p.click('[data-work="undo"]');await p.locator('[data-work="resume"]').first().waitFor();w=await snapshot(p);assert.deepEqual(w.contexts[a],exactContext);assert.equal(w.sessions[sessionId].status,'paused');assert.equal(w.sessions[sessionId].remainingMs,forUndo.sessions[sessionId].remainingMs);
+    await p.click('[data-work="focus"]');await p.click('[data-work="complete"]');await p.locator('[data-work="start"]').waitFor();await p.click('[data-work="start"]');await p.click('[data-work="pause"]');
+    assert.equal(await p.inputValue('#return-note'),'');await p.locator('#pause-extras summary').click();assert.equal(await p.inputValue('#work-url'),'');await p.click('[data-work="skip"]');
+    await p.click('[data-work="focus"]');await p.click('[data-work="complete"]');await p.locator('#review[open]').waitFor();await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');
+    await p.locator('.finished-card details summary').click();assert.equal(await p.locator('.finished-card .work-link').count(),1);assert.equal(await p.locator('.finished-card .work-link').getAttribute('href'),reference);await capture('history');
+    await p.click('[data-reopen-goal]');await p.locator('#review[open]').waitFor();await p.keyboard.press('Escape');await p.locator(`[data-select="${a}"]`).click();await p.click('[data-work="reopen-action"]');
+    w=await snapshot(p);assert.deepEqual(w.contexts[a],exactContext);assert.equal(w.contexts[b],undefined);assert.equal(w.activeSessionId,null);assert.equal(await p.locator('.action-area .work-link').getAttribute('href'),reference);
+    assert.deepEqual(errors,[]);
+    // Deliberately corrupt stored metadata in another isolated profile; it must not render or reset.
+    const badContext=await browser.newContext(),bad=await badContext.newPage();
+    try{await bad.goto(url);await bad.locator('#storage-status').waitFor({state:'hidden'});await create(bad,'Malformed link test',['One action']);await bad.click('[data-work="pause"]');await bad.fill('#return-note','A real note');await bad.click('#real-pause-form [type="submit"]');await bad.locator('.workspace').waitFor();
+      const unsafe=await bad.evaluate(async()=>{const {openDatabase}=await import('/storage.js');const db=await openDatabase();let raw;await new Promise(resolve=>{const tx=db.transaction('workspace','readwrite'),s=tx.objectStore('workspace'),r=s.get('current');r.onsuccess=()=>{raw=r.result;raw.contexts[raw.goals[raw.openGoalId].actionOrder[0]].resourceUrl='javascript:alert(1)';s.put(raw,'current');};tx.oncomplete=resolve;});db.close();return raw;});
+      await bad.reload();await bad.getByRole('alert').waitFor();assert.match(await bad.locator('#storage-status').textContent(),/Invalid saved work link/);assert.equal(await bad.locator('a[href^="javascript:"]').count(),0);assert.deepEqual(await snapshot(bad),unsafe);
+    }finally{await badContext.close();}
+    console.log('Return gate passed: safe optional URL/save time, local isolated new-tab reference without timing mutation, shortcuts/IME, pause drafts/removal, blank/Skip/clear, aborted saves/exact Retry, Undo/history/action isolation, corrupt data and both themes/390px.');
+  }finally{await context.close();fixture.closeAllConnections();await new Promise(resolve=>fixture.close(resolve));}
+}
 async function runCorrections(browser){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[];
   p.on('pageerror',err=>errors.push(err.message));

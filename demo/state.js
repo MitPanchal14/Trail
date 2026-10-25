@@ -5,6 +5,21 @@ const validId=id=>typeof id==='string'&&/^[a-zA-Z0-9:-]{1,120}$/.test(id);
 const integer=n=>Number.isSafeInteger(n)&&n>=0;
 const text=(value,max,required=true)=>typeof value==='string'&&value.length<=max&&(!required||value.trim().length>0);
 const values=map=>Object.values(map);
+export function normalizeResourceUrl(value){
+  const message='Use a full http:// or https:// work link, without sign-in details, up to 2,048 characters.';
+  if(typeof value!=='string'||/[\u0000-\u001f\u007f-\u009f\\]/u.test(value))fail(message);
+  const trimmed=value.trim();
+  if(!/^https?:\/\//i.test(trimmed)||trimmed.length>2048)fail(message);
+  let url;try{url=new URL(trimmed);}catch{fail(message);}
+  const authority=trimmed.slice(trimmed.indexOf('//')+2).split(/[/?#]/,1)[0];
+  if(!['http:','https:'].includes(url.protocol)||!url.hostname||url.username||url.password||authority.includes('@')||url.href.length>2048)fail(message);
+  return url.href;
+}
+function validateResource(context){
+  if(!Object.hasOwn(context,'resourceUrl'))return;
+  try{if(normalizeResourceUrl(context.resourceUrl)===context.resourceUrl)return;}catch{}
+  fail('Invalid saved work link. Records have not been changed.');
+}
 export function emptyWorkspace(){return {schemaVersion:1,revision:0,ownerToken:null,goals:{},openGoalId:null,actions:{},contexts:{},sessions:{},activeSessionId:null,intervals:{},operations:{},events:{},undo:null,updatedAt:0};}
 export const openGoal=w=>w.goals[w.openGoalId]||null;
 export const nextAction=w=>openGoal(w)?.actionOrder.map(id=>w.actions[id]).find(a=>a.status==='open')||null;
@@ -28,7 +43,10 @@ export function validate(w){
   for(const [key,a] of Object.entries(w.actions)){
     checkRecord(key,a);if(!w.goals[a.goalId]?.actionOrder.includes(key)||!text(a.title,500)||!['open','completed'].includes(a.status)||!integer(a.createdAt)||!integer(a.updatedAt)||(a.status==='completed'&&!integer(a.completedAt))||(a.status==='open'&&a.completedAt!=null))fail('Invalid action.');
   }
-  for(const [key,c] of Object.entries(w.contexts))if(key!==c.actionId||!validId(c.id)||!w.actions[key]||!text(c.nextInstruction,4000,false)||!text(c.context,4000,false)||!integer(c.updatedAt))fail('Invalid saved context.');
+  for(const [key,c] of Object.entries(w.contexts)){
+    if(key!==c.actionId||!validId(c.id)||!w.actions[key]||!text(c.nextInstruction,4000,false)||!text(c.context,4000,false)||!integer(c.updatedAt))fail('Invalid saved context.');
+    validateResource(c);
+  }
   const totals={},counts={},sequences={};
   for(const [key,i] of Object.entries(w.intervals)){
     checkRecord(key,i);if(!w.sessions[i.sessionId]||!integer(i.sequence)||i.sequence<1||key!==`${i.sessionId}:${i.sequence}`||!integer(i.deltaMs)||!i.deltaMs||i.deltaMs>15000||!integer(i.recordedAt))fail('Invalid effort interval.');
@@ -67,6 +85,7 @@ export function validate(w){
     if(!event||event.type!=='action-completed'||event.actionId!==a?.id||a.status!=='completed'||a.completionEventId!==undo.eventId||undo.goalId!==w.openGoalId||undo.expectedRevision!==w.revision||undo.action.status!=='open'||undo.action.goalId!==a.goalId||undo.action.title!==a.title||undo.action.createdAt!==a.createdAt||undo.activeSessionId!==(undo.session?.id??null))fail('Invalid or stale Undo snapshot.');
     if(undo.session){const current=w.sessions[undo.session.id];if(!current||current.status!=='completed'||current.actionId!==a.id||undo.session.actionId!==a.id||undo.session.creditedMs!==current.creditedMs||undo.session.remainingMs!==current.remainingMs||!['paused','expired'].includes(undo.session.status))fail('Invalid Undo timer snapshot.');}
     if(undo.context&&(undo.context.actionId!==a.id||!text(undo.context.nextInstruction,4000,false)||!text(undo.context.context,4000,false)))fail('Invalid Undo context.');
+    if(undo.context)validateResource(undo.context);
   }
   return w;
 }
@@ -116,6 +135,11 @@ export function transition(input,command,now){
       requireAction();if(s?.status==='running')fail('Pause before saving notes.');
       if(!text(command.instruction,4000,false)||!text(command.context,4000,false))fail('Notes may contain up to 4,000 characters each.');
       const old=w.contexts[a.id]||{id:command.id,actionId:a.id,nextInstruction:'',context:''};
+      if(Object.hasOwn(command,'resourceUrl')){
+        if(command.resourceUrl===null)delete old.resourceUrl;
+        else if(typeof command.resourceUrl!=='string')fail('Enter a work link or leave it blank to keep the saved link.');
+        else if(command.resourceUrl.trim())old.resourceUrl=normalizeResourceUrl(command.resourceUrl);
+      }
       if(command.instruction.trim())old.nextInstruction=command.instruction.trim();if(command.context.trim())old.context=command.context.trim();old.updatedAt=now;w.contexts[a.id]=old;break;
     }
     case 'extend':

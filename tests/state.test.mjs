@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptyWorkspace,transition,validate,activeSession,effort} from '../demo/state.js';
+import {emptyWorkspace,transition,validate,activeSession,effort,normalizeResourceUrl} from '../demo/state.js';
 let sequence=0;
 const cmd=(type,fields={})=>({id:`test-${++sequence}`,type,...fields});
 const run=(w,type,fields={})=>transition(w,cmd(type,fields),10000);
@@ -99,4 +99,38 @@ test('limits, malformed effort and command identity are rejected without mutatin
   w=run(w,'start',{minutes:20});w=run(w,'pause',{deltaMs:1000});
   const bad=structuredClone(w);bad.sessions[bad.activeSessionId].creditedMs+=1;assert.throws(()=>validate(bad));
   const newer=structuredClone(w);newer.schemaVersion=99;assert.throws(()=>validate(newer));
+});
+test('work URLs require explicit safe absolute HTTP(S), preserve query/hash and enforce bounds',()=>{
+  assert.equal(normalizeResourceUrl('  HTTPS://Example.COM/work?q=a%20b&view=notes#paragraph-2  '),'https://example.com/work?q=a%20b&view=notes#paragraph-2');
+  assert.equal(normalizeResourceUrl('http://127.0.0.1:3001/draft#next'),'http://127.0.0.1:3001/draft#next');
+  const prefix='https://example.com/?q=',long=prefix+'x'.repeat(2048-prefix.length);assert.equal(normalizeResourceUrl(long),long);assert.throws(()=>normalizeResourceUrl(long+'x'));
+  for(const value of ['',null,undefined,12,{},'example.com','/draft','//example.com','https:example.com','https:/example.com','http://','https://[bad]/','javascript:alert(1)','data:text/html,test','file:///draft','blob:https://example.com/a','ftp://example.com','https://user:pass@example.com','https://%75ser@example.com','https://@example.com','https://example.com\\draft','https://example.com/a\nb','\nhttps://example.com/','https://example.com/\u0000','https://example.com/\u007f','https://example.com/\u0085'])assert.throws(()=>normalizeResourceUrl(value),String(value));
+});
+test('old v1 contexts load unchanged; absent/blank preserve URLs and only explicit null clears',()=>{
+  let w=run(setup(),'notes',{instruction:'Next',context:'Where I stopped'});const old=structuredClone(w);
+  assert.deepEqual(validate(w),old);assert.equal(Object.hasOwn(w.contexts.a,'resourceUrl'),false);
+  w=run(w,'notes',{instruction:'',context:''});assert.equal(Object.hasOwn(w.contexts.a,'resourceUrl'),false);
+  const save=cmd('notes',{instruction:'Open the draft',context:'Keep these notes',resourceUrl:' https://example.com/work?q=1#next '});
+  w=transition(w,save,12000);const saved=structuredClone(w);assert.deepEqual(transition(w,save,13000),saved);
+  w=run(w,'notes',{instruction:'',context:''});assert.equal(w.contexts.a.resourceUrl,'https://example.com/work?q=1#next');
+  w=run(w,'notes',{instruction:'',context:'',resourceUrl:'  '});assert.equal(w.contexts.a.resourceUrl,'https://example.com/work?q=1#next');
+  w=run(w,'notes',{instruction:'',context:'',resourceUrl:null});assert.equal(Object.hasOwn(w.contexts.a,'resourceUrl'),false);assert.equal(w.contexts.a.nextInstruction,'Open the draft');assert.equal(w.contexts.a.context,'Keep these notes');
+});
+test('invalid link commands and malformed stored/Undo links preserve input and reject',()=>{
+  let w=run(setup(),'notes',{instruction:'Next',context:'Context',resourceUrl:'https://example.com/draft'});
+  for(const resourceUrl of [false,undefined,123,'javascript:alert(1)','https://user:pw@example.com','relative','https://example.com/\n']){
+    const before=structuredClone(w);assert.throws(()=>run(w,'notes',{instruction:'Replace',context:'Replace',resourceUrl}));assert.deepEqual(w,before);
+  }
+  for(const resourceUrl of [null,'','https://USER:pw@example.com/','javascript:alert(1)',' https://example.com/draft ','https://EXAMPLE.com/draft']){
+    const corrupt=structuredClone(w);corrupt.contexts.a.resourceUrl=resourceUrl;const before=structuredClone(corrupt);assert.throws(()=>validate(corrupt));assert.deepEqual(corrupt,before);
+  }
+  w=run(w,'complete-action',{actionId:'a'});const corrupt=structuredClone(w);corrupt.undo.context.resourceUrl='data:text/html,unsafe';assert.throws(()=>validate(corrupt));
+});
+test('completion Undo, history and correction keep the exact work reference action-scoped',()=>{
+  let w=run(setup(),'notes',{instruction:'Saved move',context:'Saved context',resourceUrl:'https://example.com/work?q=2#step'}),id=w.openGoalId;
+  const savedContext=structuredClone(w.contexts.a);w=run(w,'start',{minutes:20});w=run(w,'complete-action',{actionId:'a',deltaMs:1200});
+  assert.deepEqual(w.undo.context,savedContext);assert.equal(w.contexts.b,undefined);
+  w=run(w,'undo',{eventId:w.undo.eventId,expectedRevision:w.revision});assert.deepEqual(w.contexts.a,savedContext);assert.equal(activeSession(w).status,'paused');
+  w=run(w,'complete-action',{actionId:'a'});w=run(w,'complete-action',{actionId:'b'});w=run(w,'finish-goal',{goalId:id});assert.deepEqual(w.contexts.a,savedContext);
+  w=run(w,'reopen-goal',{goalId:id});w=run(w,'reopen-action',{actionId:'a'});assert.deepEqual(w.contexts.a,savedContext);assert.equal(w.contexts.b,undefined);assert.equal(effort(w,id),1200);
 });

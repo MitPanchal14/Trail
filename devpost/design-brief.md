@@ -1,5 +1,9 @@
 # Design brief
 
+## Latest user direction — 25 October, after saved-place review
+
+The written layout is accepted as a baseline. The user finds the graphic underdeveloped and wants it prioritized now: explore a mountain ascent that makes completing the trail feel rewarding, using the website's current typography, blue/violet/cyan palette and coherent light/dark themes. Preserve surrounding home/Focus composition. This supersedes earlier instructions to defer graphics; it does not authorize restoration of historical pixel mountain code or another runnable app. Actual action outcomes should drive milestone states; elapsed time is separate and must not imply measured productivity. Streaks are a proposed later enhancement whose rules still need agreement. The current Background motion control does not implement sound.
+
 ## Day-build implementation receipt
 The approved corrections are implemented locally: Focus rail removed, Background motion labelled On/Off with reduced-motion preference respected, and compact immediate dismissible reward with stable quote/finite particles over Finished. Home layout/art and Focus composition are retained; real inputs and truthful labels are additive adapters. Both-theme/390px screenshots are in the day-build evidence. No graphic redesign or broad dark redesign was performed. The starting-baseline/pending wording below records the pre-build state, not the current runtime.
 

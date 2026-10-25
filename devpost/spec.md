@@ -23,7 +23,15 @@ Complete-action atomically stops trustworthy timing, marks the exact current act
 
 All-checked leaves the goal open. Review can add a bounded action, keep open or explicitly finish. Finish stores the UTC timestamp and event reference; only a newly applied finish opens the shared immediate reward. History derives from completed goals, not seeded cards. Reopen is allowed only without another open goal; it invalidates current completion status but retains IDs, context, effort and prior audit. Checked actions stay checked until explicitly corrected. Action correction reverses outcome status only; no time starts automatically. Refinish updates the same goal identity, not a duplicate card. Geometry remains illustrative; canonical outcomes and effort are shown separately.
 
-## Open decisions
+## Optional work reference — bounded return pass
+
+Schema remains v1. The only new canonical key is optional `context.resourceUrl`; old records without it validate unchanged, with no read-time migration. `normalizeResourceUrl` in state.js is shared by command validation and rendering. It trims surrounding spaces, requires explicit absolute HTTP(S), rejects credentials/control characters/backslashes/relative or other schemes, preserves query/fragment, and bounds input and normalized output at 2,048 characters. Stored values (including Undo context) must already be valid normalized strings; malformed records use the preserved-data error path, never silent repair/reset.
+
+Notes with an absent/blank URL preserve the saved reference; a valid nonblank URL replaces it only after commit; explicit `resourceUrl:null` deletes the optional key. Skip changes no context. `context.updatedAt` is note-save time, not activity tracking. Existing receipt identity, transactional publication and full Undo restoration are unchanged. Pause drafts retain instruction/context/link/disclosure/removal state in memory across navigation/modes; Save/Skip discard that draft. Cmd/Ctrl+Enter uses normal form submission only in the pause form and ignores IME composition.
+
+Today, Focus saved context and finished history use escaped native Open work anchors with `target="_blank" rel="noopener noreferrer"`. No prefetch, automatic reopening, external capture or timing command occurs. Goal counts describe completed actions out of the full goal separately from effort; geometry remains illustrative. See RETURN_EXPERIENCE_EVIDENCE.md for current verification and limitations.
+
+## Deferred decisions
 
 Reminder neglect thresholds, quiet hours, delivery provider and cancellation; priority weights and aging; streak timezone and grace display; effort-to-route mapping; floating-strip capability/fallback; AI provider and costs. No reminder provider or permission prompt is implemented. Closed-site delivery needs a separate verified design.
 
