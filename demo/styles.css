@@ -125,19 +125,22 @@ h3 { font-size:15px;font-weight:600;letter-spacing:-.2px; }
 .summit-label { fill:var(--muted);font-size:18px;font-weight:500; }
 .summit-earned .summit-label { fill:var(--ink); }
 .mountain-caption text { fill:var(--muted);font-size:16px; }
-.checkpoint-spark { fill:var(--teal);opacity:0;pointer-events:none; }
-.mountain-art .route-segment.just-earned { stroke-dasharray:var(--earned-length);animation:checkpoint-trace 600ms ease-out 1; }
-.milestone.just-earned .marker-core { transform-box:fill-box;transform-origin:center;animation:checkpoint-resolve 600ms ease-out 1; }
-.milestone.just-earned .checkpoint-spark { animation:checkpoint-spark 600ms ease-out 1; }
-@keyframes checkpoint-trace { from { stroke-dashoffset:var(--earned-length); } to { stroke-dashoffset:0; } }
-@keyframes checkpoint-resolve { 0% { transform:scale(.78); } 45% { transform:scale(1.14); } 100% { transform:scale(1); } }
-@keyframes checkpoint-spark { 0%,15% { opacity:0;transform:translate(0,0) scale(.5); } 35% { opacity:1; } 100% { opacity:0;transform:translate(var(--spark-x),var(--spark-y)) scale(.2); } }
+.expedition-marker { pointer-events:none; }
+.expedition-shadow { fill:var(--ink);opacity:.16; }
+.expedition-outline,.tent-line { fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round; }
+.expedition-pack { fill:var(--peach);stroke:var(--ink);stroke-width:1.5; }
+.expedition-coat { fill:var(--focus);stroke:var(--ink);stroke-width:1.5; }
+.expedition-head { fill:var(--paper);stroke:var(--ink);stroke-width:2; }
+.tent-roof { fill:var(--place);stroke:var(--paper);stroke-width:2;stroke-linejoin:round; }
+.tent-door { fill:var(--paper);stroke:var(--ink);stroke-width:1; }
+.expedition-camp,.expedition-marker[data-station="camp"]:not(.travelling) .expedition-person { display:none; }
+.expedition-marker[data-station="camp"]:not(.travelling) .expedition-camp { display:block; }
 .summit-halo { fill:none;stroke:var(--peach);stroke-width:3;opacity:0;pointer-events:none; }
 .summit-celebrating .summit-halo { transform-box:fill-box;transform-origin:center;animation:summit-halo 900ms ease-out 1; }
 .summit-celebrating .summit-flag { transform-box:fill-box;transform-origin:left bottom;animation:summit-reveal 650ms ease-out 1; }
 @keyframes summit-halo { 0% { opacity:0;transform:scale(.6); } 25% { opacity:.8; } 100% { opacity:0;transform:scale(1.8); } }
 @keyframes summit-reveal { from { transform:scaleX(.15); } to { transform:scaleX(1); } }
-.still .just-earned,.still .just-earned *,.still .summit-celebrating * { animation:none!important; }
+.still .summit-celebrating * { animation:none!important; }
 .lower { margin-top:32px;padding-top:24px;border-top:1px solid var(--line);display:grid;grid-template-columns:1.14fr 1fr;gap:48px; }
 .section-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px; }
 .section-heading>span { font-size:11px;color:var(--muted); }

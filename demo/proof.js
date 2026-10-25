@@ -42,7 +42,8 @@ function routeSVG({goal=false, finished=state.finished,model=state,real=false}={
   const total=steps.length,checked=steps.filter(s=>s.status==='completed').length,current=steps.findIndex(s=>s.status==='open');
   const active=real?model.selected:routePreview??model.selected,illustration=!!model.illustration;
   const phase=illustration?'illustration':finished?'finished':current<0?'review':'active';
-  const status=phase==='illustration'?'Illustration':phase==='finished'?'Goal finished':phase==='review'?'Ready for review':steps[current].hasSavedContext?'Saved place':'Next action';
+  const camp=phase==='active'&&steps[current].hasSavedContext&&!model.running;
+  const status=phase==='illustration'?'Illustration':phase==='finished'?'Goal finished':phase==='review'?'Ready for review':camp?'Saved place':'Next action';
   // Five cubic switchbacks. Equal arc-length samples keep dense checkpoints separated.
   const curves=[[[100,355],[130,325],[304,348],[300,302]],[[300,302],[298,278],[204,288],[225,252]],[[225,252],[247,218],[393,245],[383,203]],[[383,203],[375,175],[303,193],[330,151]],[[330,151],[347,128],[365,117],[374,88]]];
   const samples=[{x:100,y:355,length:0}];
@@ -56,7 +57,10 @@ function routeSVG({goal=false, finished=state.finished,model=state,real=false}={
   const section=(from,to)=>`M${[point(from),...samples.filter(p=>p.length>from*length&&p.length<to*length),point(to)].map(xy).join(' L')}`;
   const slots=steps.map((_,i)=>point((i+.5)/Math.max(1,total))),dense=total>5;
   const segments=steps.map((s,i)=>`<path class="route-segment ${s.status==='completed'?'earned':''} ${i===active?'highlighted':''}" data-segment="${i}" data-action-id="${escapeHTML(s.id)}" d="${section(i/total,(i+1)/total)}"/>`).join('');
-  const markers=steps.map((s,i)=>{const large=!dense||i===current||i===active,r=large?12:4.5;return `<g class="milestone ${s.status==='completed'?'earned':i===current?'current':'planned'} ${i===active?'highlighted':''}" data-marker="${i}" data-action-id="${escapeHTML(s.id)}" transform="translate(${xy(slots[i])})"><title>${escapeHTML(s.title)} — ${s.status==='completed'?'Checked':i===current?status:'Unfinished'}</title><circle class="selection-ring" r="${r+7}"/>${[[0,-28],[24,-14],[26,12],[-23,-18],[-25,10]].map(([x,y])=>`<circle class="checkpoint-spark" r="2" style="--spark-x:${x}px;--spark-y:${y}px"/>`).join('')}<circle class="saved-ring" r="${r+5}"/><circle class="marker-core" r="${r}"/>${large?`<text class="marker-symbol" y="4.5" text-anchor="middle">${s.status==='completed'?'✓':i+1}</text>`:''}</g>`;}).join('');
+  const markers=steps.map((s,i)=>{const large=!dense||i===current||i===active,r=large?12:4.5;return `<g class="milestone ${s.status==='completed'?'earned':i===current?'current':'planned'} ${i===active?'highlighted':''}" data-marker="${i}" data-action-id="${escapeHTML(s.id)}" transform="translate(${xy(slots[i])})"><title>${escapeHTML(s.title)} — ${s.status==='completed'?'Checked':i===current?status:'Unfinished'}</title><circle class="selection-ring" r="${r+7}"/><circle class="saved-ring" r="${r+5}"/><circle class="marker-core" r="${r}"/>${large?`<text class="marker-symbol" y="4.5" text-anchor="middle">${s.status==='completed'?'✓':i+1}</text>`:''}</g>`;}).join('');
+  const destination=phase==='finished'?{x:374,y:65}:current>=0?slots[current]:point(1);
+  const station=camp?'camp':phase==='review'?'review':phase==='finished'?'summit':'expedition';
+  const traveller=illustration?'':`<g class="expedition-marker" data-station="${station}" data-action-id="${escapeHTML(current>=0?steps[current].id:'')}" data-route-fraction="${current>=0?(current+.5)/total:1}" transform="translate(${xy(destination)})" aria-hidden="true"><ellipse class="expedition-shadow" cy="-2" rx="14" ry="4"/><g class="expedition-person"><path class="expedition-outline" d="M-3-17L-8-7M1-17L7-8M-2-26L8-17L13-28M13-28L17-4"/><rect class="expedition-pack" x="-14" y="-31" width="11" height="18" rx="4"/><path class="expedition-coat" d="M-5-32L3-30L5-17L-6-17Z"/><circle class="expedition-head" cx="0" cy="-39" r="5"/></g><g class="expedition-camp"><path class="tent-roof" d="M-18-4L0-33L19-4Z"/><path class="tent-door" d="M0-30L0-4H12Z"/><path class="tent-line" d="M-22-3H23M0-33L-2-38"/></g></g>`;
   const position=current>=0&&!illustration?slots[current]:null;
   let callout='';
   if(position){
@@ -74,19 +78,48 @@ function routeSVG({goal=false, finished=state.finished,model=state,real=false}={
     <g class="mountain-contours"><path d="M211 247Q288 183 347 184M158 291Q249 215 322 225M119 332Q234 267 311 271M91 365Q244 318 366 320M421 177Q410 216 451 242M436 278Q457 313 506 328M455 346Q493 363 548 363"/></g>
     <path class="mountain-path-bed" d="${section(0,1)}"/><g class="route-lines" style="--trail-paint:url(#${id}-trail)">${segments}</g>${markers}${callout}
     <g class="mountain-summit ${phase==='finished'?'summit-earned':''}" transform="translate(374 65)"><circle class="summit-halo" cy="-14" r="26"/><path class="summit-pole" d="M0 0V-25"/><path class="summit-flag" d="M1-25L24-19L1-12Z"/><text class="summit-label" x="38" y="-8">${phase==='finished'?'Goal finished ✓':phase==='review'?'Ready for review':'Your summit'}</text></g>
+    ${traveller}
     <g class="mountain-caption"><text x="48" y="413">${illustration?'A possible path. Your work makes it yours.':`${checked} / ${total} actions checked`}</text>${!illustration?`<text x="592" y="413" text-anchor="end">${dense?'Overview · checkpoints':'One action at a time'}</text>`:''}</g></svg><figcaption class="mountain-mobile-caption"><strong class="mountain-place-label">${illustration?'Illustration':phase==='finished'?'Goal finished ✓':phase==='review'?'Ready for review':`${status} · action ${current+1}`}</strong>${!illustration?`<span class="mountain-count-label">${checked} of ${total} checked</span>`:''}<span class="mountain-destination-label">${illustration?'A possible path, not your progress.':phase==='finished'?'Summit confirmed':phase==='review'?'Summit awaits your confirmation':'Summit ahead · illustrative route'}</span></figcaption></figure>`;
 }
 function clearMountainFeedback(){for(const cleanup of [...feedbackCleanups])cleanup();}
 function playMountainFeedback(nodes,className,duration){
   clearMountainFeedback();
   if(motion.matches||!ambience||!nodes.length)return;
-  nodes.forEach(node=>{if(node.matches('.route-segment'))node.style.setProperty('--earned-length',node.getTotalLength());node.classList.add(className);});
-  const cleanup=()=>{clearTimeout(timer);nodes.forEach(node=>{node.classList.remove(className);node.style.removeProperty('--earned-length');});feedbackCleanups.delete(cleanup);};
+  nodes.forEach(node=>node.classList.add(className));
+  const cleanup=()=>{clearTimeout(timer);nodes.forEach(node=>node.classList.remove(className));feedbackCleanups.delete(cleanup);};
   const timer=setTimeout(cleanup,duration);feedbackCleanups.add(cleanup);
 }
+function travelMarker(svg,fromFraction,{summit=false,actionId=''}={}){
+  // The DOM already describes committed outcomes. Only this presentation transform moves;
+  // every cancellation restores that render's destination, never a captured domain snapshot.
+  if(motion.matches||!ambience)return;
+  const marker=svg.querySelector('.expedition-marker'),path=svg.querySelector('.mountain-path-bed');
+  if(!marker||!path)return;
+  const destination=marker.getAttribute('transform'),toFraction=Number(marker.dataset.routeFraction),length=path.getTotalLength();
+  const point=f=>path.getPointAtLength(Math.max(0,Math.min(1,f))*length);
+  const start=point(fromFraction),end=point(toFraction);
+  let frame,started;
+  const cleanup=()=>{cancelAnimationFrame(frame);marker.setAttribute('transform',destination);marker.classList.remove('travelling');delete marker.dataset.completedActionId;feedbackCleanups.delete(cleanup);};
+  feedbackCleanups.add(cleanup);
+  marker.dataset.completedActionId=actionId;
+  marker.classList.add('travelling');
+  marker.setAttribute('transform',`translate(${start.x} ${start.y})`);
+  const tick=now=>{
+    if(!marker.isConnected){cleanup();return;}
+    started??=now;const t=Math.min(1,(now-started)/780),eased=t*t*(3-2*t);
+    const p=summit?{x:end.x+(374-end.x)*eased,y:end.y+(65-end.y)*eased}:point(fromFraction+(toFraction-fromFraction)*eased);
+    marker.setAttribute('transform',`translate(${p.x} ${p.y})`);
+    if(t<1)frame=requestAnimationFrame(tick);else cleanup();
+  };
+  frame=requestAnimationFrame(tick);
+}
 function respondToCompletion(goalId,actionId,fictional=false){
-  const nodes=[...main.querySelectorAll('.mountain-art')].filter(svg=>svg.dataset.goalId===goalId&&svg.dataset.mode===(fictional?'example':'real')).flatMap(svg=>[...svg.querySelectorAll('.earned[data-action-id]')].filter(node=>node.dataset.actionId===actionId));
-  playMountainFeedback(nodes,'just-earned',620);
+  clearMountainFeedback();
+  for(const svg of main.querySelectorAll('.mountain-art')){
+    if(svg.dataset.goalId!==goalId||svg.dataset.mode!==(fictional?'example':'real'))continue;
+    const checkpoints=[...svg.querySelectorAll('.milestone')],index=checkpoints.findIndex(node=>node.dataset.actionId===actionId&&node.classList.contains('earned'));
+    if(index>=0)travelMarker(svg,(index+.5)/checkpoints.length,{actionId});
+  }
 }
 function landing(){return `<section class="landing"><div class="hero-copy"><p class="eyebrow">A little focus. A way back.</p><h1>Nail the<br><span class="hero-trail">Trail<span class="hero-period">.</span></span></h1><p class="hero-lead">Start focused work. Save your next step.<br>Come back knowing what to do.</p><button class="button primary hero-cta" data-action="today">Start working <span aria-hidden="true">↗</span></button><p class="hint">Explore a fictional workday. Nothing starts until you do.</p></div><div class="hero-journey"><div class="hero-art-heading"><span class="eyebrow">One step becomes a journey</span><span class="tag">Live example</span></div>${routeSVG({goal:true})}<div class="hero-saved"><span class="saved-dot" aria-hidden="true"></span><div><span class="muted">Your next move, kept.</span><p>${escapeHTML(instruction())}</p></div></div></div></section><div class="landing-foot"><span><b>01</b> Choose one thing.</span><span><b>02</b> Leave a way back.</span><span><b>03</b> See how far you came.</span></div>`;}
 const heading = (title,sub='') => `<div class="page-heading"><div><h1>${title}</h1>${sub?`<p class="muted">${sub}</p>`:''}</div><span class="date">Saturday, October 24 <span class="muted">· example</span></span></div>`;
@@ -144,7 +177,9 @@ function showReward(title,fictional=false,model=state){
   closeReward();$('#reward-goal').textContent=title;$('#reward-kind').textContent=fictional?'Fictional example — no real work was submitted.':'Goal finished and stored in this browser.';
   $('#reward-summit').innerHTML=routeSVG({finished:true,real:!fictional,model});
   $('#reward').showModal();$('#reward [data-action="exit-celebration"]').focus();
-  playMountainFeedback([$('#reward-summit .mountain-art')],'summit-celebrating',950);
+  const summit=$('#reward-summit .mountain-art');
+  playMountainFeedback([summit],'summit-celebrating',950);
+  travelMarker(summit,1,{summit:true});
   if(motion.matches||!ambience)return;
   const burst=document.createElement('div');burst.className='confetti';burst.setAttribute('aria-hidden','true');
   for(let i=0;i<36;i++){const piece=document.createElement('i');piece.style.cssText=`--x:${(i*37)%100}vw;--y:${45+(i*17)%40}vh;--turn:${i*43}deg;--drift:${(i%2?1:-1)*(35+i*3)}px;background:${['#4167ec','#75d7dc','#7849df','#f7b49d','#e7bf45'][i%5]}`;burst.append(piece);}

@@ -63,8 +63,8 @@ export async function bootWork(ui){
     }
   }
   function mountainModel(g){
-    const actions=g.actionOrder.map(id=>({...workspace.actions[id],hasSavedContext:!!workspace.contexts[id]}));
-    return {goalId:g.id,steps:actions,selected:actions.findIndex(a=>a.id===selected)};
+    const actions=g.actionOrder.map(id=>{const c=workspace.contexts[id];return {...workspace.actions[id],hasSavedContext:!!(c?.nextInstruction?.trim()||c?.context?.trim()||c?.resourceUrl)};});
+    return {goalId:g.id,steps:actions,selected:actions.findIndex(a=>a.id===selected),running:g.id===goal()?.id&&running()};
   }
   const art=(g=goal())=>ui.routeSVG({goal:true,real:true,finished:g.status==='completed',model:mountainModel(g)});
   function rows(){return goal().actionOrder.map((id,i)=>`<button class="step-row ${workspace.actions[id].status==='completed'?'done':id===action()?.id?'current':''}" data-select="${id}" aria-pressed="${selected===id}"><span class="step-number">${workspace.actions[id].status==='completed'?'✓':i+1}</span><span class="step-name">${e(workspace.actions[id].title)}</span><small>${workspace.actions[id].status==='completed'?'Checked':'Unfinished'}</small></button>`).join('');}

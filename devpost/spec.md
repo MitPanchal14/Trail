@@ -37,7 +37,17 @@ Any existing context record now protects action removal in both the editor and s
 
 Today alone previews text over 240 characters or four lines using at most 160 code points from its first three lines. Reference/focus controls precede long supporting context, and native details reveals the exact full canonical text in document flow. Short-note composition, storage limits, normalization, Focus/history and Undo text are unchanged. Validation is scoped to its originating form; matching input or explicit discard clears only that validation. Render/navigation never clears it, and storage/read/write failures remain protective with pending exact Retry intact. See RETURN_FIXES_EVIDENCE.md.
 
-## Deferred decisions
+## Travelling marker presentation — 25 October cloud pass
+
+The existing `routeSVG` samples five cubic switchbacks and uses equal arc-length action slots. No new renderer or persistent coordinate field was added. `mountainModel` supplies actual goal/action identities, selection and current running status. A current action has a useful saved place only if trimmed nextInstruction or context is nonempty, or resourceUrl exists. Any context record still protects removal; the visual predicate is intentionally narrower.
+
+The first open action determines the static expedition destination. Review uses route fraction 1 at (374,88); explicitly finished uses summit (374,65). No-goal illustrations have no personal expedition. The same SVG marker changes from backpacked person to tent when the useful place is stopped. Selection remains a separate checkpoint ring.
+
+Applied completion first renders committed semantics, then targets mode+goal+completed action identity and moves the marker over the existing path using getPointAtLength/requestAnimationFrame for 780ms. Crossing already checked checkpoints after correction does not emit extra outcomes. Callback/cleanup writes only DOM presentation; no state/storage/timing changes. The existing feedback-cleanup set cancels rAF and restores that render's canonical destination on rerender/Undo/navigation/selection/theme/mode/motion/reward dismissal. Motion Off/reduced skips movement; switching Off during travel never replays it on return. Explicit finish animates review→summit visibly inside the existing single dismissible reward, while history is already statically finished. No delay or control lock was introduced.
+
+Browser tests exercise path proximity/changing position, canonical settle, predicate/Resume, failed completion/finish and exact Retry, Undo/navigation/motion cancellation, noncontiguous completion without extra events, no animation writes and no replay. No user visual acceptance is implied. See CLOUD_COMPLETION_EVIDENCE.md.
+
+## Deferred decisions (unchanged)
 
 Reminder neglect thresholds, quiet hours, delivery provider and cancellation; priority weights and aging; streak timezone and grace display; effort-to-route mapping; floating-strip capability/fallback; AI provider and costs. No reminder provider or permission prompt is implemented. Closed-site delivery needs a separate verified design.
 

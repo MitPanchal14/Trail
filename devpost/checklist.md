@@ -4,11 +4,11 @@ Updated 25 October 2026. This replaces the accumulated historical checklist. His
 
 ## Current checkpoint and decisions
 
-- [x] Mountain/rewards checkpoint `3081396` committed and pushed to `codex/trail-redesign`; remote verified during the publication turn. Main was unchanged. No newer remote claim is implied by this checklist update.
+- [x] Required baseline `041fe89ac9b27d91973f39b9505d39e0e64ce998` verified as remote working-branch tip through the read-only connector and locally by exact Git hashes/ancestry. Cloud work is an uncommitted diff on `codex/cloud-completion`; no new push/deploy/submit or main change.
 - [x] User accepts the written layout and current mountain silhouette/depth. Preserve them.
 - [x] User reviewed checkpoint/summit rewards and found them too similar to an ordinary visualization. Visual interaction is NOT accepted/frozen.
-- [x] Research and discuss stronger visual feedback; candidate is one travelling expedition marker with a paused campsite. This is proposed, not implemented or visually accepted.
-- [x] Reconcile remaining work and prepare the next bounded task: [OPENCODE_RETURN_FIXES.md](OPENCODE_RETURN_FIXES.md).
+- [x] Research and discuss stronger visual feedback; candidate is one travelling expedition marker with a paused campsite. The cloud marker/campsite prototype is now implemented and browser-tested; it is not visually accepted.
+- [x] Historical return-fix dispatch completed/reviewed; current cloud marker pass and delivery preparation are recorded in CLOUD_COMPLETION_EVIDENCE.md.
 
 ## Built and verified
 
@@ -20,8 +20,8 @@ Updated 25 October 2026. This replaces the accumulated historical checklist. His
 - [x] Saved next move/context, optional validated work link, saved time, pause drafts and keyboard save.
 - [x] Complete action, limited durable Undo, all-checked review, explicit goal finish, real history and guarded reopening.
 - [x] Shared theme-aligned mountain reflects actual checked IDs/current/selection; handles 1/2/5/30 actions and noncontiguous outcomes.
-- [x] Identity-scoped checkpoint feedback, single visible summit reward, clearer mobile captions, motion cancellation and no replay.
-- [x] Latest independent checks: syntax, 22 Node tests, build, diff and focused return-fixes Chromium gate passed; earlier mountain/reward gates also independently passed. Implementation evidence records the final full combined suite.
+- [x] Identity-scoped path-following expedition marker/campsite, single visible summit reward, readable mobile captions, motion cancellation and no replay. Previous checkpoint trace/check/sparks were replaced.
+- [x] Historical independent return-fix review: syntax, 22 Node tests, build, diff and focused Chromium gate passed; earlier mountain/reward review also passed. The new cloud marker has full-suite implementation verification, with independent review still pending.
 
 Evidence: [DAY_BUILD_EVIDENCE.md](DAY_BUILD_EVIDENCE.md), [RETURN_EXPERIENCE_EVIDENCE.md](RETURN_EXPERIENCE_EVIDENCE.md), [MOUNTAIN_EVIDENCE.md](MOUNTAIN_EVIDENCE.md), [MOUNTAIN_REWARDS_EVIDENCE.md](MOUNTAIN_REWARDS_EVIDENCE.md). Tests do not establish product value or a winning submission.
 
@@ -33,15 +33,15 @@ Evidence: [DAY_BUILD_EVIDENCE.md](DAY_BUILD_EVIDENCE.md), [RETURN_EXPERIENCE_EVI
 - [x] Regressions reproduced failures before fixes; syntax, 22 Node tests, build, diff and full combined Chromium suite passed. Fresh evidence: [RETURN_FIXES_EVIDENCE.md](RETURN_FIXES_EVIDENCE.md).
 - [x] Independent diff review, syntax, 22 tests, build, diff check and isolated Chromium return-fixes gate passed. Checked phone collapsed/protected-editor captures; no new blocking finding. Full combined suite is implementation evidence, not independently rerun in this review. Exact original findings: [RETURN_EDGE_REVIEW_2026-10-25.md](RETURN_EDGE_REVIEW_2026-10-25.md).
 
-## Then — one bounded visual experiment
+## Bounded visual experiment — implemented, user decision pending
 
-- [ ] Specify one completion transition: expedition marker follows the earned segment to the next unfinished checkpoint; paused campsite represents a saved place. Resolve final-action review/confirmed summit and reopened earlier actions before implementation.
-- [ ] Prototype within the current mountain; no external asset-pack hunt, terrain redesign or second runnable UI. Target 45–60 minutes including focused checks; this is an estimate, not a guarantee.
+- [x] State mapping recorded before edits in CLOUD_EXECUTION_PLAN.md: first unfinished destination; useful stopped next move/context/link campsite, blank record insufficient; pre-summit review and explicit summit; noncontiguous checked states preserved.
+- [x] One prototype on the existing path/terrain, 780ms finite travel, no stored coordinates/domain engine changes/new assets/dependencies. Current implementation and exact evidence: CLOUD_COMPLETION_EVIDENCE.md.
 - [ ] User tries it and decides whether it communicates a journey and feels satisfying. Keep the current simpler version if the experiment is not worth the cost.
-- [ ] Verify commit-before-feedback, failure/Retry, Undo/navigation mid-motion, reduced motion/Off and no replay.
+- [x] Full combined Chromium suite passes after final runtime change: commit-before-feedback, failed completion/finish and exact Retry, identity isolation, path-following/end position, Undo/navigation/theme/mode cancellation, reduced/Off mid-motion, no extra events or replay. 22 Node tests, syntax/build/diff pass.
 - [ ] Freeze visual/features after that decision. No further cosmetic loop at the expense of delivery.
 
-The visual experiment is next in the proposed sequence, not part of the current bug-fix dispatch. Do not start multiple implementation editors or bundle deferred features into either pass.
+The cloud brief authorized this one prototype after the reviewed fixes. Implementation is stopped for the user’s freeze/fallback decision. No independent review of the new marker or user visual satisfaction is claimed; historical independent return-fix review remains separate.
 
 ## Required demo and delivery work
 
@@ -68,4 +68,26 @@ These are product ideas, not unfinished requirements that all have to ship today
 - Sync/accounts, automatic activity capture and richer multi-goal features.
 - Daily effort-to-route mapping. Current mountain maps action states; height/distance are illustrative and not measured productivity.
 
-Update this checklist after each bounded result. Keep implementation, user acceptance, source publication, deployment and submission distinct. The current task authorizes documentation and a bug-fix dispatch; it does not authorize a new push/deployment/submission.
+Update this checklist after each bounded result. Keep implementation, user acceptance, source publication, deployment and submission distinct. The current cloud task authorized this bounded prototype, verification and delivery drafts; it does not authorize main changes, a push, deployment or submission.
+
+## Cloud delivery preparation — 25 October 2026
+
+- [x] Saved current chat brief as an operational transcription and pre-edit exact plan/progress log.
+- [x] Prepared DEMO_WALKTHROUGH.md, VIDEO_SCRIPT.md (2:25 target), SUBMISSION_DRAFT.md, CLAIM_EVIDENCE.md and DEPLOYMENT_PREFLIGHT.md; no placeholder-only documents or invented deployed/video URLs.
+- [x] Rechecked official rules and published form update: required Skill Pack explanation/age confirmation, public source in Try it out. Authenticated live form not inspected.
+- [x] Inspected installation metadata/planning/history; actual Skill Pack invocation provenance remains unverified and explicitly flagged for the user.
+- [x] Connector reports repository private, default main and no detected license; public source/license decisions remain with the user. No visibility/license change.
+- [x] Current-status contradictions reconciled while historical dated receipts are retained.
+- [ ] User confirms actual Skill Pack use/project history, chooses license/public-source/host and authorizes publication.
+- [ ] Actual public demo recording/upload/final form review/submission. Drafts and cloud captures are not these outcomes.
+
+Current check/evidence/artifact inventory: CLOUD_COMPLETION_EVIDENCE.md. Cloud workspace files and a review patch are local persistence, not a verified new GitHub checkpoint. No supported public cloud preview tool was exposed; loopback and capture paths are reported separately.
+
+## Research follow-up — 25 October 2026
+
+- [x] Compare official criteria/organizer guidance, four first-party product sources and primary return-planning research; distinguish source facts from hypotheses and human evidence. Report: DEMO_IMPROVEMENT_RESEARCH_2026-10-25.md.
+- [x] Revise recording script/walkthrough/submission positioning: saved-place opening, concrete staged workshop task, return before one minute, honest competitor differentiation.
+- [ ] Rehearse/record the revised story on the accepted frozen build/final origin; actual owned work reference preferred, labelled placeholder otherwise.
+- [ ] Observe human return comprehension/campsite/review meaning; no productivity or broad-audience claims from scripted testing.
+
+Runtime/tests unchanged by this research follow-up. Earlier completed verification is not a rehearsal of the revised recording story. Original completion ZIP predates revised drafts; keep its technical receipt intact.

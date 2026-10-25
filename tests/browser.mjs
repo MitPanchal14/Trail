@@ -6,9 +6,10 @@ import http from 'node:http';
 const url=process.env.TRAIL_URL||'http://127.0.0.1:3000/';
 const output=process.env.TRAIL_EVIDENCE||'/private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/trail-evidence';
 await mkdir(output,{recursive:true});
-const browser=await chromium.launch();
+const browser=await chromium.launch(process.env.TRAIL_CHROMIUM?{executablePath:process.env.TRAIL_CHROMIUM,args:['--no-sandbox']}:{});
 try {
-  if(process.env.TRAIL_GATE==='return-fixes')await runReturnFixes(browser);
+  if(process.env.TRAIL_GATE==='travelling')await runTravelling(browser);
+  else if(process.env.TRAIL_GATE==='return-fixes')await runReturnFixes(browser);
   else if(process.env.TRAIL_GATE==='rewards')await runRewards(browser);
   else if(process.env.TRAIL_GATE==='mountain')await runMountain(browser);
   else if(process.env.TRAIL_GATE==='return')await runReturn(browser);
@@ -73,6 +74,7 @@ try {
   await runEdges(browser);
   await runCorrections(browser);
   await runReturn(browser);
+  await runTravelling(browser);
   await runMountain(browser);
   await runRewards(browser);
   await runReturnFixes(browser);
@@ -83,6 +85,69 @@ async function snapshot(page){return page.evaluate(async()=>{
   const {openDatabase}=await import('/storage.js');const db=await openDatabase();
   return new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readonly'),r=tx.objectStore('workspace').get('current');let value;r.onsuccess=()=>value=r.result;tx.oncomplete=()=>{db.close();resolve(value);};tx.onerror=()=>reject(tx.error);});
 });}
+async function assertRouteTravel(page){
+  const marker=page.locator('.expedition-marker.travelling').first();
+  const samples=await marker.evaluate(async el=>{
+    const path=el.closest('svg').querySelector('.mountain-path-bed'),length=path.getTotalLength(),positions=[];
+    for(let i=0;i<4;i++){
+      const m=el.transform.baseVal.consolidate().matrix,p={x:m.e,y:m.f};let closest=Infinity;
+      for(let j=0;j<=1600;j++){const q=path.getPointAtLength(length*j/1600);closest=Math.min(closest,Math.hypot(p.x-q.x,p.y-q.y));}
+      positions.push({...p,distance:closest});await new Promise(resolve=>setTimeout(resolve,35));
+    }
+    return positions;
+  });
+  assert.ok(samples.every(p=>p.distance<1),'Traveller follows the existing winding path, not a straight chord');
+  assert.ok(samples.slice(1).some(p=>Math.hypot(p.x-samples[0].x,p.y-samples[0].y)>1),'Marker visibly changes position');
+}
+async function assertCanonicalMarker(page){
+  assert.equal(await page.locator('.travelling').count(),0);
+  const correct=await page.locator('#main .expedition-marker').first().evaluate(el=>{
+    const svg=el.closest('svg'),path=svg.querySelector('.mountain-path-bed'),matrix=el.transform.baseVal.consolidate().matrix;
+    const point=svg.dataset.phase==='finished'?{x:374,y:65}:path.getPointAtLength(path.getTotalLength()*Number(el.dataset.routeFraction));
+    return Math.hypot(matrix.e-point.x,matrix.f-point.y)<.1;
+  });
+  assert.equal(correct,true,'Cleanup/static rendering settles at canonical destination');
+}
+async function runTravelling(browser){
+  const c=await browser.newContext({viewport:{width:1440,height:1000}}),p=await c.newPage(),errors=[];
+  p.on('pageerror',e=>errors.push(e.message));
+  const marker=()=>p.locator('#main .expedition-marker').first();
+  const station=()=>marker().getAttribute('data-station');
+  const pause=async()=>{await p.click('[data-work="pause"]');await p.locator('#real-pause-form').waitFor();};
+  const save=async()=>{await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();};
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});
+    assert.equal(await p.locator('.expedition-marker').count(),0,'No personal expedition in no-goal illustration');
+    await create(p,'Prepare a useful project update',['Choose the three key points','Draft the update','Check and share the update']);
+    assert.equal(await station(),'expedition');await assertCanonicalMarker(p);
+    const initial=await snapshot(p),ids=initial.goals[initial.openGoalId].actionOrder;
+    await pause();await save();assert.ok((await snapshot(p)).contexts[ids[0]],'Fixture actually creates a blank context record');
+    assert.equal(await station(),'expedition','Blank saved record is not a campsite');assert.equal(await p.locator('.position-label text').textContent(),'Next action');
+    await pause();await p.locator('#pause-extras summary').click();await p.fill('#work-url','https://example.com/project-update#outline');await save();
+    assert.equal(await station(),'camp','Link-only useful reference qualifies');assert.equal(await marker().locator('.expedition-camp').isVisible(),true);
+    const useful=await snapshot(p);await p.locator('[data-select]').nth(2).click();await assertCanonicalMarker(p);assert.equal(await marker().getAttribute('data-action-id'),ids[0]);assert.deepEqual(await snapshot(p),useful);
+    for(const theme of ['light','dark'])for(const width of [1440,390]){
+      await p.click(`[data-theme="${theme}"]`);await p.setViewportSize({width,height:width===390?844:1000});await p.evaluate(()=>scrollTo(0,0));
+      assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.keyboard.press('Tab');await p.locator('[data-select]').first().focus();assert.notEqual(await p.locator('[data-select]').first().evaluate(el=>getComputedStyle(el).outlineStyle),'none');
+      await p.screenshot({path:`${output}/marker-campsite-${theme}-${width}.png`,fullPage:true});
+    }
+    await p.setViewportSize({width:1440,height:1000});await p.click('[data-theme="light"]');
+    await p.click('[data-work="start"]');await p.click('[data-nav="journey"]');assert.equal(await station(),'expedition','Running work does not show a stopped campsite');await assertCanonicalMarker(p);
+    await p.locator('.focus-return [data-work="focus"]').click();await p.click('[data-work="pause"]');await p.click('[data-work="skip"]');assert.equal(await station(),'camp');
+    await p.reload();await p.locator('.workspace').waitFor();assert.equal(await station(),'camp');await assertCanonicalMarker(p);
+    const stopped=await snapshot(p);assert.equal(stopped.sessions[stopped.activeSessionId].status,'paused');
+    const opened=p.waitForEvent('popup');await p.locator('.work-link').click();const popup=await opened;await popup.close();assert.deepEqual(await snapshot(p),stopped,'Open work changes no timing or state');
+    await p.click('[data-work="resume"]');await p.waitForTimeout(150);await p.click('[data-work="complete"]');await p.locator('.travelling').waitFor();
+    const committed=await snapshot(p);assert.equal(committed.actions[ids[0]].status,'completed');assert.equal(await marker().getAttribute('data-action-id'),ids[1]);await assertRouteTravel(p);
+    await p.locator('.mountain-scene').screenshot({path:`${output}/marker-live-travel.png`});await p.waitForFunction(()=>!document.querySelector('.travelling'));await assertCanonicalMarker(p);assert.deepEqual(await snapshot(p),committed,'Animation writes no domain data');
+    // A render/selection never replays travel; correcting a prior completion returns instantly.
+    await p.locator('[data-select]').first().click();await assertCanonicalMarker(p);await p.click('[data-work="reopen-action"]');await p.waitForFunction(()=>document.querySelector('.mountain-art')?.dataset.current==='0');await assertCanonicalMarker(p);assert.equal(await marker().getAttribute('data-action-id'),ids[0]);
+    assert.equal(await station(),'camp');await p.click('[data-work="start"]');await p.click('[data-work="complete"]');await p.locator('.travelling').waitFor();await p.click('#example-mode');await p.waitForTimeout(900);assert.equal(await p.locator('.travelling').count(),0);await p.click('#real-mode');await assertCanonicalMarker(p);
+    const afterMode=await snapshot(p);assert.equal(afterMode.actions[ids[0]].status,'completed');assert.equal(afterMode.actions[ids[1]].status,'open');
+    assert.deepEqual(errors,[]);
+    console.log('Travelling gate passed: blank/link-only saved-place predicate, Start/Resume form, static selection/reload/reopen, Open work no writes, actual winding-path motion and final destination, animation no writes, mode cancellation, visible keyboard focus and both-theme desktop/390px campsites.');
+  }finally{await c.close();}
+}
 async function runReturnFixes(browser){
   const c=await browser.newContext({viewport:{width:390,height:844}}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
   const repeatTo=(text,n)=>(text.repeat(Math.ceil(n/text.length))).slice(0,n-1)+'Z';
@@ -142,13 +207,13 @@ async function runReturnFixes(browser){
 async function runRewards(browser){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[];
   p.on('pageerror',e=>errors.push(e.message));
-  const effects=()=>p.locator('.just-earned,.summit-celebrating').count();
+  const effects=()=>p.locator('.travelling,.summit-celebrating').count();
   async function complete(){
     await p.locator('[data-work="focus"],[data-work="start"],[data-work="resume"]').first().click();await p.locator('.focus-clock').waitFor();await p.click('[data-work="complete"]');await p.waitForFunction(()=>document.body.dataset.view==='today');
   }
   async function observe(){await p.evaluate(()=>{
     window.feedbackLog=[];
-    new MutationObserver(records=>{for(const r of records){const n=r.target;if(!(n instanceof Element)||r.attributeName!=='class')continue;for(const kind of ['just-earned','summit-celebrating'])if(n.classList.contains(kind)&&!(r.oldValue||'').split(' ').includes(kind)){const svg=n.closest('.mountain-art');window.feedbackLog.push({kind,goal:svg?.dataset.goalId,action:n.dataset.actionId||null,node:n.tagName});}}}).observe(document,{subtree:true,attributes:true,attributeOldValue:true,attributeFilter:['class']});
+    new MutationObserver(records=>{for(const r of records){const n=r.target;if(!(n instanceof Element)||r.attributeName!=='class')continue;for(const kind of ['travelling','summit-celebrating'])if(n.classList.contains(kind)&&!(r.oldValue||'').split(' ').includes(kind)){const svg=n.closest('.mountain-art');window.feedbackLog.push({kind,goal:svg?.dataset.goalId,action:n.dataset.completedActionId||null,node:n.tagName});}}}).observe(document,{subtree:true,attributes:true,attributeOldValue:true,attributeFilter:['class']});
     const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const result=put.apply(this,args);if(window.abortRewardWrite){window.abortRewardWrite=false;this.transaction.abort();}return result;};
   });}
   try{
@@ -161,19 +226,18 @@ async function runRewards(browser){
     await p.evaluate(card=>{const main=document.querySelector('#main'),html=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');Object.defineProperty(main,'innerHTML',{configurable:true,get(){return html.get.call(this);},set(value){html.set.call(this,value);if(value.includes('mountain-scene'))this.insertAdjacentHTML('beforeend',`<aside data-unrelated-fixture>${card}</aside>`);}});},priorCard);
     await p.click('[data-work="pause"]');await p.fill('#return-note','Open the outline.');await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();assert.equal(await effects(),0);assert.equal(await p.locator('.mountain-mobile-caption .mountain-place-label').first().textContent(),'Saved place · action 1');
     await p.click('[data-work="start"]');const beforeAbort=await snapshot(p);await p.evaluate(()=>{window.feedbackLog=[];window.abortRewardWrite=true;});await p.click('[data-work="complete"]');await p.locator('#storage-status [role="alert"]').waitFor();assert.deepEqual(await snapshot(p),beforeAbort);assert.equal(await effects(),0);assert.deepEqual(await p.evaluate(()=>feedbackLog),[]);
-    await p.click('#storage-status [data-work="retry"]');await p.locator('.milestone.just-earned').waitFor();w=await snapshot(p);assert.equal(w.revision,beforeAbort.revision+1);assert.equal(w.actions[ids[0]].status,'completed');
-    assert.equal(await p.locator('[data-unrelated-fixture] .just-earned').count(),0);assert.equal(await p.locator('.milestone.just-earned').getAttribute('data-action-id'),ids[0]);assert.equal(await p.locator('.route-segment.just-earned').getAttribute('data-action-id'),ids[0]);
-    const path=p.locator('.route-segment.just-earned'),early=await path.evaluate(el=>parseFloat(getComputedStyle(el).strokeDashoffset));await p.waitForTimeout(100);const later=await path.evaluate(el=>parseFloat(getComputedStyle(el).strokeDashoffset));assert.ok(later<early,'Committed segment visibly reveals over time');
-    await p.waitForFunction(()=>[...document.querySelectorAll('.milestone.just-earned .checkpoint-spark')].some(n=>Number(getComputedStyle(n).opacity)>0),null,{timeout:600});assert.equal(await p.locator('#main [data-work="undo"]').isEnabled(),true);
-    await p.locator('.mountain-scene').first().screenshot({path:`${output}/rewards-live-checkpoint.png`});await p.waitForTimeout(650);assert.equal(await effects(),0);
-    const feedback=await p.evaluate(()=>feedbackLog);assert.equal(feedback.length,2);assert.ok(feedback.every(e=>e.goal===goalId&&e.action===ids[0]));
+    await p.click('#storage-status [data-work="retry"]');await p.locator('.expedition-marker.travelling').waitFor();w=await snapshot(p);assert.equal(w.revision,beforeAbort.revision+1);assert.equal(w.actions[ids[0]].status,'completed');
+    assert.equal(await p.locator('[data-unrelated-fixture] .travelling').count(),0);assert.equal(await p.locator('.expedition-marker.travelling').getAttribute('data-completed-action-id'),ids[0]);assert.equal(await p.locator('.expedition-marker.travelling').getAttribute('data-action-id'),ids[1]);
+    await assertRouteTravel(p);assert.equal(await p.locator('#main [data-work="undo"]').isEnabled(),true);
+    await p.locator('.mountain-scene').first().screenshot({path:`${output}/rewards-live-checkpoint.png`});await p.waitForFunction(()=>!document.querySelector('.travelling'));assert.equal(await effects(),0);
+    const feedback=await p.evaluate(()=>feedbackLog);assert.equal(feedback.length,1);assert.ok(feedback.every(e=>e.goal===goalId&&e.action===ids[0]));
     await p.click('#main [data-work="undo"]');await p.waitForFunction(id=>document.querySelector(`.milestone[data-action-id="${id}"]`)?.classList.contains('current'),ids[0]);
-    await complete();await p.locator('.milestone.just-earned').waitFor();await p.click('#main [data-work="undo"]');await p.waitForTimeout(750);w=await snapshot(p);assert.equal(w.actions[ids[0]].status,'open');assert.equal(await effects(),0);assert.equal(await p.locator('.milestone.earned').count(),1,'Only unrelated history remains checked');
-    await complete();await p.locator('.milestone.just-earned').waitFor();await p.click('[data-nav="journey"]');const afterNavigation=await snapshot(p);assert.equal(await effects(),0);await p.locator(`[data-select="${ids[4]}"]`).click();assert.equal(await p.locator('.mountain-art').first().getAttribute('data-current'),'1');assert.deepEqual(await snapshot(p),afterNavigation);
-    await p.click('[data-nav="today"]');await complete();await p.locator('.milestone.just-earned').waitFor();await p.click('[data-theme="dark"]');assert.equal(await effects(),0);await p.click('[data-theme="light"]');assert.equal(await effects(),0);
+    await complete();await p.locator('.expedition-marker.travelling').waitFor();await p.click('#main [data-work="undo"]');await p.waitForTimeout(900);w=await snapshot(p);assert.equal(w.actions[ids[0]].status,'open');assert.equal(await effects(),0);await assertCanonicalMarker(p);assert.equal(await p.locator('.milestone.earned').count(),1,'Only unrelated history remains checked');
+    await complete();await p.locator('.expedition-marker.travelling').waitFor();await p.click('[data-nav="journey"]');const afterNavigation=await snapshot(p);assert.equal(await effects(),0);await assertCanonicalMarker(p);await p.locator(`[data-select="${ids[4]}"]`).click();assert.equal(await p.locator('.mountain-art').first().getAttribute('data-current'),'1');assert.deepEqual(await snapshot(p),afterNavigation);
+    await p.click('[data-nav="today"]');await complete();await p.locator('.expedition-marker.travelling').waitFor();await p.click('[data-theme="dark"]');assert.equal(await effects(),0);await assertCanonicalMarker(p);await p.click('[data-theme="light"]');assert.equal(await effects(),0);
     // Retain an existing motion control as a DOM-only fixture to exercise Off during a response.
-    await p.click('[data-work="start"]');await p.locator('.focus-clock').waitFor();await p.evaluate(()=>{const b=document.querySelector('[data-action="ambience"]').cloneNode(true);b.id='motion-fixture';document.querySelector('.header').append(b);});await p.click('[data-work="complete"]');await p.locator('.milestone.just-earned').waitFor();const beforeOff=await snapshot(p);await p.click('#motion-fixture');assert.equal(await effects(),0);assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('still')),true);assert.deepEqual(await snapshot(p),beforeOff);await p.click('#motion-fixture');assert.equal(await effects(),0);await p.evaluate(()=>document.querySelector('#motion-fixture').remove());
-    await complete();await p.locator('.milestone.just-earned').waitFor();await p.emulateMedia({reducedMotion:'reduce'});await p.waitForFunction(()=>document.body.classList.contains('still'));assert.equal(await effects(),0);await p.emulateMedia({reducedMotion:'no-preference'});await complete();await p.locator('#review[open]').waitFor();assert.equal(await p.locator('.summit-celebrating,#reward[open]').count(),0);assert.equal(await p.locator('.mountain-art').first().getAttribute('data-phase'),'review');
+    await p.click('[data-work="start"]');await p.locator('.focus-clock').waitFor();await p.evaluate(()=>{const b=document.querySelector('[data-action="ambience"]').cloneNode(true);b.id='motion-fixture';document.querySelector('.header').append(b);});await p.click('[data-work="complete"]');await p.locator('.expedition-marker.travelling').waitFor();const beforeOff=await snapshot(p);await p.click('#motion-fixture');assert.equal(await effects(),0);await assertCanonicalMarker(p);assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('still')),true);assert.deepEqual(await snapshot(p),beforeOff);await p.click('#motion-fixture');assert.equal(await effects(),0);await p.evaluate(()=>document.querySelector('#motion-fixture').remove());
+    await complete();await p.locator('.expedition-marker.travelling').waitFor();await p.emulateMedia({reducedMotion:'reduce'});await p.waitForFunction(()=>document.body.classList.contains('still'));assert.equal(await effects(),0);await p.emulateMedia({reducedMotion:'no-preference'});await complete();await p.locator('#review[open]').waitFor();assert.equal(await p.locator('.summit-celebrating,#reward[open]').count(),0);assert.equal(await p.locator('.mountain-art').first().getAttribute('data-phase'),'review');
     await p.evaluate(()=>{delete document.querySelector('#main').innerHTML;document.querySelector('[data-unrelated-fixture]')?.remove();});
     // Turn motion back on before the confirmed summit, without touching canonical data.
     await p.evaluate(()=>{const b=document.createElement('button');b.dataset.action='ambience';document.body.append(b);b.click();b.remove();});
@@ -196,7 +260,7 @@ async function runRewards(browser){
     try{
       await q.goto(url);await q.locator('#storage-status').waitFor({state:'hidden'});await q.click(`[data-theme="${theme}"]`);await create(q,`A ${total}-action goal`,Array.from({length:total},(_,i)=>`Action ${i+1}`));await q.click('[data-work="start"]');await q.click('[data-work="complete"]');
       if(total===1){await q.locator('#review[open]').waitFor();await q.click('#review [data-action="confirm"]');await q.locator('#reward[open]').waitFor();if(reduced)assert.equal(await q.locator('.summit-celebrating,.confetti').count(),0);}
-      else{await q.locator('.workspace').waitFor();if(reduced)assert.equal(await q.locator('.just-earned').count(),0);}
+      else{await q.locator('.workspace').waitFor();if(reduced)assert.equal(await q.locator('.travelling').count(),0);}
       await q.waitForTimeout(1600);
       for(const width of [1440,390]){
         await q.setViewportSize({width,height:width===390?844:1000});await q.evaluate(()=>scrollTo(0,0));await q.waitForTimeout(180);assert.ok(await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
@@ -207,7 +271,7 @@ async function runRewards(browser){
       assert.deepEqual(pageErrors,[]);
     }finally{await c.close();}
   }
-  console.log('Rewards gate passed: post-commit path/check/sparks, failed completion/finish and exact Retry, identity isolation, immediate Undo/navigation, theme/mid-effect Off/reduced cleanup, visible single summit dialog, review/finish distinction, note-save quietness, reload/no replay, example isolation and 1/5/30 normal/reduced light/dark desktop/390px.');
+  console.log('Rewards gate passed: post-commit path-following expedition marker, failed completion/finish and exact Retry, identity isolation, immediate Undo/navigation, theme/mid-effect Off/reduced cleanup, visible single summit dialog, review/finish distinction, note-save quietness, reload/no replay, example isolation and 1/5/30 normal/reduced light/dark desktop/390px.');
 }
 async function runMountain(browser){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[],external=[];
@@ -250,11 +314,11 @@ async function runMountain(browser){
     const beforeSelection=await snapshot(p);await p.locator(`[data-select="${ids[3]}"]`).focus();await p.keyboard.press('Enter');
     await graphic(0,5,'active',0);assert.equal(await p.locator('.milestone.highlighted').getAttribute('data-action-id'),ids[3]);assert.equal(await p.locator('.milestone.current').getAttribute('data-action-id'),ids[0]);assert.deepEqual(await snapshot(p),beforeSelection);
     await p.click('[data-nav="today"]');await p.click('[data-work="start"]');await p.waitForTimeout(400);await p.click('[data-work="complete"]');
-    await p.locator('.milestone.just-earned').waitFor();const animation=await p.locator('.milestone.just-earned .marker-core').evaluate(el=>{const a=el.getAnimations()[0];return a?{name:a.animationName,iterations:a.effect.getTiming().iterations,duration:a.effect.getTiming().duration}:null;});
-    assert.deepEqual(animation,{name:'checkpoint-resolve',iterations:1,duration:600});await p.screenshot({path:`${output}/mountain-earned-transition.png`,fullPage:true});await p.waitForTimeout(750);assert.equal(await p.locator('.just-earned').count(),0);
+    await p.locator('.expedition-marker.travelling').waitFor();await assertRouteTravel(p);
+    await p.screenshot({path:`${output}/mountain-earned-transition.png`,fullPage:true});await p.waitForFunction(()=>!document.querySelector('.travelling'));assert.equal(await p.locator('.travelling').count(),0);
     await graphic(1,5,'active',1);w=await snapshot(p);const recorded=Object.values(w.intervals).reduce((n,i)=>n+i.deltaMs,0);assert.ok(recorded>0);
     await p.click('[data-work="undo"]');await graphic(0,5,'active',0);w=await snapshot(p);assert.equal(w.sessions[w.activeSessionId].status,'paused');assert.equal(Object.values(w.intervals).reduce((n,i)=>n+i.deltaMs,0),recorded);
-    await complete();await graphic(1,5,'active',1);await p.click('[data-nav="journey"]');assert.equal(await p.locator('.just-earned').count(),0,'Navigation never replays completion');await p.click('[data-nav="today"]');
+    await complete();await graphic(1,5,'active',1);await p.click('[data-nav="journey"]');assert.equal(await p.locator('.travelling').count(),0,'Navigation never replays completion');await p.click('[data-nav="today"]');
     for(let i=1;i<5;i++)await complete();await p.locator('#review[open]').waitFor();await p.keyboard.press('Escape');await graphic(5,5,'review',-1);await capture('ready-review');
     await p.click('[data-work="review"]');await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');await graphic(5,5,'finished',-1);await capture('finished');
     await p.reload();await p.locator('.hero-cta').waitFor();await p.click('[data-nav="finished"]');await graphic(5,5,'finished',-1);assert.equal(await p.locator('#reward').evaluate(e=>e.open),false);const effortBeforeReopen=Object.values((await snapshot(p)).intervals).reduce((n,i)=>n+i.deltaMs,0);
@@ -264,12 +328,15 @@ async function runMountain(browser){
     await p.locator(`[data-select="${ids[4]}"]`).click();await graphic(4,5,'active',0);await capture('reopened-earlier');assert.equal(await p.locator('.milestone.highlighted').getAttribute('data-action-id'),ids[4]);
     w=await snapshot(p);assert.equal(Object.values(w.intervals).reduce((n,i)=>n+i.deltaMs,0),effortBeforeReopen);
     // Complete that same goal again, then create a second to verify simultaneous SVG definitions.
-    await complete();await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');
+    const beforeRecompletion=await snapshot(p);await complete();await p.locator('#review[open]').waitFor();
+    const afterRecompletion=await snapshot(p);assert.equal(Object.keys(afterRecompletion.events).length,Object.keys(beforeRecompletion.events).length+1,'Passing later checked checkpoints creates only the intended completion');
+    assert.equal(await p.locator('.expedition-marker').getAttribute('data-station'),'review');assert.equal(await p.locator('.expedition-marker').getAttribute('data-route-fraction'),'1');
+    await p.waitForFunction(()=>!document.querySelector('.travelling'));await assertCanonicalMarker(p);await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');
     await p.click('.brand');await create(p,'A one-action goal',['One <long> action '+ 'unbroken'.repeat(50)]);await graphic(0,1,'active',0);await capture('one-action-long');await complete();await p.keyboard.press('Escape');await graphic(1,1,'review',-1);await capture('one-ready-review');await p.click('[data-work="review"]');await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');await capture('two-finished-goals');assert.equal(await p.locator('.mountain-art').count(),2);
     await p.click('.brand');await create(p,'Thirty actions, one legible mountain',Array.from({length:30},(_,i)=>`Action ${i+1}: ${'long-unbroken-name'.repeat(25)}`));await graphic(0,30,'active',0);await capture('thirty-today');await p.click('[data-nav="journey"]');const beforeThirty=await snapshot(p);await p.locator('[data-select]').nth(29).click();await graphic(0,30,'active',0);assert.equal(await p.locator('.milestone.highlighted').getAttribute('data-marker'),'29');assert.deepEqual(await snapshot(p),beforeThirty);await capture('thirty-selected');
     // Motion Off disables the earned response without disabling the immediate checked state.
-    await p.click('[data-nav="today"]');await p.click('[data-work="start"]');await p.click('[data-action="ambience"]');assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('still')),true);await p.click('[data-work="complete"]');await graphic(1,30,'active',1);assert.equal(await p.locator('.just-earned').count(),0);
-    await p.emulateMedia({reducedMotion:'reduce'});await complete();await graphic(2,30,'active',2);assert.equal(await p.locator('.just-earned').count(),0);await capture('reduced-motion-thirty');
+    await p.click('[data-nav="today"]');await p.click('[data-work="start"]');await p.click('[data-action="ambience"]');assert.equal(await p.locator('body').evaluate(e=>e.classList.contains('still')),true);await p.click('[data-work="complete"]');await graphic(1,30,'active',1);assert.equal(await p.locator('.travelling').count(),0);
+    await p.emulateMedia({reducedMotion:'reduce'});await complete();await graphic(2,30,'active',2);assert.equal(await p.locator('.travelling').count(),0);await capture('reduced-motion-thirty');
     const beforeExample=await snapshot(p);await p.click('#example-mode');await graphic(2,4,'active',2);await p.selectOption('#scenario','finished');await graphic(4,4,'finished',-1);await capture('example-finished');await p.click('#real-mode');assert.deepEqual(await snapshot(p),beforeExample);
     const pairContext=await browser.newContext(),pair=await pairContext.newPage();
     try{
@@ -278,7 +345,7 @@ async function runMountain(browser){
       for(const theme of ['light','dark'])for(const width of [1440,390]){await pair.setViewportSize({width,height:844});await pair.evaluate(()=>scrollTo(0,0));await pair.waitForTimeout(180);await pair.click(`[data-theme="${theme}"]`);await pair.waitForTimeout(180);assert.equal(await pair.locator('body').getAttribute('data-view'),'today');await pair.locator('.mountain-art').screenshot({path:`${output}/mountain-two-actions-scene-${theme}-${width}.png`});}
     }finally{await pairContext.close();}
     assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
-    console.log('Mountain gate passed: actual completion/Undo/review/finish/reload/reopen, noncontiguous checked IDs, independent keyboard selection, saved-context label, 1/2/5/30 actions, repeated unique SVG definitions, no render writes/external requests, finite earned transition, motion Off/reduced motion, examples and light/dark desktop/390px.');
+    console.log('Mountain gate passed: actual completion/Undo/review/finish/reload/reopen, noncontiguous checked IDs, independent keyboard selection, saved-context label, 1/2/5/30 actions, repeated unique SVG definitions, no render writes/external requests, finite path-following transition, motion Off/reduced motion, examples and light/dark desktop/390px.');
   }finally{await context.close();}
 }
 async function runReturn(browser){
