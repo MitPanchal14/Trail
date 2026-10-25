@@ -8,11 +8,11 @@ export async function bootWork(ui){
   let busy=false,pending=null,error='',anchor=null,frozen=true,suspended=false;
   let needsRecovery=false;
   let pauseDraft=null;
-  let validationError=false;
+  let validationError=null;
   const clock=()=>({wall:Date.now(),mono:performance.now()});
   const store=new LocalStore(async problem=>{
-    if(problem){frozen=true;anchor=null;error=problem.message;status();return;}
-    if(!store.writer&&!busy){try{workspace=await store.read();if(real&&!draft)render();}catch(err){error=err.message;status();}}
+    if(problem){frozen=true;anchor=null;validationError=null;error=problem.message;status();return;}
+    if(!store.writer&&!busy){try{workspace=await store.read();if(real&&!draft)render();}catch(err){validationError=null;error=err.message;status();}}
   });
   const command=(type,fields={})=>({id:crypto.randomUUID(),type,...fields});
   const goal=()=>openGoal(workspace),action=()=>nextAction(workspace),session=()=>activeSession(workspace);
@@ -33,8 +33,21 @@ export async function bootWork(ui){
     const c=context(),original=c?.nextInstruction?`<p class="original-step">Action: ${e(action().title)}</p>`:'',stopped=c?.context?`<div class="saved-context"><strong>Where I stopped</strong><p>${e(c.context)}</p></div>`:'',reference=savedAt(c)+workLink(c);
     return original+(referenceFirst?reference+stopped:stopped+reference);
   }
+  const needsPreview=text=>text.length>240||text.split('\n').length>4;
+  const returnPreview=text=>needsPreview(text)?`${Array.from(text.split('\n').slice(0,3).join('\n')).slice(0,160).join('')}…`:text;
+  function returnReference(){
+    const c=context();return `${c?.nextInstruction?`<p class="original-step">Action: ${e(action().title)}</p>`:''}${savedAt(c)}${workLink(c)}`;
+  }
+  function expandedReturn(){
+    const c=context(),fullMove=needsPreview(instruction()),fullContext=needsPreview(c?.context||'');
+    return `${c?.context?`<div class="saved-context"><strong>Where I stopped</strong><p>${e(returnPreview(c.context))}</p></div>`:''}<details class="return-expansion"><summary>Read full saved place</summary>${fullMove?`<strong>${c?.nextInstruction?'Next move':'Action'}</strong><p class="return-full-instruction">${e(instruction())}</p>`:''}${fullContext?`<strong>Where I stopped</strong><p class="return-full-context">${e(c.context)}</p>`:''}</details>`;
+  }
   const actionLabel=()=>`${context()?.nextInstruction?'Saved next move':'Next unfinished action'} · ${goal().actionOrder.indexOf(action().id)+1} of ${goal().actionOrder.length}`;
   const completedCount=()=>goal().actionOrder.filter(id=>workspace.actions[id].status==='completed').length;
+  function clearFormValidation(formId){
+    if(busy||pending||!formId||validationError!==formId)return false;
+    validationError=null;error='';return true;
+  }
   function status(){
     const box=$('#storage-status');
     box.innerHTML=error?`<strong role="alert">Not saved${validationError?'':' / real timing stopped'}: ${e(error)}</strong><p>${validationError?'Correct the fields and save again. Your draft is unchanged.':'Keep this page open. Your draft is unchanged. Reload recovers only the last committed checkpoint.'}</p>${!validationError?`<button class="button" data-work="retry">Retry ${pending?'save':'storage'}</button>`:''}<button class="text-button" data-work="export" ${store.raw===null?'disabled':''}>Export raw local records</button>`:!ready?'Opening local storage…':!store.writer?'Open in another tab. This tab is read-only. Close the writer tab, then <button class="text-button" data-work="ownership">Retry ownership</button>.':busy?'Saving…':session()?.interruptionReason?e(session().interruptionReason):'';
@@ -79,8 +92,8 @@ export async function bootWork(ui){
   function today(){
     if(!goal())return empty();
     if(!action())return `${heading('All actions checked. Your goal is still open.')}<div class="workspace"><section class="action-area"><div class="stage-top">${label()}</div><h2 class="instruction">Only you decide if the goal is finished.</h2><p class="hint">${e(goal().definitionOfFinished)}</p><div class="work-actions">${button('Review goal','review',true)}${button('Edit goal / actions','edit')}</div><p class="hint">Add an action, keep this goal open, or explicitly confirm finished.</p></section><section class="scene-panel"><div class="scene-top"><strong>Your goal trail</strong><span>${completedCount()} of ${goal().actionOrder.length} actions checked</span></div>${art()}<p class="hint">Illustrative route · ${formatTime(effort(workspace,goal().id)/1000)} recorded effort</p></section></div><div class="lower"><section>${rows()}</section><section>${detail()}</section></div>`;
-    const s=session();
-    return `${heading('Pick up where you left off.')}<div class="workspace"><section class="action-area" aria-label="Your next action"><div class="stage-top">${label()}<span class="stage-symbol" aria-hidden="true">↗</span></div><p class="step-label">${actionLabel()}</p><h2 class="instruction">${e(instruction())}</h2>${notes()}<div class="work-actions">${button(running()?'Return to focus':!s?'▶ Start focus':s.remainingMs?'▶ Resume focus':'Review ended block',running()||s?.remainingMs===0?'focus':s?'resume':'start',true)}${button(running()?'Pause & edit place':'Edit saved place','pause')}${!s?`<label class="duration">Block <select id="real-duration"><option value="20">20 min</option><option value="25">25 min</option><option value="45">45 min</option></select></label>`:''}</div><p class="hint">Open your work whenever you’re ready. Start or Resume focus is a separate choice.</p></section><section class="scene-panel"><div class="scene-top"><strong>Your goal trail</strong><span>${completedCount()} of ${goal().actionOrder.length} actions checked</span></div>${art()}<div class="scene-bottom"><span>${formatTime(effort(workspace,goal().id)/1000)} recorded effort</span><button class="text-button" data-work="journey" data-readonly="true">View goal journey ↗</button></div><p class="hint">Illustrative route, not a measure of time or distance.</p></section></div><div class="lower"><section><div class="section-heading"><h3>The path to finished</h3>${button('Edit goal / actions','edit')}</div>${rows()}</section><section>${detail()}<p class="hint">Finished means: ${e(goal().definitionOfFinished)}</p></section></div>`;
+    const s=session(),compact=needsPreview(instruction())||needsPreview(context()?.context||'');
+    return `${heading('Pick up where you left off.')}<div class="workspace"><section class="action-area" aria-label="Your next action"><div class="stage-top">${label()}<span class="stage-symbol" aria-hidden="true">↗</span></div><p class="step-label">${actionLabel()}</p><h2 class="instruction">${e(returnPreview(instruction()))}</h2>${compact?returnReference():notes()}<div class="work-actions">${button(running()?'Return to focus':!s?'▶ Start focus':s.remainingMs?'▶ Resume focus':'Review ended block',running()||s?.remainingMs===0?'focus':s?'resume':'start',true)}${button(running()?'Pause & edit place':'Edit saved place','pause')}${!s?`<label class="duration">Block <select id="real-duration"><option value="20">20 min</option><option value="25">25 min</option><option value="45">45 min</option></select></label>`:''}</div><p class="hint">Open your work whenever you’re ready. Start or Resume focus is a separate choice.</p>${compact?expandedReturn():''}</section><section class="scene-panel"><div class="scene-top"><strong>Your goal trail</strong><span>${completedCount()} of ${goal().actionOrder.length} actions checked</span></div>${art()}<div class="scene-bottom"><span>${formatTime(effort(workspace,goal().id)/1000)} recorded effort</span><button class="text-button" data-work="journey" data-readonly="true">View goal journey ↗</button></div><p class="hint">Illustrative route, not a measure of time or distance.</p></section></div><div class="lower"><section><div class="section-heading"><h3>The path to finished</h3>${button('Edit goal / actions','edit')}</div>${rows()}</section><section>${detail()}<p class="hint">Finished means: ${e(goal().definitionOfFinished)}</p></section></div>`;
   }
   function focus(){
     if(!action())return today();const s=session(),expired=s?.remainingMs===0;
@@ -120,9 +133,12 @@ export async function bootWork(ui){
     document.querySelectorAll('[data-nav]').forEach(b=>{if(b.dataset.nav===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
     $('#real-duration')&&($('#real-duration').value=String(duration));
     if(view==='edit'&&draft){
-      const recorded=new Set([...Object.values(workspace.sessions).map(s=>s.actionId),...Object.values(workspace.events||{}).map(e=>e.actionId)]);
-      main.querySelectorAll('[data-draft="remove"]').forEach(b=>{if(recorded.has(b.dataset.id))b.disabled=true;});
-      $('#goal-form .hint').textContent+=' Actions with saved work can’t be removed.';
+      const recorded=new Set([...Object.keys(workspace.contexts),...Object.values(workspace.sessions).map(s=>s.actionId),...Object.values(workspace.events||{}).map(e=>e.actionId)]);
+      main.querySelectorAll('[data-draft="remove"]').forEach(b=>{
+        if(!recorded.has(b.dataset.id)&&workspace.actions[b.dataset.id]?.status!=='completed')return;
+        b.disabled=true;const explanation=document.createElement('p');explanation.id=`protected-${b.dataset.id}`;explanation.className='hint';explanation.textContent='This action has saved context or recorded work and can’t be removed.';b.setAttribute('aria-describedby',explanation.id);b.closest('.action-draft').append(explanation);
+      });
+      $('#goal-form .hint').textContent+=' Actions with saved context or recorded work can’t be removed.';
     }
     if(view==='pause'&&pauseDraft&&action()&&pauseDraft.actionId===action().id){
       $('#return-note').value=pauseDraft.instruction;$('#pause-context').value=pauseDraft.context;
@@ -137,11 +153,11 @@ export async function bootWork(ui){
   async function write(cmd,onSuccess,{background=false}={}){
     if(disabled())return false;
     try{transition(workspace,cmd,Date.now());}catch(err){
-      validationError=session()?.status!=='running';
+      validationError=session()?.status!=='running'?({notes:'real-pause-form','save-goal':'goal-form','add-action':'add-form'}[cmd.type]||'command'):null;
       if(session()?.status==='running'){frozen=true;anchor=null;pending={cmd,onSuccess};}
       error=err.message;status();return false;
     }
-    busy=true;validationError=false;status();
+    busy=true;validationError=null;status();
     try{
       const saved=await store.commit(workspace,cmd);workspace=saved.workspace;pending=null;error='';busy=false;
       const s=session();
@@ -168,7 +184,7 @@ export async function bootWork(ui){
     pauseDraft={actionId:action().id,instruction:$('#return-note').value,context:$('#pause-context').value,resourceUrl:$('#work-url').value,removeResource:$('#remove-resource')?.checked||false,extrasOpen:$('#pause-extras').open};
   }
   async function initialize(){
-    busy=true;error='';validationError=false;status();
+    busy=true;error='';validationError=null;status();
     try{if(!store.db)await store.open();const owned=await store.acquire();workspace=await store.read();ready=true;busy=false;frozen=true;anchor=null;view=goal()?'today':'landing';if(!owned)error='';render();}
     catch(err){busy=false;ready=false;error=err.message;status();}
   }
@@ -180,7 +196,7 @@ export async function bootWork(ui){
       if(!await write(cmd,()=>{}))return;
     }
     real=toReal;$('#mode-label').textContent=real?'Real work · local to this browser':'Fictional example · resets on reload';$('#example-controls').hidden=real;
-    if(real){ui.leaveExample();try{if(ready)workspace=await store.read();}catch(err){error=err.message;}view=goal()?'today':'landing';render();}
+    if(real){ui.leaveExample();try{if(ready)workspace=await store.read();}catch(err){validationError=null;error=err.message;}view=goal()?'today':'landing';render();}
     else{ui.enterExample();$('.footer').innerHTML='<span>Fictional example — not your real records.</span><span>In memory only. Reload resets this example.</span>';status();}
   }
   $('#real-mode').addEventListener('click',()=>changeMode(true));$('#example-mode').addEventListener('click',()=>changeMode(false));
@@ -233,7 +249,7 @@ export async function bootWork(ui){
     if(disabled())return;
     if(type==='create'||type==='edit'){
       if(running())return;const g=goal();if(!draft||draft.goalId!==(g?.id||null))draft={goalId:g?.id||null,title:g?.title||'',definition:g?.definitionOfFinished||'',actions:g?g.actionOrder.map(id=>({id,title:workspace.actions[id].title})):[{id:crypto.randomUUID(),title:''}]};go('edit');$('#goal-title')?.focus();
-    }else if(type==='cancel'){draft=null;go('today');}
+    }else if(type==='cancel'){clearFormValidation('goal-form');draft=null;go('today');}
     else if(type==='start')await write(command('start',{minutes:duration}),()=>go('focus'));
     else if(type==='resume')await write(command('resume'),()=>go('focus'));
     else if(type==='pause')await stopForNotes();
@@ -247,14 +263,14 @@ export async function bootWork(ui){
       const u=workspace.undo;if(!u)return;await write(command('undo',{eventId:u.eventId,expectedRevision:workspace.revision}),()=>{if($('#review').open)$('#review').close();selected=action()?.id;go('today');});
     }
     else if(type==='reopen-action')await write(command('reopen-action',{actionId:selected}),()=>go('today'));
-    else if(type==='skip'){go('today');pauseDraft=null;}
+    else if(type==='skip'){clearFormValidation('real-pause-form');go('today');pauseDraft=null;}
     else if(type.startsWith('extend-')){
       const minutes=Number(type.split('-')[1]);await write(running()?timed('extend-running',{minutes}):command('extend',{minutes}),()=>go('focus'));
     }
   });
   document.addEventListener('change',event=>{if(real&&event.target.id==='real-duration')duration=Number(event.target.value);});
   $('#review').addEventListener('cancel',event=>{if(!real)return;event.preventDefault();if(!pending&&!busy){$('#review').close();$('[data-work="review"]')?.focus();}});
-  document.addEventListener('input',event=>{if(!real)return;if(validationError){validationError=false;error='';status();}if(event.target.closest('#real-pause-form')){capturePauseDraft();$('#work-url').readOnly=pauseDraft.removeResource;}});
+  document.addEventListener('input',event=>{if(!real)return;if(clearFormValidation(event.target.closest('form')?.id))status();if(event.target.closest('#real-pause-form')){capturePauseDraft();$('#work-url').readOnly=pauseDraft.removeResource;}});
   document.addEventListener('toggle',event=>{if(real&&event.target.id==='pause-extras')capturePauseDraft();},true);
   document.addEventListener('keydown',event=>{
     if(!real||event.isComposing||event.keyCode===229||event.key!=='Enter'||!(event.metaKey||event.ctrlKey)||event.altKey||event.shiftKey)return;

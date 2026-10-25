@@ -28,6 +28,7 @@ For browser integration, `node tests/browser.mjs` uses the already available loc
 - All actions checked opens review, not automatic goal completion. Add an action, keep open, or confirm finished. The compact reward follows a committed finish and never replays merely through navigation/reload.
 - Finished work contains real titles, timestamps, counts, context and recorded effort. Reopen a goal only if no other goal is open. It stays all-checked until you explicitly reopen an action or add one; refinish updates the same history identity.
 - Failed writes stop timing and keep the draft/pending operation. Retry reconciles the same operation once, then requires explicit Resume if timing was running. Corrupt/newer records are preserved with raw export where readable; there is no destructive reset/import flow.
+- Actions with any saved context record (including a link alone) cannot be removed, even before starting a timer. Long Today notes use bounded previews with keyboard-accessible full-text expansion below the work/focus controls; stored/editable text is unchanged. Skip discards only its pause-form validation, never a pending write or storage error. See [return-fix evidence](devpost/RETURN_FIXES_EVIDENCE.md).
 
 ## Current source of truth
 

@@ -115,7 +115,7 @@ export function transition(input,command,now){
       const goal=g||{id:command.id,createdAt:now,status:'open'};
       for(const item of command.actions){const old=w.actions[item.id];if(old&&old.goalId!==goal.id)fail('Action belongs to another goal.');w.actions[item.id]={...old,id:item.id,goalId:goal.id,title:item.title.trim(),status:old?.status??'open',createdAt:old?.createdAt??now,updatedAt:now};}
       if(g)for(const id of g.actionOrder)if(!order.includes(id)){
-        if(w.actions[id].status==='completed'||values(w.sessions).some(s=>s.actionId===id)||values(w.events).some(e=>e.actionId===id))fail('Recorded actions cannot be removed. Reopen/correct them instead.');
+        if(Object.hasOwn(w.contexts,id)||w.actions[id].status==='completed'||values(w.sessions).some(s=>s.actionId===id)||values(w.events).some(e=>e.actionId===id))fail('Actions with saved context or recorded work cannot be removed.');
         delete w.actions[id];delete w.contexts[id];
       }
       Object.assign(goal,{title:command.title.trim(),definitionOfFinished:command.definition.trim(),actionOrder:order,updatedAt:now});w.goals[goal.id]=goal;w.openGoalId=goal.id;break;

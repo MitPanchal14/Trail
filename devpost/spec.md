@@ -31,6 +31,12 @@ Notes with an absent/blank URL preserve the saved reference; a valid nonblank UR
 
 Today, Focus saved context and finished history use escaped native Open work anchors with `target="_blank" rel="noopener noreferrer"`. No prefetch, automatic reopening, external capture or timing command occurs. Goal counts describe completed actions out of the full goal separately from effort; geometry remains illustrative. See RETURN_EXPERIENCE_EVIDENCE.md for current verification and limitations.
 
+## Return-flow corrections
+
+Any existing context record now protects action removal in both the editor and save-goal transition, alongside existing completed/session/event guards; untouched actions remain removable when no block locks the order. Rejected commands leave input unchanged. The editor associates disabled Remove with a visible explanation.
+
+Today alone previews text over 240 characters or four lines using at most 160 code points from its first three lines. Reference/focus controls precede long supporting context, and native details reveals the exact full canonical text in document flow. Short-note composition, storage limits, normalization, Focus/history and Undo text are unchanged. Validation is scoped to its originating form; matching input or explicit discard clears only that validation. Render/navigation never clears it, and storage/read/write failures remain protective with pending exact Retry intact. See RETURN_FIXES_EVIDENCE.md.
+
 ## Deferred decisions
 
 Reminder neglect thresholds, quiet hours, delivery provider and cancellation; priority weights and aging; streak timezone and grace display; effort-to-route mapping; floating-strip capability/fallback; AI provider and costs. No reminder provider or permission prompt is implemented. Closed-site delivery needs a separate verified design.

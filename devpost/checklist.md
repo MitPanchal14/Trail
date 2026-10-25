@@ -1,91 +1,71 @@
-# Delivery checklist
+# Trail — current delivery checklist
 
-## Approved mountain reward enhancement — 25 October
-- [x] User accepts current mountain direction/depth and approves small checkpoint response plus stronger confirmed-summit feedback.
-- [x] Prepare bounded dispatch OPENCODE_MOUNTAIN_REWARDS.md using MOUNTAIN_REWARD_RESEARCH.md; no runtime changes in this planning step.
-- [x] Implement identity-scoped checkpoint feedback, visible coordinated summit reward, colour roles and readable mobile labels while preserving terrain/canonical behaviour. Syntax, 20 Node tests, build, diff and final combined Chromium suite passed; see MOUNTAIN_REWARDS_EVIDENCE.md.
-- [ ] User visually reviews the reward enhancement; normal/reduced-motion captures are evidence, not visual acceptance.
-- [ ] Fix all three RETURN_EDGE_REVIEW issues before delivery; streak rules/audio remain separate decisions.
+Updated 25 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
-## Latest review and visual priority — 25 October
-- [x] Independently verify syntax, 20 tests, build, diff check and focused Chromium return gate; record three extra reproduced findings in RETURN_EDGE_REVIEW_2026-10-25.md.
-- [x] Collect user feedback: written layout acceptable; stronger mountain-based progress visualization is now the priority. Current motion control has no audio.
-- [x] Publish the user-authorized saved-place checkpoint to `codex/trail-redesign`; `4d2b9fb` verified on origin with git ls-remote. Main was not pushed.
-- [x] Prepare one mountain-graphic dispatch in OPENCODE_MOUNTAIN_GRAPHIC.md; implementation/visual acceptance remain pending.
-- [x] Implement the authorized mountain graphic against actual action IDs/statuses, current themes and retained layout; no old UI restored. Syntax, 20 Node tests, build, diff and full Chromium mountain + existing gates passed; see MOUNTAIN_EVIDENCE.md.
-- [ ] User visually reviews/accepts the mountain implementation before further graphics/features or publication.
-- [ ] Correct the three recorded edge cases in a bounded subsequent pass.
-- [ ] Agree productive-day/streak semantics before implementation; no streak is currently implemented.
+## Current checkpoint and decisions
 
-## Bounded return-experience pass — implemented locally, 25 October
-- [x] Research closer alternatives and write explicit problem/solution/validation decisions in RETURN_EXPERIENCE_PLAN_2026-10-25.md; no uniqueness or winning guarantee.
-- [x] Prepare one sequential editor-neutral dispatch in OPENCODE_RETURN_EXPERIENCE.md, with compatibility, exact saved-place/URL semantics, tests and a two-hour scope boundary.
-- [x] Implement low-friction saved-place capture, optional safe work URL and clear return presentation; preserve retained UI and timing/storage/Undo contracts. Syntax, 20 Node tests, build, diff check, focused return gate and final full Chromium suite passed; see RETURN_EXPERIENCE_EVIDENCE.md. No publication by this pass.
-- [ ] Independently review implementation/evidence, then observe real interruption/return usage and physical primary-browser behaviour.
-- [ ] Fix observed blockers, freeze features by the user's evening target, and prepare judge-access/video/submission materials. New publication requires authorization.
+- [x] Mountain/rewards checkpoint `3081396` committed and pushed to `codex/trail-redesign`; remote verified during the publication turn. Main was unchanged. No newer remote claim is implied by this checklist update.
+- [x] User accepts the written layout and current mountain silhouette/depth. Preserve them.
+- [x] User reviewed checkpoint/summit rewards and found them too similar to an ordinary visualization. Visual interaction is NOT accepted/frozen.
+- [x] Research and discuss stronger visual feedback; candidate is one travelling expedition marker with a paused campsite. This is proposed, not implemented or visually accepted.
+- [x] Reconcile remaining work and prepare the next bounded task: [OPENCODE_RETURN_FIXES.md](OPENCODE_RETURN_FIXES.md).
 
-**Checkpoint request, 25 October:** user authorized committing and pushing the reviewed prototype and supporting documents to `codex/trail-redesign`. Earlier no-publication receipts below are historical. Deployment, submission and physical-device acceptance remain separate.
+## Built and verified
 
-**Current local result, 25 October:** the three increments in [the day-build dispatch](OPENCODE_DAY_BUILD.md) are implemented for combined review, ahead of the 17:00–18:00 target. Home/Focus layouts retained; graphic redesign deferred. See [execution plan](DAY_BUILD_PLAN.md) and [fresh evidence/limitations](DAY_BUILD_EVIDENCE.md). No commit, push, deployment or submission by this task. Physical-device acceptance remains open.
+- [x] One dependency-free runtime; historical Next.js/pixel app removed. Fictional example isolated from real records.
+- [x] Manual goal/actions, explicit Save/Cancel and drafts preserved across in-app mode changes.
+- [x] Real home CTAs and saved next-move/fallback content derived from actual records.
+- [x] Focus Start/Pause/Extend, conservative recorded effort and explicit Resume after interruption/reload.
+- [x] Browser-local transactional storage, exclusive writer ownership, preserved-data errors and exact Retry.
+- [x] Saved next move/context, optional validated work link, saved time, pause drafts and keyboard save.
+- [x] Complete action, limited durable Undo, all-checked review, explicit goal finish, real history and guarded reopening.
+- [x] Shared theme-aligned mountain reflects actual checked IDs/current/selection; handles 1/2/5/30 actions and noncontiguous outcomes.
+- [x] Identity-scoped checkpoint feedback, single visible summit reward, clearer mobile captions, motion cancellation and no replay.
+- [x] Latest independent checks: syntax, 22 Node tests, build, diff and focused return-fixes Chromium gate passed; earlier mountain/reward gates also independently passed. Implementation evidence records the final full combined suite.
 
-## Approved day-build work
+Evidence: [DAY_BUILD_EVIDENCE.md](DAY_BUILD_EVIDENCE.md), [RETURN_EXPERIENCE_EVIDENCE.md](RETURN_EXPERIENCE_EVIDENCE.md), [MOUNTAIN_EVIDENCE.md](MOUNTAIN_EVIDENCE.md), [MOUNTAIN_REWARDS_EVIDENCE.md](MOUNTAIN_REWARDS_EVIDENCE.md). Tests do not establish product value or a winning submission.
 
-### Bounded follow-up correction pass — 25 October
-- [x] Preserve unsaved create/edit text, action IDs/order and add/remove/reorder state across real → example → real; no canonical save until Save; Cancel discards the draft.
-- [x] Real home uses actual saved instruction/action, accurate create/continue/review CTAs and a coherent finished-only state; illustrative artwork is labelled and never seeds earned progress.
-- [x] Simplify wording only in touched home/goal-form flows; retain local-storage, error, Resume and limited Undo explanations.
-- [x] Focused regressions and final full Chromium integration suite passed; syntax, 16 Node tests, build and diff check passed. Both themes/390px screenshots inspected. See the current correction section in DAY_BUILD_EVIDENCE.md; older results below remain historical.
-- [ ] User accepts the corrected local prototype. Physical-device checks and publication are still separate gates.
+## Reliability corrections — independently reviewed
 
-- [x] Review local code, run syntax/four static tests/build and inspect representative Chromium views; see LOCAL_REVIEW_2026-10-25.md for limitations.
-- [x] Record user-approved UI scope, sequential functional increments and acceptance gates in OPENCODE_DAY_BUILD.md.
-- [x] Remove decorative Focus bar without changing the approved Focus composition.
-- [x] Make Background motion On/Off visibly functional and respect reduced motion.
-- [x] Immediate compact completion dialog, stable quote, finite confetti, dismiss/focus/no-replay behaviour (Gate A: node tests/browser.mjs, both themes/390px/reduced motion).
-- [x] First functional slice passes its creation/focus/context/storage/recovery acceptance gate (10 Node tests + actual Chromium; physical sleep remains unverified).
-- [x] Completion/Undo/review/history/reopen pass the bounded day-build contract (15 Node tests and actual Chromium C loop, including aborted finish and durable Undo after reload).
-- [x] Integrated desktop/390px/theme/keyboard/storage/timing checks and truthful receipt: 16 Node tests, full source browser suite and built-artifact checks; DAY_BUILD_EVIDENCE.md lists physical-device gaps separately.
-- [ ] User reviews local prototype before publication; no GitHub push, hosting or submission is implied.
+- [x] Protect actions containing any saved context/link record from removal in UI AND canonical transition, even without timer history; accessible explanation and untouched-action removal verified.
+- [x] Bound long Today next-move/context presentation with full native expansion; maximum-text phone controls remain within 844px of action-area top; complete canonical/edit/Undo/history text retained.
+- [x] Clear only discarded/matching form validation after Skip/Cancel/input, without hiding storage failures, pending Retry or stopped-timing feedback.
+- [x] Regressions reproduced failures before fixes; syntax, 22 Node tests, build, diff and full combined Chromium suite passed. Fresh evidence: [RETURN_FIXES_EVIDENCE.md](RETURN_FIXES_EVIDENCE.md).
+- [x] Independent diff review, syntax, 22 tests, build, diff check and isolated Chromium return-fixes gate passed. Checked phone collapsed/protected-editor captures; no new blocking finding. Full combined suite is implementation evidence, not independently rerun in this review. Exact original findings: [RETURN_EDGE_REVIEW_2026-10-25.md](RETURN_EDGE_REVIEW_2026-10-25.md).
 
-The earlier Cloud/overnight/first-slice-only planning is historical and superseded. Next action is user review of the combined local prototype, not another implementation worker or automatic publication.
+## Then — one bounded visual experiment
 
-## Demo-only repository baseline
+- [ ] Specify one completion transition: expedition marker follows the earned segment to the next unfinished checkpoint; paused campsite represents a saved place. Resolve final-action review/confirmed summit and reopened earlier actions before implementation.
+- [ ] Prototype within the current mountain; no external asset-pack hunt, terrain redesign or second runnable UI. Target 45–60 minutes including focused checks; this is an estimate, not a guarantee.
+- [ ] User tries it and decides whether it communicates a journey and feels satisfying. Keep the current simpler version if the experiment is not worth the cost.
+- [ ] Verify commit-before-feedback, failure/Retry, Undo/navigation mid-motion, reduced motion/Off and no replay.
+- [ ] Freeze visual/features after that decision. No further cosmetic loop at the expense of delivery.
 
-- [x] Preserve a readable recovery archive outside the repository.
-- [x] Retain only the selected 01b demo as runnable website source.
-- [x] Remove old application UI, engine, framework setup and obsolete proof copies.
-- [x] Replace competing plans with current scope, PRD, specification and design brief.
-- [x] Provide one dependency-free run/build workflow.
-- [x] Verify syntax, serving and build checks after cleanup (4 tests passed).
-- [x] Inspect the retained landing → Today → Focus flow in a browser; navigation preserves the running simulated timer.
-- [x] Commit and push the cleaned baseline; main and codex/trail-redesign verified at 1414887 (followed by this documentation receipt).
+The visual experiment is next in the proposed sequence, not part of the current bug-fix dispatch. Do not start multiple implementation editors or bundle deferred features into either pass.
 
-## Functional core — implemented locally; user acceptance pending
+## Required demo and delivery work
 
-- [x] Prepare local one-day restart checklist and record the pause (25 October 2026; documentation only).
-- [x] Prepare proposed [first functional slice brief](FIRST_FUNCTIONAL_SLICE.md), state/storage/timing contract, acceptance matrix and OpenCode dispatch text (planning only, 25 October 2026).
-- [x] Agree bounded increments and state/storage/completion contract via the user's day-build dispatch.
-- [x] Manual goal creation and editable ordered subtasks.
-- [x] Real focus start/pause/extend with conservative recorded effort and explicit Resume (physical sleep/background limits remain).
-- [x] Optional pause context and saved next action.
-- [x] Durable local storage with failure handling, reload recovery and tab ownership.
-- [x] Durable limited Undo and consistent action/goal completion review.
-- [x] Real finished-work history and guarded reopening/correction.
-- [ ] Real progress mapping for daily route and goal journey.
-- [ ] Explainable importance/neglect recommendations.
-- [ ] Productive-day calendar and three-consecutive-missed-day streak rule.
-- [ ] Reminder feasibility decision, opt-in and verified closed-site delivery.
-- [ ] Optional slim focus window with supported-browser fallback.
-- [ ] Optional editable AI planning with manual fallback.
+- [ ] Observe a real create → work → save place → leave → return → Open work → explicit Resume → finish flow. Record confusion/failures without inventing productivity gains.
+- [ ] Check primary Chrome/Mac sleep/wake/background behaviour; record actual limits. Check a phone layout/device where available. Comet/other browsers are secondary to primary-browser delivery.
+- [ ] Rehearse the exact judge-facing story on the final build, including fresh/no-goal state and realistic saved-place content. Keep fictional seed content labelled and isolated.
+- [ ] Freeze a reviewable build and save a GitHub checkpoint when authorized; preserve main unless explicitly requested otherwise.
+- [ ] Select hosting, authorize deployment, deploy and verify public judge access, asset loading and the complete core flow on the final origin. Local records do not automatically move between origins.
+- [ ] Record a concise product-first video and prepare submission copy/screenshots/repository documentation. Verify the current event requirements before submission.
+- [ ] Align all claims with implemented/tested behaviour and disclose local-only storage and remaining background/device limits.
+- [ ] User reviews final submission materials and submits/authorizes submission.
 
-## Visual and submission work
+Working target remains a demo ready around 17:00–18:00 IST on 25 October, with 19:00 as the user's latest desired prototype finish, leaving submission preparation time. Check actual remaining time before starting another scope; these targets do not assert hours remaining or the event deadline.
 
-- [x] Resolve the dispatched specific visual corrections against the retained baseline.
-- [x] Compact immediate reward/ribbons, Focus rail removal and labelled motion. Landing art and both-theme compositions retained, not redesigned.
-- [x] Fix known proof wording edge cases: completed example fallback says checked, all-checked artwork has no unfinished marker, and blank context copy matches preserved-field behaviour.
-- [x] Verify long/HTML-looking text, 30 actions, 390px layout, keyboard reorder/dialog controls and reduced motion in local headless Chromium (not a complete screen-reader/hardware audit).
-- [ ] Test Chrome/Mac background, sleep, Comet and physical-device behaviour as applicable.
-- [ ] Host the final demo and verify judge access.
-- [ ] Record a concise product-first video and align submission claims with evidence.
+## Deferred beyond the current delivery scope
 
-Check items only with actual evidence. Update this file after every bounded task. Source pushed to GitHub is not deployment or product acceptance.
+These are product ideas, not unfinished requirements that all have to ship today. Reconsider only after the core demo and delivery work are secure.
+
+- Productive-day calendar/streaks: agree timezone, qualifying work, missed-day/grace and Undo/recompletion rules first. Earlier three-missed-day rule is a proposal, not implemented behaviour.
+- Optional completion sound with a separate explicit toggle. Background motion currently has no audio.
+- Importance/neglect recommendations and closed-site reminders with verified delivery/quiet hours.
+- Floating focus/PiP window and browser fallback.
+- Optional editable AI planning with manual fallback.
+- Sync/accounts, automatic activity capture and richer multi-goal features.
+- Daily effort-to-route mapping. Current mountain maps action states; height/distance are illustrative and not measured productivity.
+
+Update this checklist after each bounded result. Keep implementation, user acceptance, source publication, deployment and submission distinct. The current task authorizes documentation and a bug-fix dispatch; it does not authorize a new push/deployment/submission.

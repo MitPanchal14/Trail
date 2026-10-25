@@ -8,7 +8,8 @@ const output=process.env.TRAIL_EVIDENCE||'/private/var/folders/xf/gtc75bps4tx93_
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch();
 try {
-  if(process.env.TRAIL_GATE==='rewards')await runRewards(browser);
+  if(process.env.TRAIL_GATE==='return-fixes')await runReturnFixes(browser);
+  else if(process.env.TRAIL_GATE==='rewards')await runRewards(browser);
   else if(process.env.TRAIL_GATE==='mountain')await runMountain(browser);
   else if(process.env.TRAIL_GATE==='return')await runReturn(browser);
   else if(process.env.TRAIL_GATE==='correction')await runCorrections(browser);
@@ -74,6 +75,7 @@ try {
   await runReturn(browser);
   await runMountain(browser);
   await runRewards(browser);
+  await runReturnFixes(browser);
   }
 } finally {await browser.close();}
 
@@ -81,6 +83,62 @@ async function snapshot(page){return page.evaluate(async()=>{
   const {openDatabase}=await import('/storage.js');const db=await openDatabase();
   return new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readonly'),r=tx.objectStore('workspace').get('current');let value;r.onsuccess=()=>value=r.result;tx.oncomplete=()=>{db.close();resolve(value);};tx.onerror=()=>reject(tx.error);});
 });}
+async function runReturnFixes(browser){
+  const c=await browser.newContext({viewport:{width:390,height:844}}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+  const repeatTo=(text,n)=>(text.repeat(Math.ceil(n/text.length))).slice(0,n-1)+'Z';
+  const instruction=repeatTo('Open <draft> & keep this line.\nUnbroken'+ 'word'.repeat(30)+'\n',4000),context=repeatTo('Remember <source> & costs.\n'+ 'long'.repeat(40)+'\n',4000),reference='https://example.com/draft?q=1#next';
+  async function pause(){await p.click('[data-work="pause"]');await p.locator('#real-pause-form').waitFor();}
+  async function extras(){if(!await p.locator('#pause-extras').evaluate(el=>el.open))await p.locator('#pause-extras summary').click();}
+  async function saved(){await p.locator('.workspace').waitFor();return snapshot(p);}
+  async function controlsReachable(){return p.locator('.action-area').evaluate(area=>{const top=area.getBoundingClientRect().top,link=area.querySelector('.work-link').getBoundingClientRect(),focus=area.querySelector('[data-work="start"],[data-work="resume"],[data-work="focus"]').getBoundingClientRect();return {link:link.bottom-top,focus:focus.bottom-top};});}
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});await create(p,'A normal-title goal',['Write the draft','Untouched action']);let w=await snapshot(p);const goalId=w.openGoalId,[a,b]=w.goals[goalId].actionOrder;
+    await pause();await p.fill('#return-note',instruction);await extras();await p.fill('#pause-context',context);await p.fill('#work-url',reference);await p.click('#real-pause-form [type="submit"]');w=await saved();const exact=structuredClone(w.contexts[a]);
+    assert.equal(exact.nextInstruction,instruction);assert.equal(exact.context,context);assert.equal(Object.keys(w.sessions).length,0);
+    const reach=await controlsReachable();await p.click('[data-work="edit"]');const protectedRemove=await p.locator(`[data-draft="remove"][data-id="${a}"]`).isDisabled();await p.click('[data-work="cancel"]');
+    await pause();await extras();await p.fill('#work-url','javascript:alert(1)');await p.click('#real-pause-form [type="submit"]');await p.locator('#storage-status [role="alert"]').waitFor();await p.click('[data-work="skip"]');const cleared=await p.locator('#storage-status').isHidden();
+    console.log('Return-fix reproduction/acceptance:',JSON.stringify({protectedRemove,linkFromAreaTop:reach.link,focusFromAreaTop:reach.focus,discardedValidationCleared:cleared}));
+    assert.equal(protectedRemove,true);assert.ok(reach.link<=844&&reach.focus<=844);assert.equal(cleared,true);assert.deepEqual((await snapshot(p)).contexts[a],exact);
+    // Protection applies in UI and survives actual failed goal save / exact Retry / reload.
+    await p.click('[data-work="edit"]');const remove=p.locator(`[data-draft="remove"][data-id="${a}"]`);assert.equal(await remove.isDisabled(),true);const description=await remove.getAttribute('aria-describedby');assert.ok(description);assert.match(await p.locator(`#${description}`).textContent(),/saved context|recorded work/i);await p.screenshot({path:`${output}/return-fixes-protected-editor-390.png`,fullPage:true});
+    assert.equal(await p.locator(`[data-draft="remove"][data-id="${b}"]`).isEnabled(),true);await p.locator(`[data-draft="remove"][data-id="${b}"]`).click();await p.fill(`[data-draft-id="${a}"]`,'Write the draft, edited');
+    await p.evaluate(()=>{const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const r=put.apply(this,args);if(window.abortFixWrite){window.abortFixWrite=false;this.transaction.abort();}return r;};window.abortFixWrite=true;});
+    const beforeGoalSave=await snapshot(p);await p.click('#goal-form [type="submit"]');await p.locator('#storage-status [role="alert"]').waitFor();assert.deepEqual(await snapshot(p),beforeGoalSave);assert.equal(await p.inputValue(`[data-draft-id="${a}"]`),'Write the draft, edited');
+    await p.click('#storage-status [data-work="retry"]');w=await saved();assert.equal(w.revision,beforeGoalSave.revision+1);assert.equal(w.actions[b],undefined);assert.deepEqual(w.contexts[a],exact);await p.reload();await p.locator('.workspace').waitFor();assert.deepEqual((await snapshot(p)).contexts[a],exact);
+    // Native expansion preserves exact literal/multiline full text and never writes or starts timing.
+    for(const theme of ['light','dark'])for(const width of [1440,390]){
+      await p.setViewportSize({width,height:width===390?844:1000});await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(180);await p.click(`[data-theme="${theme}"]`);await p.waitForTimeout(180);
+      const beforeExpansion=await snapshot(p),position=await controlsReachable();assert.ok(position.link<=844&&position.focus<=844);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      const details=p.locator('.return-expansion');assert.equal(await details.evaluate(el=>el.open),false);await p.screenshot({path:`${output}/return-fixes-collapsed-${theme}-${width}.png`,fullPage:true});
+      await details.locator('summary').focus();await p.keyboard.press('Enter');assert.equal(await details.evaluate(el=>el.open),true);assert.equal(await p.locator('.return-full-instruction').textContent(),instruction);assert.equal(await p.locator('.return-full-context').textContent(),context);assert.equal(await p.locator('.action-area img,.action-area script').count(),0);
+      assert.equal(await details.evaluate(el=>getComputedStyle(el).overflowY==='visible'&&el.scrollHeight<=el.clientHeight+1),true,'Full text expands in document flow, not a nested scrolling trap');
+      await p.screenshot({path:`${output}/return-fixes-expanded-${theme}-${width}.png`,fullPage:true});await p.keyboard.press('Space');assert.equal(await details.evaluate(el=>el.open),false);assert.deepEqual(await snapshot(p),beforeExpansion);
+    }
+    await pause();assert.equal(await p.inputValue('#return-note'),instruction);await extras();assert.equal(await p.inputValue('#pause-context'),context);await p.click('[data-work="skip"]');
+    await p.click('[data-work="start"]');await p.locator('.focus-clock').waitFor();await p.click('[data-work="complete"]');await p.locator('#review[open]').waitFor();await p.keyboard.press('Escape');await p.click('#main [data-work="undo"]');await p.locator('[data-work="resume"]').first().waitFor();assert.deepEqual((await snapshot(p)).contexts[a],exact);
+    await p.click('[data-work="focus"]');await p.click('[data-work="complete"]');await p.locator('#review[open]').waitFor();await p.click('#review [data-action="confirm"]');await p.locator('#reward[open]').waitFor();await p.keyboard.press('Escape');await p.locator('.finished-card details summary').click();assert.ok((await p.locator('.finished-action').textContent()).includes(instruction));assert.ok((await p.locator('.finished-action').textContent()).includes(context));assert.deepEqual((await snapshot(p)).contexts[a],exact);
+    await p.click('[data-reopen-goal]');await p.locator('#review[open]').waitFor();await p.keyboard.press('Escape');await p.locator(`[data-select="${a}"]`).click();await p.click('[data-work="reopen-action"]');await saved();
+    // Invalid pause draft survives navigation. Only explicit matching discard/input clears its error.
+    await pause();await extras();await p.fill('#return-note','Unsaved invalid draft');await p.fill('#work-url','javascript:alert(1)');const beforeInvalid=await snapshot(p);await p.click('#real-pause-form [type="submit"]');await p.locator('#storage-status [role="alert"]').waitFor();
+    await p.click('[data-nav="journey"]');assert.match(await p.locator('#storage-status').textContent(),/Not saved/);await p.click('[data-nav="today"]');await p.click('[data-work="edit"]');await p.fill('#goal-title','Unrelated edit');assert.match(await p.locator('#storage-status').textContent(),/Not saved/);await p.click('[data-work="cancel"]');await pause();await extras();assert.equal(await p.inputValue('#return-note'),'Unsaved invalid draft');assert.equal(await p.inputValue('#work-url'),'javascript:alert(1)');
+    await p.click('[data-work="skip"]');assert.equal(await p.locator('#storage-status').isHidden(),true);assert.deepEqual(await snapshot(p),beforeInvalid);await pause();await extras();assert.equal(await p.inputValue('#return-note'),instruction);assert.equal(await p.inputValue('#work-url'),reference);await p.click('[data-work="skip"]');
+    await p.click('[data-work="edit"]');await p.fill('#goal-title','   ');await p.click('#goal-form [type="submit"]');await p.locator('#storage-status [role="alert"]').waitFor();await p.click('[data-nav="today"]');await pause();await p.fill('#return-note','Not the goal form');assert.match(await p.locator('#storage-status').textContent(),/Not saved/);await p.click('[data-work="skip"]');assert.match(await p.locator('#storage-status').textContent(),/Not saved/);await p.click('[data-work="edit"]');await p.click('[data-work="cancel"]');assert.equal(await p.locator('#storage-status').isHidden(),true);
+    // A write failure is not discarded validation: navigation/Skip must not hide pending exact Retry.
+    await pause();await extras();await p.fill('#return-note','Saved after exact Retry');await p.check('#remove-resource');const beforeNotes=await snapshot(p);await p.evaluate(()=>{const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(...args){const r=put.apply(this,args);if(window.abortFixWrite){window.abortFixWrite=false;this.transaction.abort();}return r;};window.abortFixWrite=true;});await p.click('#real-pause-form [type="submit"]');await p.locator('#storage-status [role="alert"]').waitFor();assert.deepEqual(await snapshot(p),beforeNotes);assert.equal(await p.inputValue('#return-note'),'Saved after exact Retry');assert.equal(await p.isChecked('#remove-resource'),true);
+    assert.equal(await p.locator('[data-work="skip"]').isDisabled(),true);await p.click('[data-nav="today"]');await p.evaluate(()=>{document.querySelector('[data-work="skip"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));document.querySelector('#return-note').dispatchEvent(new Event('input',{bubbles:true}));});
+    assert.equal(await p.locator('#real-pause-form').count(),1);assert.match(await p.locator('#storage-status').textContent(),/Not saved.*real timing stopped/);assert.equal(await p.locator('#storage-status [data-work="retry"]').count(),1);assert.deepEqual(await snapshot(p),beforeNotes);
+    await p.click('#storage-status [data-work="retry"]');w=await saved();assert.equal(w.revision,beforeNotes.revision+1);assert.equal(w.contexts[a].nextInstruction,'Saved after exact Retry');assert.equal(Object.hasOwn(w.contexts[a],'resourceUrl'),false);assert.equal(w.contexts[a].context,context);
+    // Ordinary short notes retain the familiar unexpanded composition.
+    await pause();await p.fill('#return-note','Open the draft.');await extras();await p.fill('#pause-context','Check the budget first.');await p.fill('#work-url',reference);await p.click('#real-pause-form [type="submit"]');await saved();assert.equal(await p.locator('.return-expansion').count(),0);assert.equal(await p.locator('.action-area .instruction').textContent(),'Open the draft.');assert.equal(await p.locator('.action-area .saved-context p').textContent(),'Check the budget first.');
+    for(const theme of ['light','dark'])for(const width of [1440,390]){await p.setViewportSize({width,height:width===390?844:1000});await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(180);await p.click(`[data-theme="${theme}"]`);await p.waitForTimeout(180);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:`${output}/return-fixes-short-${theme}-${width}.png`,fullPage:true});}assert.deepEqual(errors,[]);
+    const linkOnlyContext=await browser.newContext(),linkOnly=await linkOnlyContext.newPage();
+    try{
+      await linkOnly.goto(url);await linkOnly.locator('#storage-status').waitFor({state:'hidden'});await create(linkOnly,'Link-only saved work',['Linked action','Untouched action']);await linkOnly.click('[data-work="pause"]');await linkOnly.locator('#pause-extras summary').click();await linkOnly.fill('#work-url',reference);await linkOnly.click('#real-pause-form [type="submit"]');await linkOnly.locator('.workspace').waitFor();const linkState=await snapshot(linkOnly),id=linkState.goals[linkState.openGoalId].actionOrder[0];assert.equal(linkState.contexts[id].nextInstruction,'');assert.equal(linkState.contexts[id].context,'');assert.equal(Object.keys(linkState.sessions).length,0);
+      await linkOnly.reload();await linkOnly.locator('.workspace').waitFor();await linkOnly.click('[data-work="edit"]');assert.equal(await linkOnly.locator(`[data-draft="remove"][data-id="${id}"]`).isDisabled(),true);assert.deepEqual((await snapshot(linkOnly)).contexts[id],linkState.contexts[id]);
+    }finally{await linkOnlyContext.close();}
+    console.log('Return fixes gate passed: protected context edit/abort/Retry/reload, 4000+4000 bounded controls/full keyboard expansion/edit/Undo/history, scoped Skip/input/discard validation, preserved failed-write draft/removal intent/pending Retry, short notes and themes/390px.');
+  }finally{await c.close();}
+}
 async function runRewards(browser){
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),p=await context.newPage(),errors=[];
   p.on('pageerror',e=>errors.push(e.message));

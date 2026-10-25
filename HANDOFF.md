@@ -1,5 +1,23 @@
 # Current handoff — local core-loop prototype
 
+## Independent return-fix review passed — 25 October
+
+Independently inspected runtime diff/evidence and mobile collapsed/protected-editor captures, reran syntax, all 22 Node tests, build, diff check and `TRAIL_GATE=return-fixes` with isolated Chromium data. All passed; no new blocking finding. Fresh acceptance output: protected Remove true, Open work/focus control bottoms ~474px/~542px from action-area top, discarded validation cleared true. Gate also verified aborted edit/notes saves, exact Retry, full-text expansion/edit/reload/Undo/history and scoped validation without hiding storage errors. Fresh browser captures: `/tmp/trail-independent-return-fixes/`. The complete combined suite remains implementation evidence; this independent review reran the focused gate only.
+
+Checklist marks the three findings independently reviewed. Runtime remains uncommitted over 3081396; no runtime changes, push or deployment by this review. Visual satisfaction, physical device/sleep and delivery work remain open. Next candidate is the separately scoped travelling-marker experiment; it has not been started. Earlier pending-review receipt below is historical.
+
+## Three return corrections verified — independent review next
+
+25 October: OPENCODE_RETURN_FIXES.md implemented locally on `codex/trail-redesign`; HEAD remains `3081396`, no commit/push/deploy. Preserve the current diff and newer planning. Pre-edit mapping: `devpost/RETURN_FIXES_IMPLEMENTATION_PLAN.md`; fresh results/screenshots: `devpost/RETURN_FIXES_EVIDENCE.md`. Any context record now protects removal in UI/domain with an accessible disabled-control explanation. Long Today notes get a bounded preview/full native expansion with work/focus controls above supporting text. Matching form discard/input clears only its validation; storage failures and pending exact Retry remain protective. Short-note layout, mountain/rewards, canonical IDs/normalization and timing/storage/ownership/Resume are retained.
+
+New regressions failed before fixes and now pass. Final syntax, **22 Node tests**, build, diff and one complete Chromium A/B/C/edge/correction/return/mountain/rewards/return-fixes run passed after runtime edits. Maximum 4,000+4,000 fixture controls are at ~474px/542px from action-area top at 390×844 (previously ~7,953px/8,021px). Full text/edit/reload/Undo/history and failure/removal-intent Retry verified. Preview http://127.0.0.1:3000/. Stop for independent review; the three findings are implementation-fixed, not independently accepted yet. Visual delight and physical/browser/sleep/user-value acceptance remain open. No travelling marker/campsite, streak/audio, added features or publication. The continuation/planning header below is historical.
+
+## Current continuation — checklist reconciled; three fixes next
+
+25 October: source checkpoint `3081396258691175bd6a6d1da3030e16788c08c8` was pushed and verified on origin/codex/trail-redesign in the publication turn; main was unchanged. The older uncommitted/4d2b9fb receipts below are historical. User accepts current mountain silhouette/depth and written layout but subsequently rejected the rewards as an ordinary visualization; visual satisfaction is NOT accepted. A travelling marker/campsite is a proposed later bounded experiment, not implemented.
+
+`devpost/checklist.md` is now the consolidated current delivery list: three reliability fixes → one visual experiment/decision → freeze and delivery. Next exact OpenCode task: `devpost/OPENCODE_RETURN_FIXES.md`. Preserve the current UI and runtime; fix context-only action removal, long-text control reachability and discarded form-validation lifecycle. Stop for review before marker/streak/audio work. This update changes documentation only and grants no new push/deploy/submission authorization. Historical evidence remains in the linked receipts.
+
 ## Mountain rewards verified — stop for visual review
 
 25 October: OPENCODE_MOUNTAIN_REWARDS.md implemented over preserved uncommitted mountain work on `codex/trail-redesign`; HEAD remains `4d2b9fb`. Plan: `devpost/MOUNTAIN_REWARDS_IMPLEMENTATION_PLAN.md`; current receipt/captures: `devpost/MOUNTAIN_REWARDS_EVIDENCE.md`. Applied completions now get one identity-scoped 600ms path/check/spark response; explicit committed finish gets a visible warm summit halo/flag inside the existing single dismissible reward. Mobile current/summit/count captions are readable outside SVG. Terrain and written layout/canonical engines remain intact. Note saves stay quiet; review is not finish; effects cannot delay/overwrite Undo or newer state. Off/reduced motion stops all reward motion, including mid-effect.

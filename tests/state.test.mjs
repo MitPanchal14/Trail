@@ -134,3 +134,19 @@ test('completion Undo, history and correction keep the exact work reference acti
   w=run(w,'complete-action',{actionId:'a'});w=run(w,'complete-action',{actionId:'b'});w=run(w,'finish-goal',{goalId:id});assert.deepEqual(w.contexts.a,savedContext);
   w=run(w,'reopen-goal',{goalId:id});w=run(w,'reopen-action',{actionId:'a'});assert.deepEqual(w.contexts.a,savedContext);assert.equal(w.contexts.b,undefined);assert.equal(effort(w,id),1200);
 });
+test('context-only, link-only and empty saved context protect removal without mutating rejected input',()=>{
+  for(const fields of [{instruction:'Next move',context:'Where I stopped'},{instruction:'',context:'',resourceUrl:'https://example.com/work#next'},{instruction:'',context:''}]){
+    const w=run(setup(),'notes',fields),before=structuredClone(w);
+    assert.equal(Object.keys(w.sessions).length,0);
+    assert.throws(()=>run(w,'save-goal',{goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'b',title:'Second'}]}),/cannot be removed/);
+    assert.deepEqual(w,before);
+    const save=cmd('save-goal',{goalId:w.openGoalId,title:'Renamed',definition:'Done',actions:[{id:'a',title:'First edited'}]}),edited=transition(w,save,12000);
+    assert.equal(edited.actions.b,undefined);assert.deepEqual(edited.contexts.a,before.contexts.a);assert.deepEqual(transition(edited,save,13000),edited);
+  }
+});
+test('recorded/completed removal guards remain conservative; untouched actions remain removable',()=>{
+  let w=run(setup(),'start',{minutes:20});w=run(w,'complete-action',{actionId:'a',deltaMs:123});w=run(w,'reopen-action',{actionId:'a'});
+  const before=structuredClone(w);assert.throws(()=>run(w,'save-goal',{goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'b',title:'Second'}]}));assert.deepEqual(w,before);
+  w=run(setup(),'complete-action',{actionId:'a'});const completed=structuredClone(w);assert.throws(()=>run(w,'save-goal',{goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'b',title:'Second'}]}));assert.deepEqual(w,completed);
+  w=setup();w=run(w,'save-goal',{goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'b',title:'Second'}]});assert.equal(w.actions.a,undefined);assert.deepEqual(w.goals[w.openGoalId].actionOrder,['b']);
+});
