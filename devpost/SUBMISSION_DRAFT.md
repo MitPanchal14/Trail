@@ -30,7 +30,11 @@ Trail brings a concrete return instruction, optional reference, explicit focus c
 
 ## How it was built
 
-One static application uses browser JavaScript modules, HTML and CSS with custom SVG terrain. Node20+ serves/builds seven allowlisted assets; the application has no package dependencies or backend. A canonical transition engine validates goals, actions, sessions, notes and events. IndexedDB commits publish successful state only after the transaction completes. Web Locks gives one tab writer ownership. Exact operation receipts make retries idempotent.
+One static application uses browser JavaScript modules, HTML and CSS with custom SVG terrain. Node20+ serves/builds eight allowlisted assets including a pure activity helper; the application has no package dependencies or backend. A canonical transition engine validates goals, actions, sessions, notes and events. IndexedDB commits publish successful state only after the transaction completes. Web Locks gives one tab writer ownership. Exact operation receipts make retries idempotent.
+
+The latest local increments add explicit saved-text removal (blank/Skip still preserve), twelve named browser-local months with accessible date selection and on-demand exact day tasks, current/best streaks and highest/next 1/5/10/25 milestone. A compact two-column desktop/one-column phone archive starts newest eight + Show more; titles open full read-only saved work dialogs. Optional goal Priority changes explicit label/card palette only (Low/Normal/Important), not action order or urgency scoring. Currently checked actions alone count, including corrections; this is not external tracking or proof of attention/productivity.
+
+Home now explains the productivity/focus benefit and exposes a labelled ready-made demo panel even for returning users. The shared fictional year/archive has eight realistic goals, mixed priorities/all intensity levels/gaps and exact sample day details; gallery includes stopped saved return, explicit simulated Focus/Pause/End, labelled interruption, review vs finished, long and empty examples. Samples remain in memory and never become real records. Sample correction/link-editor limitations are explicit. Independent/user review remains pending; dark Focus redesign, native-browser/device checks, publication, recording and submission are not established by local examples/tests.
 
 Timing uses conservative wall/monotonic checks. Uncertain gaps and reopening require explicit Resume, with no unverified away-time credit. Fictional examples are labelled and kept outside the real records. Animation updates only presentation and can be cancelled without changing outcomes.
 
@@ -54,7 +58,7 @@ Completion, saved context and effort need distinct meanings. A return note can b
 
 ## Future work
 
-Observe real interruption/return use and revise the experience around actual confusion. Verify physical Chrome/Mac and phone behavior. Consider export/backup and sync only with an explicit data/recovery design. Reminders, streaks, audio, AI planning and extra mountain themes remain ideas, not current features.
+Observe real interruption/return use and revise the experience around actual confusion. Verify physical Chrome/Mac and phone behavior. Consider export/backup and sync only with an explicit data/recovery design. Reminders, audio, AI planning and extra mountain themes remain ideas, not current features.
 
 ## Known limits
 

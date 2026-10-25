@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
   <title>Trail — a way back to work</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 25L14 7h6l-3 9h9L15 27' fill='none' stroke='%234167ec' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 26L12 7L22 26' fill='none' stroke='%234167ec' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M15 26L23 12L30 26' fill='none' stroke='%237849df' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
   <script src="proof.js" type="module"></script>
 </head>
@@ -15,12 +15,21 @@
     <span id="mode-label"><i class="demo-dot"></i> Real work · local to this browser</span>
     <div><button id="real-mode" class="text-button">Real work</button> · <button id="example-mode" class="text-button">Fictional example</button></div>
     <div class="proof-controls" id="example-controls" hidden>
-      <label for="scenario">Preview state</label>
+      <label for="scenario">Explore a ready-made demo</label>
        <select id="scenario">
+         <option value="sample-browse">Browse demo states</option>
+         <option value="sample-saved">Return to saved work · stopped</option>
+         <option value="sample-activity">Twelve months of sample activity</option>
+         <option value="sample-archive">Finished collection · eight goals</option>
+         <option value="sample-focus">Focus · start explicitly</option>
+         <option value="sample-interrupted">Interrupted · simulated recovery</option>
+         <option value="sample-review">All checked · review still required</option>
+         <option value="sample-long">Long saved place</option>
+         <option value="sample-empty">Fresh / empty records</option>
          <option value="landing">First visit / landing</option>
         <option value="today">Returning Today</option>
         <option value="journey">Goal journey</option>
-        <option value="focus">Focus running</option>
+         <option value="focus">Focus · paused preview</option>
         <option value="pause">Pause / saved place</option>
         <option value="expired">Block ended</option>
         <option value="final">Final-step review</option>
@@ -32,7 +41,7 @@
     </div>
   </div>
   <header class="header">
-    <a class="brand" href="#home" aria-label="Trail Home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 25 14 7h6l-4 10h10L15 27"/></svg>Trail<span class="brand-period">.</span></a>
+    <a class="brand" href="#home" aria-label="Trail Home"><svg viewBox="0 0 32 32" aria-hidden="true"><path class="brand-peak-blue" d="M3 26L12 7L22 26"/><path class="brand-peak-violet" d="M15 26L23 12L30 26"/></svg>Trail<span class="brand-period">.</span></a>
     <nav aria-label="Main"><button data-nav="today">Today</button><button data-nav="journey">Goal journey</button><button data-nav="finished">Finished work</button></nav>
     <div class="theme-control" role="group" aria-label="Colour theme"><button data-theme="light" aria-pressed="true">Light</button><button data-theme="dark" aria-pressed="false">Dark</button></div>
   </header>
@@ -55,5 +64,6 @@
     <p id="reward-goal" class="review-goal"></p><p id="reward-kind" class="hint"></p>
     <button class="button primary" data-action="exit-celebration">View finished work</button>
   </dialog>
+  <dialog id="history-detail" aria-labelledby="history-detail-title"><div class="history-dialog-heading"><h2 id="history-detail-title"></h2><button type="button" class="button" id="history-detail-close">Close</button></div><div id="history-detail-body"></div></dialog>
 </body>
 </html>

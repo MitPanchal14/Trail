@@ -2,6 +2,43 @@
 
 Updated 25 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+## Latest feedback — 25 October, after 21:29 IST
+
+User accepts the calendar graphic, requests shorter default details, cleaner archive controls, mountain branding, immediately clear productivity positioning and priority-based card variety. JUDGE_CLARITY_REVISION.md / OPENCODE_JUDGE_CLARITY.md A/B/C are now implemented locally in order, with focused gates between milestones. Current receipt: [JUDGE_CLARITY_EVIDENCE.md](JUDGE_CLARITY_EVIDENCE.md). Old inline archive disclosure/default day lists are superseded; real work and labelled samples stay separate. Final combined runtime verification is recorded in the receipt, never inferred from the earlier 35-test baseline.
+
+- [x] Record latest screenshots/decisions and sequential bounded implementation brief before edits.
+- [x] A: optional compatible goal Priority Low/Normal/Important; old snapshots/commands, invalid/default/enums, drafts/Cancel/actual abort/exact Retry/reload/Undo/history tested before B.
+- [x] B: productivity-first headline/category and all-home demo access, genuine returning cues; fresh desktop and phone first-viewport checks.
+- [x] B: original minimal mountain brand/favicon, Trail. wordmark/accepted terrain retained.
+- [x] B: day date/count defaults with explicit View actions, counted archive heading/focus-safe jump.
+- [x] B: removed inline review row; title-opened full read-only dialog with scroll/safe links/Close/Escape/focus return and read-only/pending/no-write guards.
+- [x] B: labelled semantic priority families in both themes, independent of action count, no random colours/scoring/sort.
+- [x] C: shared fictional year/archive/gallery, eight meaningful goals/42 actions, all months/tiers/gaps/priority labels, explicit simulated Focus/Pause/End/recovery/review/long/empty, deterministic reset/range refresh and real-record/draft/Undo/pending isolation tested.
+- [x] Final combined judge-clarity verification: syntax, **38 Node tests**, exact eight-asset build/parity, diff and **all 19 Chromium gates passed** after final runtime edit. Exact receipt, repaired findings and matched captures: JUDGE_CLARITY_EVIDENCE.md / trail-clarity/final-verified/.
+- [x] Independent A–C review, 26 October: fresh syntax, 38 Node tests, build/diff, focused priority/clarity/examples and full **19-gate Chromium suite passed**, exit 0; source and fresh desktop/phone captures inspected, no blocking defect found. Receipt: [INDEPENDENT_JUDGE_CLARITY_REVIEW.md](INDEPENDENT_JUDGE_CLARITY_REVIEW.md).
+- [ ] User visual acceptance of home, calendar/details, priorities/cards and history dialog; phone year still tall with archive jump.
+- [ ] Optional pre-recording fixture-only refinement: sample dates currently always the 15th, so best streak is 1; consider varied days/short consecutive run without fake real records or changed counting semantics. Not a blocking defect or implemented correction.
+- [ ] Bounded dark Focus correction and delivery/freeze gates. No automatic source publication/deployment/submission.
+
+## Latest user revision — supersedes earlier visual-freeze proposals
+
+Current detailed report: [DEMO_REFINEMENT_REPORT.md](DEMO_REFINEMENT_REPORT.md). Pass 1 is now implemented locally; Pass 2 and Focus remain unimplemented. Current receipt: [YEAR_ACTIVITY_AND_ARCHIVE_EVIDENCE.md](YEAR_ACTIVITY_AND_ARCHIVE_EVIDENCE.md). Earlier 12-week evidence remains valid for that historical baseline, not user acceptance of this presentation.
+
+- [x] Independently verify current activity/note-removal baseline: syntax, 33 Node tests, eight-asset build, diff and focused activity/note-removal Chromium gates passed; no full 15-gate independent rerun claimed.
+- [x] Measure existing fictional Focus background movement in both Chromium themes; transforms change. Native Safari/perceptibility remains unverified.
+- [x] Record remaining-work report and first bounded OpenCode prompt before runtime edits.
+- [x] Pass 1: twelve named month blocks, 14px heatmap squares, exact date/details plus 44px date alternative, existing correction/date/count semantics; singular/plural/help cleanup.
+- [x] Pass 1: two-column desktop/one-column phone archive, smaller natural cards/full-width expanded phone details, latest eight plus Show more; all retained history reachable and guarded reopening intact.
+- [x] Verify Pass 1: syntax, **35 Node tests**, exact eight-asset build/parity, diff and **all 16 Chromium gates** passed after final runtime edit. New year/archive gate covers 0/1/8/9/30, months/leap/padding/selection, busy-day expansion, canonical no-write/Retry/read-only guards and month rollover/focus. Preferred settled-theme captures and exact dimensions: YEAR_ACTIVITY_AND_ARCHIVE_EVIDENCE.md.
+- [x] Independently review Pass 1: fresh syntax, 35 Node tests, build/diff and year/archive + compact + activity Chromium gates passed; inspected desktop/phone captures, no blocking defect found. Receipt: [INDEPENDENT_YEAR_ACTIVITY_REVIEW.md](INDEPENDENT_YEAR_ACTIVITY_REVIEW.md). Full sixteen-gate rerun not claimed.
+- [ ] Obtain user visual acceptance of Pass 1, including tall wrapped phone year/busy-day details. Exact brief: [OPENCODE_YEAR_ACTIVITY_AND_ARCHIVE.md](OPENCODE_YEAR_ACTIVITY_AND_ARCHIVE.md).
+- [x] Pass 2: visible home ready-made demo panel and direct saved-return/activity/scenario entries; real work/drafts and explicit timing preserved by judge-clarity increment.
+- [x] Pass 2: shared populated fictional year/archive/scenarios with exact tasks/tiers/priority palettes, memory-only/reset/exit and explicit simulation limits; never seeds real records or claims observed failures.
+- [ ] Pass 3: bounded dark Focus surface/ambient palette correction; reproduce Safari stillness, verify perceptible calm On motion and strict Off/reduced-motion cancellation.
+- [ ] Final combined review, user visual acceptance, current-doc reconciliation and feature freeze; then existing final-origin/public-source/recording/submission gates below. Friend trials remain intentionally skipped.
+
+Pass 1 changes only the authorized local activity/archive presentation; no source publication, deployment or submission. Historical completed/incomplete entries below must be interpreted against their dated receipts and this latest section. Independent/user visual review remains open; no automatic Pass 2/Focus work.
+
 ## Current local reconciliation
 
 - [x] Fetch and verify cloud branch at `24b7126c25e582cda3ddb1286d3c7444bf516395`; source imported into the local working tree without changing HEAD/main.
@@ -106,6 +143,12 @@ Runtime/tests unchanged by this research follow-up. Earlier completed verificati
 
 ## Current final-demo direction — user decision, 25 October
 
+Latest authorization (~18:58 IST): user requests all four remaining additions before finalization. OPENCODE_ACTIVITY_AND_NOTE_REMOVAL.md is the current exact brief. It is now implemented locally: explicit removal + focused A gate preceded Phase B; final combined syntax, 33 Node tests, build/exact eight-asset parity, diff and all 15 Chromium gates passed. Receipt: ACTIVITY_AND_NOTE_REMOVAL_EVIDENCE.md. Earlier deferred/unimplemented/obsolete-note limitation wording below is superseded for these items only. No prior 19:00 deadline success claimed; no publication authorized.
+
+- [x] Implement Phase A explicit saved next-move/context removal, preserving blank/Skip defaults and exact Retry/drafts/Undo contracts.
+- [x] Implement Phase B real read-only 12-week activity, selected-day task details, correction-aware current/best streaks and minimal derived badges.
+- [ ] Independently review the combined result and obtain user visual feedback before freeze/publication.
+
 - [x] Independently review compact cards/progress dot: fresh syntax, 25 Node tests, build, diff and compact/travelling Chromium gates passed. Receipt: INDEPENDENT_COMPACT_REVIEW.md. No new blocker; mobile long-content column width remains an optional visual refinement. User visual acceptance remains pending; no calendar implemented by this review.
 
 Latest user feedback (18:12 IST) supersedes the earlier pending-input step: remove the human climber; compact Finished work cards with a minimal white outline mountain. Next exact task: OPENCODE_COMPACT_FINISH_VISUALS.md. The requested calendar/streak/badge addition has a separate bounded proposal in FINAL_REVISION_DECISIONS.md; it is not implemented or included in this visual task.
@@ -113,14 +156,14 @@ Latest user feedback (18:12 IST) supersedes the earlier pending-input step: remo
 - [x] Implement small-circle replacement everywhere, retaining campsite/identity/path/780ms motion; compact real/fictional history cards with clipped white outline decoration, natural expansion and guarded reopening. Before/after evidence: COMPACT_FINISH_VISUALS_EVIDENCE.md.
 - [x] Verify compact visuals: syntax, 25 Node tests, build parity, diff, focused visual/history/travelling/rewards checks and all 13 Chromium gates passed on final runtime. Ordinary phone fixtures measured 283–312px; max titles/details grow naturally.
 - [ ] Independently review compact history/progress circle and obtain the user's visual decision. Implementation is not visual acceptance; calendar remains a separate increment.
-- [ ] Reassess time and implement the requested read-only activity calendar/basic streak/badge increment separately using the recorded correction/date/counting rules; no fake historical real activity.
-- [ ] Resolve or explicitly retain the known obsolete-note-removal limitation before final freeze; do not silently drop it.
+- [x] Implement the requested read-only activity calendar/basic streak/badge increment separately using correction/date/counting rules; no fake historical real activity.
+- [x] Resolve obsolete-note removal with independent explicit booleans/controls and focused verification before Phase B.
 
 - [x] Independently review end-block correction: syntax, 25 Node tests, build, diff and focused Chromium gate passed. Receipt: INDEPENDENT_END_BLOCK_REVIEW.md. No blocker found; full-suite result remains OpenCode's receipt.
 - [x] Implement OPENCODE_FINAL_DEMO_PASS.md locally: first-use stopped example entry; committed-only Today/Focus copy with native clipboard/manual fallback; restrained marker contrast/scale and touched-control spacing. Engines/schema/durations/dependencies unchanged. Exact plan: FINAL_DEMO_PASS_PLAN.md.
 - [x] Focused final-demo Chromium, syntax, 25 Node tests, build parity, diff and all **12 complete Chromium gates** passed. Result/stable capture paths: FINAL_DEMO_PASS_EVIDENCE.md. Updated workshop recording drafts; owned recording reference pending, friend/public trials intentionally skipped.
 - [x] Independently review final-demo pass: fresh syntax, 25 Node tests, build, diff and complete 12-gate Chromium suite passed. Extra manual-fallback/ordinary-text checks passed; no new blocker found. Receipt: INDEPENDENT_FINAL_DEMO_REVIEW.md.
-- [ ] Get the user's inputs and quick visual decision before further corrections/freeze. Explicit removal of obsolete instruction/context remains a reproduced pre-existing limitation; replacement text works, blank/Skip deliberately preserve.
+- [ ] Get the user's inputs and visual decision before further corrections/freeze. Explicit obsolete-text removal is now implemented; blank/Skip deliberately preserve.
 - [ ] Verify final public source/app access and recording/submission materials through the existing delivery gates. Friend recruitment is intentionally skipped; technical checks and truthful claims remain required.
 
 Final-demo implementation is local and reviewable, not published. Avoid bundling streaks, AI, new art, durations or architecture changes into further polish. Historical research/brief-only statements above do not supersede this current result.

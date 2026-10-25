@@ -1,12 +1,15 @@
 'use strict';
 import { bootWork } from './work.js';
+import { exampleRecords } from './activity.js';
 // Isolated fictional model. No production imports, persistence, providers or permissions.
 const $ = (selector) => document.querySelector(selector);
 const main = $('#main');
 const dialog = $('#review');
-const standardInstruction = 'Compare precision and recall for the two saved runs; add three sentences to the results section.';
-const longInstruction = `${standardInstruction} Open the baseline and revised-run notes side by side. Explain what each metric measures, check that both runs use the same held-out split, and describe the trade-off without inventing scores. If a result is missing, leave a clearly marked question rather than guessing. Finish by reading the paragraph in context and listing anything that still needs checking before submission.`;
-const initialSteps = ['Prepare the dataset and split', 'Run & save the baseline', standardInstruction, 'Proofread the results and submit the assignment'];
+const standardInstruction = 'Open the capacity table and compare the two room options.';
+const longInstruction = `${standardInstruction} Read the attendance estimates alongside the accessibility checklist. Confirm seating, step-free access, projector availability and the quiet space for participants who need a break. Compare the volunteer setup time for each room. If a capacity or booking detail is missing, write a clear question rather than guessing. Then draft the room recommendation, explain the trade-off in ordinary language, and list the two decisions that still need confirmation before sending the update.`;
+const initialSteps = ['Gather the attendance estimates', 'Check room availability', standardInstruction, 'Send the reviewed workshop update'];
+const exampleGoalTitle='Prepare the workshop update';
+let sharedViews=null,sampleHistory=null,useSamples=false;
 let state;
 let exampleMode=false;
 let celebrationTimeout;
@@ -19,9 +22,10 @@ let routeSequence = 0;
 const feedbackCleanups=new Set();
 const makeStep = (title, context='') => ({title, nextInstruction:'', context});
 const currentStep = () => state.steps[state.completed];
-const comparisonTitle = 'Compare runs & write the results';
+const comparisonTitle = 'Compare room capacity and prepare the update';
 const escapeHTML = (text) => String(text).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function reset() {
+  sharedViews?.close();useSamples=false;sampleHistory=exampleRecords();
   clearTimeout(celebrationTimeout);
   closeReward();
   clearTimeout(noticeTimeout);
@@ -29,10 +33,10 @@ function reset() {
   $('#notice').textContent = '';
   $('#add-form').hidden = true;
   $('#new-step').value = '';
-  state = {view:'today', steps:initialSteps.map((title,i)=>makeStep(title, i===2?'The baseline run is complete. The comparison still needs writing.':i===0?'The dataset and split were prepared in this fictional example. No actual dataset is connected.':i===1?'The example baseline run is complete. No scores or research findings are fabricated.':'')), completed:2, seconds:20*60, elapsedSeconds:0, duration:20, running:false, deadline:0, blockStarted:false, finished:false, long:false, selected:1};
+  state = {view:'today', steps:initialSteps.map((title,i)=>makeStep(title, i===2?'Attendance estimates are ready. Compare capacity and accessibility before choosing a room.':i<2?'Prepared in this fictional workshop example; no external work is observed.':'')), completed:2, seconds:20*60, elapsedSeconds:0, duration:20, running:false, deadline:0, blockStarted:false, finished:false, long:false, selected:1};
   completionSnapshot = null;
   routePreview = null;
-  state.steps[2].nextInstruction = 'Open the saved comparison table. Write the first three sentences about precision and recall.';
+  state.steps[2].nextInstruction = standardInstruction;state.steps[2].resourceUrl='https://example.com/workshop#capacity';
   render();
 }
 function routeSVG({goal=false, finished=state.finished,model=state,real=false}={}) {
@@ -121,12 +125,12 @@ function respondToCompletion(goalId,actionId,fictional=false){
     if(index>=0)travelMarker(svg,(index+.5)/checkpoints.length,{actionId});
   }
 }
-function landing(){return `<section class="landing"><div class="hero-copy"><p class="eyebrow">A little focus. A way back.</p><h1>Nail the<br><span class="hero-trail">Trail<span class="hero-period">.</span></span></h1><p class="hero-lead">Start focused work. Save your next step.<br>Come back knowing what to do.</p><button class="button primary hero-cta" data-action="today">Start working <span aria-hidden="true">↗</span></button><p class="hint">Explore a fictional workday. Nothing starts until you do.</p></div><div class="hero-journey"><div class="hero-art-heading"><span class="eyebrow">One step becomes a journey</span><span class="tag">Live example</span></div>${routeSVG({goal:true})}<div class="hero-saved"><span class="saved-dot" aria-hidden="true"></span><div><span class="muted">Your next move, kept.</span><p>${escapeHTML(instruction())}</p></div></div></div></section><div class="landing-foot"><span><b>01</b> Choose one thing.</span><span><b>02</b> Leave a way back.</span><span><b>03</b> See how far you came.</span></div>`;}
+function landing(){return `<section class="landing"><div class="hero-copy"><p class="eyebrow">Your productivity and focus companion</p><h1>Pick up where you left off.</h1><p class="hero-lead">Plan a goal, focus on one action, and save exactly where to restart. Your next step stays ready when you come back.</p><button class="button primary hero-cta" data-action="today">Return to saved work ↗</button><p class="hint">Fictional example. Nothing starts until you do.</p><div class="hero-discovery"><h2>Try a ready-made demo</h2><div><button class="button" data-example-scene="saved">Return to saved work</button><button class="button" data-example-scene="activity">Explore sample activity</button><button class="text-button" data-example-scene="browse">Browse demo states</button></div><p class="hint">Fictional examples. Your own work stays separate.</p></div></div><div class="hero-journey"><div class="hero-art-heading"><span class="eyebrow">Goal progress, one action at a time</span><span class="tag">Fictional example</span></div>${routeSVG({goal:true})}<div class="hero-saved"><span class="saved-dot" aria-hidden="true"></span><div><span class="muted">Goal: Prepare the workshop update · Fictional example</span><p>Next move: ${escapeHTML(instruction())}</p></div></div></div></section><div class="landing-foot"><span>Plan → Focus → Save your place</span></div>`;}
 const heading = (title,sub='') => `<div class="page-heading"><div><h1>${title}</h1>${sub?`<p class="muted">${sub}</p>`:''}</div><span class="date">Saturday, October 24 <span class="muted">· example</span></span></div>`;
-const goalLabel = () => '<p class="goal-label"><span class="goal-icon" aria-hidden="true">↗</span> Finish my ML assignment</p>';
+const goalLabel = () => `<p class="goal-label"><span class="goal-icon" aria-hidden="true">↗</span> ${exampleGoalTitle} <span class="tag">Important · fictional</span></p>`;
 function instruction(){return currentStep()?.nextInstruction || currentStep()?.title || (state.finished?'This goal is finished. Revisit the work you checked.':'Review the finished steps and decide whether the goal is complete.');}
 function originalTitle(){return currentStep()?.nextInstruction?`<p class="original-step">Original step: ${escapeHTML(currentStep().title)}</p>`:'';}
-function savedContext(){return currentStep()?.context?`<div class="saved-context"><strong>Where you left off · optional context</strong><p>${escapeHTML(currentStep().context)}</p></div>`:'';}
+function savedContext(){const s=currentStep();return (s?.context?`<div class="saved-context"><strong>Where you left off · optional context</strong><p>${escapeHTML(s.context)}</p></div>`:'')+(s?.resourceUrl?`<a class="button work-link" href="${escapeHTML(s.resourceUrl)}" target="_blank" rel="noopener noreferrer">Open example work · example.com ↗</a>`:'')+(s&&(s.nextInstruction||s.context||s.resourceUrl)?'<div class="saved-place-copy"><button class="text-button" data-action="copy-example">Copy saved place</button><span id="example-copy-status" role="status"></span></div>':'');}
 function stepName(i){return i===2?comparisonTitle:state.steps[i].title;}
 function stepContext(i){const step=state.steps[i];return [step.nextInstruction,step.context].filter(Boolean).join('\n')||(i<state.completed?'Checked in this fictional example. No actual submission or external work is observed.':'A planned action in this fictional example. No actual submission or external work is observed.');}
 function stepsHTML(){return state.steps.map((step,i)=>`<button class="step-row ${i<state.completed?'done':i===state.completed?'current':''}" data-record="${i}" aria-pressed="${state.selected===i}"><span class="step-number">${i<state.completed?'✓':i+1}</span><span class="step-name">${escapeHTML(stepName(i))}</span><small>${i<state.completed?'Checked':i===state.completed?'Unfinished':'Planned'}</small></button>`).join('');}
@@ -152,28 +156,48 @@ function journey(){return `${heading('Look at the ground you’ve covered.',`Fin
 function finishedArt(){return '<div class="finished-art" aria-hidden="true"><svg class="finished-outline" viewBox="0 0 240 260" aria-hidden="true" focusable="false"><path d="M-14 272L111 38L247 272M111 38L94 102L126 88L152 144M94 102L58 169M126 88L137 121L127 154"/></svg></div>';}
 function finished(){return `${heading('Work worth looking back on.','A finished goal keeps its place in your story.')}<div class="finished-grid">${state.finished?`<article class="finished-card">${finishedArt()}<span class="completed-stamp">✓ Goal explicitly confirmed</span><span class="tag">Fictional example</span><h2>Finish my ML assignment</h2><p>${state.steps.length} steps checked · 70 illustrative focus minutes</p><p>October 24, 2026 · example date</p></article><div class="work-actions"><button class="button" data-action="journey">Revisit the goal journey</button><button class="text-button" data-action="reset">Back to example / reset</button></div><p class="hint">A visual record only. No assignment was actually submitted.</p>`:'<section class="empty"><div class="empty-mark" aria-hidden="true">✓</div><h2>Room for what you finish.</h2><p>Finished goals will live here. Your current assignment is still open.</p><button class="button primary" data-action="today">Back to your next action</button></section>'}</div>`;}
 function empty(){return '<section class="empty"><div class="empty-mark" aria-hidden="true">↗</div><h1>A place for your next step.</h1><p>Choose a goal, focus on one action, and leave yourself a way back. Your trail starts with the work you choose.</p><button class="button primary" data-action="reset">Explore the fictional example</button><p class="hint">First-use visual state. Goal creation is not implemented here.</p></section>';}
+function legacyHistory(){
+  const w={goals:{},actions:{},contexts:{},sessions:{},intervals:{},openGoalId:null};if(!state.finished)return w;
+  const g={id:'example-goal',title:exampleGoalTitle,definitionOfFinished:'A reviewed workshop update with a clear room recommendation.',priority:'important',status:'completed',completedAt:Date.now(),actionOrder:state.steps.map((_,i)=>`example-${i}`)};w.goals[g.id]=g;
+  state.steps.forEach((s,i)=>{const id=`example-${i}`;w.actions[id]={id,goalId:g.id,title:s.title,status:'completed',completedAt:g.completedAt};w.contexts[id]={id:`example-context-${i}`,actionId:id,nextInstruction:s.nextInstruction,context:s.context,resourceUrl:s.resourceUrl,updatedAt:g.completedAt};});return w;
+}
+function gallery(){return `${heading('Try a ready-made demo','Fictional examples. Your own work stays separate.')}<section class="scenario-gallery">${[['saved','Return to saved work','A stopped workshop update with a useful next move.'],['focus','Focus, paused and End block','Start explicitly; pause, save a place or end a simulated block.'],['interrupted','Interrupted recovery','Labelled simulated interruption; Resume is explicit.'],['review','All actions checked','Review is not confirmed finish.'],['archive','Finished collection','Eight sample goals with mixed priorities; title opens complete work.'],['activity','Explore sample activity','Twelve months, exact tasks, varied counts and inactive gaps.'],['long','Long content','Read and edit a longer saved instruction.'],['empty','Fresh / empty','An honestly empty sample calendar and archive.']].map(([id,title,detail])=>`<button type="button" class="button scenario-choice" data-example-scene="${id}"><strong>${title}</strong><span>${detail}</span></button>`).join('')}</section>`;}
+function loadExample(scene){
+  reset();state.sampleScene=scene;
+  if(['activity','archive','empty'].includes(scene)){useSamples=true;if(scene==='empty')sampleHistory={goals:{},actions:{},contexts:{},sessions:{},intervals:{},openGoalId:null};go('finished');}
+  else if(scene==='browse')go('gallery');
+  else if(scene==='focus')go('focus');
+  else if(scene==='interrupted'){state.interrupted=true;state.blockStarted=true;go('today');}
+  else if(scene==='review'){state.completed=state.steps.length;go('today');showReview();}
+  else if(scene==='long'){state.long=true;currentStep().nextInstruction=longInstruction;go('today');}
+  else go('today');
+}
 function render({moveFocus=false}={}) {
   clearMountainFeedback();
   document.body.dataset.view=state.view;
   document.body.classList.toggle('still',motion.matches||!ambience);
-  main.innerHTML = focusReturnHTML() + (state.view==='landing'?landing():state.view==='today'?today():state.view==='focus'||state.view==='expired'?focus():state.view==='pause'?paused():state.view==='journey'?journey():state.view==='finished'?finished():empty());
+  main.innerHTML = (state.interrupted?'<aside class="focus-return">Fictional example · simulated interruption. No away time recorded; Resume explicitly.</aside>':'')+focusReturnHTML() + (state.view==='gallery'?gallery():state.view==='landing'?landing():state.view==='today'?today():state.view==='focus'||state.view==='expired'?focus():state.view==='pause'?paused():state.view==='journey'?journey():state.view==='finished'&&sharedViews?sharedViews.history(useSamples?sampleHistory:legacyHistory()):state.view==='finished'?finished():empty());
+  if(state.view==='pause')for(const [field,id,label] of [['nextInstruction','return-note','next move'],['context','pause-context','context']]){if(currentStep()?.[field])$(`#${id}`).insertAdjacentHTML('afterend',`<label class="remove-link"><input type="checkbox" data-example-remove="${id}">Remove saved ${label} when I save</label>`);}
+  if(state.view==='pause')$('#pause-form').insertAdjacentHTML('beforeend','<p class="hint">Fictional note editor. The example work link is fixed; Real work supports editing/removing links and committed text drafts.</p>');
+  if(state.view==='journey'){$('.page-heading .muted').textContent=`${exampleGoalTitle} · fictional example`;$('.scene-top strong').textContent='The workshop trail';}
+  if(['focus','expired'].includes(state.view)&&!state.running&&state.blockStarted)$('.focus-layout').insertAdjacentHTML('beforeend','<div class="end-block-control"><button class="button" data-action="end-example-block">End focus block</button><p class="hint">Simulated block only. Keeps this action unfinished.</p></div>');
   document.querySelectorAll('[data-nav]').forEach(button=>{const active=button.dataset.nav===state.view; if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
-  $('#scenario').value = state.long && state.view==='today'?'long':state.view;
+  $('#scenario').value = state.sampleScene?`sample-${state.sampleScene}`:state.long && state.view==='today'?'long':state.view;
   if(moveFocus) {main.focus({preventScroll:true});window.scrollTo(0,0);}
 }
 function focusReturnHTML(){return currentStep()&&state.blockStarted&&!['focus','expired','pause'].includes(state.view)?`<aside class="focus-return" aria-label="Simulated focus status"><span>${state.running?'Focus running':state.seconds===0?'Block ended · unfinished':'Focus paused'} · <span id="return-clock">${formatTime(state.seconds)}</span> · simulated</span><button class="text-button" data-action="return-focus">Return to focus</button>${state.running?'<button class="text-button" data-action="pause">Pause</button>':''}</aside>`:'';}
-function go(view){closeReward();state.view=view;render({moveFocus:true});}
+function go(view){sharedViews?.close();closeReward();state.view=view;render({moveFocus:true});}
 function formatTime(seconds){seconds=Math.ceil(seconds);return `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;}
 function settleClock(){if(!state.running)return;const remaining=Math.max(0,(state.deadline-Date.now())/1000);state.elapsedSeconds+=Math.max(0,state.seconds-remaining);state.seconds=remaining;}
 function stopClock(){settleClock();state.running=false;state.deadline=0;}
 function clearUndo(){completionSnapshot=null;clearTimeout(noticeTimeout);$('#notice').textContent='';}
-function startClock(minutes){if(!currentStep()||state.finished)return;if(state.running){go('focus');return;}if(state.blockStarted&&state.seconds<=0&&!minutes){go('expired');return;}clearUndo();if(minutes)state.seconds=minutes*60;state.deadline=Date.now()+state.seconds*1000;state.running=true;state.blockStarted=true;state.view='focus';render({moveFocus:true});}
+function startClock(minutes){if(!currentStep()||state.finished)return;if(state.running){go('focus');return;}if(state.blockStarted&&state.seconds<=0&&!minutes){go('expired');return;}state.interrupted=false;clearUndo();if(minutes)state.seconds=minutes*60;state.deadline=Date.now()+state.seconds*1000;state.running=true;state.blockStarted=true;state.view='focus';render({moveFocus:true});}
 setInterval(()=>{if(!exampleMode||!state?.running)return;settleClock();for(const id of ['#clock','#return-clock']){const clock=$(id);if(clock)clock.textContent=formatTime(state.seconds);}if(state.seconds===0){state.running=false;state.deadline=0;if(state.view==='focus'){state.view='expired';render();}else{const strip=$('.focus-return');if(strip)strip.outerHTML=focusReturnHTML();const action=$('[data-action="return-focus"].primary');if(action)action.textContent='Review ended block';}}},250);
-function showReview(){if(state.finished||currentStep())return;$('#add-form').hidden=true;$('#new-step').value='';$('.review-goal').textContent='Finish my ML assignment';$('#review>small').textContent='Proposed review flow · fictional example';$('#review-status')?.remove();dialog.querySelectorAll('button').forEach(b=>b.disabled=false);$('#review-summary').innerHTML=`<span class="summary-check" aria-hidden="true">✓</span><div><strong>${state.completed} of ${state.steps.length} steps checked</strong><span>All planned work acknowledged.<br>Only you decide if the goal is finished.</span></div>`;dialog.showModal();}
+function showReview(){if(state.finished||currentStep())return;$('#add-form').hidden=true;$('#new-step').value='';$('.review-goal').textContent=exampleGoalTitle;$('#review>small').textContent='Fictional example · simulated review, no real records saved';$('#review-status')?.remove();dialog.querySelectorAll('button').forEach(b=>b.disabled=false);$('#review-summary').innerHTML=`<span class="summary-check" aria-hidden="true">✓</span><div><strong>${state.completed} of ${state.steps.length} steps checked</strong><span>All planned work acknowledged.<br>Only you decide if the goal is finished.</span></div>`;dialog.showModal();}
 function closeReview(){dialog.close();const target=$('[data-action="review"]')||$('[data-action="resume"]');if(target)target.focus();else main.focus();}
 function notify(message,undo=false){clearTimeout(noticeTimeout);$('#notice').classList.toggle('completion-notice',undo);$('#notice').innerHTML=`<span class="tick" aria-hidden="true">✓</span><span>${escapeHTML(message)}</span>${undo?'<button class="text-button" data-action="undo">Undo</button>':''}`;noticeTimeout=setTimeout(()=>{$('#notice').textContent='';},undo?12000:5000);}
 function complete(){if(!currentStep()||state.finished)return;stopClock();completionSnapshot=structuredClone(state);currentStep().simulatedElapsedSeconds=state.elapsedSeconds;const completedIndex=state.completed;state.completed++;state.long=false;state.seconds=state.duration*60;state.elapsedSeconds=0;state.blockStarted=false;state.view='today';render({moveFocus:true});respondToCompletion('example-goal',`example-${completedIndex}`,true);notify('Step complete. Another checkpoint earned.',true);if(!currentStep())showReview();}
-function celebrate(){if(state.finished||currentStep()||!dialog.open)return;dialog.close();clearUndo();state.finished=true;state.view='finished';render();showReward('Finish my ML assignment',true);}
+function celebrate(){if(state.finished||currentStep()||!dialog.open)return;dialog.close();clearUndo();state.finished=true;state.view='finished';render();showReward(exampleGoalTitle,true);}
 function showReward(title,fictional=false,model=state){
   closeReward();$('#reward-goal').textContent=title;$('#reward-kind').textContent=fictional?'Fictional example — no real work was submitted.':'Goal finished and stored in this browser.';
   $('#reward-summit').innerHTML=routeSVG({finished:true,real:!fictional,model});
@@ -193,11 +217,17 @@ document.addEventListener('click',event=>{
   if(button.dataset.theme){clearMountainFeedback();theme=button.dataset.theme;document.documentElement.dataset.theme=theme;document.querySelectorAll('button[data-theme]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.theme===theme)));return;}
    if(button.dataset.action==='ambience'){if(!motion.matches)ambience=!ambience;updateMotion();return;}
    if(button.dataset.action==='exit-celebration'){exitCelebration();return;}
-   if(!exampleMode)return;
+    if(!exampleMode)return;
+    if(button.dataset.exampleScene){loadExample(button.dataset.exampleScene);return;}
    if(button.dataset.nav){go(button.dataset.nav);return;}
   if(button.dataset.extend){startClock(Number(button.dataset.extend));return;}
   if(button.dataset.record){state.selected=Number(button.dataset.record);routePreview=null;highlightRecord(state.selected);document.querySelectorAll('[data-record]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.record)===state.selected)));return;}
   switch(button.dataset.action){
+     case 'end-example-block':state.blockStarted=false;state.seconds=state.duration*60;go('focus');break;
+     case 'copy-example':{
+       const s=currentStep(),brief=[`Goal: ${exampleGoalTitle}`,`Action: ${s.title}`,s.nextInstruction&&`Saved next move: ${s.nextInstruction}`,s.context&&`Where I stopped: ${s.context}`,s.resourceUrl&&`Work link: ${s.resourceUrl}`].filter(Boolean).join('\n\n');
+       Promise.resolve().then(()=>{if(typeof navigator.clipboard?.writeText!=='function')throw new Error('Clipboard unavailable');return navigator.clipboard.writeText(brief);}).then(()=>{if(button.isConnected&&$('#example-copy-status'))$('#example-copy-status').textContent='Saved place copied (fictional example).';}).catch(()=>{if(button.isConnected)manualExampleCopy(brief);});break;
+     }
      case 'reset':reset();break;
       case 'ambience':if(!motion.matches)ambience=!ambience;updateMotion();break;
      case 'resume':startClock();break;
@@ -214,7 +244,7 @@ document.addEventListener('click',event=>{
      case 'undo':if(completionSnapshot){if(dialog.open)dialog.close();state=structuredClone(completionSnapshot);state.view='today';clearUndo();render({moveFocus:true});notify('Completion undone. Saved place and simulated effort kept; timer paused.');}break;
   }
 });
-document.addEventListener('submit',event=>{if(!exampleMode)return;event.preventDefault();if(event.target.id==='pause-form'&&currentStep()){const note=$('#return-note').value;if(note.trim())currentStep().nextInstruction=note;const context=$('#pause-context').value;if(context.trim())currentStep().context=context;go('today');notify('Return instruction saved in this example.');}if(event.target.id==='add-form'&&dialog.open&&!state.finished){const input=$('#new-step');if(!input.value.trim()){input.setCustomValidity('Write the next step, or keep the goal open.');input.reportValidity();return;}clearUndo();state.steps.push(makeStep(input.value.trim()));dialog.close();go('today');notify('Step added. Goal kept open.');}});
+document.addEventListener('submit',event=>{if(!exampleMode)return;event.preventDefault();if(event.target.id==='pause-form'&&currentStep()){const note=$('#return-note').value;if($('[data-example-remove="return-note"]')?.checked)currentStep().nextInstruction='';else if(note.trim())currentStep().nextInstruction=note;const context=$('#pause-context').value;if($('[data-example-remove="pause-context"]')?.checked)currentStep().context='';else if(context.trim())currentStep().context=context;go('today');notify('Return instruction saved in this example.');}if(event.target.id==='add-form'&&dialog.open&&!state.finished){const input=$('#new-step');if(!input.value.trim()){input.setCustomValidity('Write the next step, or keep the goal open.');input.reportValidity();return;}clearUndo();state.steps.push(makeStep(input.value.trim()));dialog.close();go('today');notify('Step added. Goal kept open.');}});
 $('#new-step').addEventListener('input',()=>$('#new-step').setCustomValidity(''));
 dialog.addEventListener('cancel',event=>{if(exampleMode){event.preventDefault();closeReview();}});
 $('#reward').addEventListener('cancel',event=>{event.preventDefault();closeReward();});
@@ -225,8 +255,10 @@ dialog.addEventListener('keydown',event=>{
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
 });
-$('#scenario').addEventListener('change',event=>{if(!exampleMode)return;const scenario=event.target.value;reset();if(scenario==='long'){state.long=true;currentStep().nextInstruction=longInstruction;render();}else if(scenario==='focus')startClock();else if(scenario==='final'){state.completed=state.steps.length;render();showReview();$('#scenario').value='final';}else if(scenario==='expired'){state.seconds=0;state.blockStarted=true;go('expired');}else {if(scenario==='finished'){state.completed=state.steps.length;state.finished=true;}go(scenario);}});
-$('#reset').addEventListener('click',()=>{if(exampleMode)reset();});
+$('#scenario').addEventListener('change',event=>{if(!exampleMode)return;const scenario=event.target.value;if(scenario.startsWith('sample-')){loadExample(scenario.slice(7));return;}reset();if(scenario==='long'){state.long=true;currentStep().nextInstruction=longInstruction;render();}else if(scenario==='focus')go('focus');else if(scenario==='final'){state.completed=state.steps.length;render();showReview();$('#scenario').value='final';}else if(scenario==='expired'){state.seconds=0;state.blockStarted=true;go('expired');}else {if(scenario==='finished'){state.completed=state.steps.length;state.finished=true;}go(scenario);}});
+$('#reset').addEventListener('click',()=>{if(exampleMode)loadExample(state.sampleScene||'saved');});
+function manualExampleCopy(brief){const area=$('#example-copy-status');if(!area)return;area.textContent='Clipboard unavailable. Copy fictional brief: ';const input=document.createElement('textarea');input.readOnly=true;input.setAttribute('aria-label','Fictional saved-place brief');input.value=brief;area.append(input);input.focus();}
+document.addEventListener('input',event=>{if(exampleMode&&event.target.dataset.exampleRemove)$(`#${event.target.dataset.exampleRemove}`).readOnly=event.target.checked;});
 $('.brand').addEventListener('click',event=>{event.preventDefault();if(exampleMode)go('landing');});
 document.addEventListener('change',event=>{if(event.target.id==='duration'){state.duration=Number(event.target.value);state.seconds=state.duration*60;}});
 const motion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -240,5 +272,7 @@ document.addEventListener('focusout',event=>{if(event.target.closest('[data-reco
 reset();
 go('landing');
 bootWork({$,main,escapeHTML,formatTime,routeSVG,finishedArt,respondToCompletion,clearMountainFeedback,landingHTML:main.innerHTML,showReward,closeReward,updateMotion,
-  enterExample(){exampleMode=true;reset();go('today');},
+  installSharedViews(api){sharedViews=api;},
+  refreshExampleRecords(){if(useSamples&&state.sampleScene!=='empty')sampleHistory=exampleRecords();return useSamples?sampleHistory:legacyHistory();},
+  enterExample(entry='saved'){exampleMode=true;loadExample(entry);},
   leaveExample(){stopClock();exampleMode=false;closeReward();if(dialog.open)dialog.close();clearUndo();}});

@@ -1,5 +1,13 @@
 # User-directed final revision — 25 October, 18:12 IST
 
+## Local increment completed — independent review next
+
+OPENCODE_ACTIVITY_AND_NOTE_REMOVAL.md is implemented locally, in A-then-B order with focused verification between phases. Combined syntax, 33 Node tests, exact eight-asset build/parity, diff and all 15 Chromium gates passed; see ACTIVITY_AND_NOTE_REMOVAL_EVIDENCE.md and HANDOFF.md. Independent/user review pending. No commit/push/deployment/submission or earlier deadline success claimed. Preparation-only/unimplemented statements below are historical.
+
+## Latest authorization — approximately 18:58 IST
+
+The user explicitly requests all four remaining items before finalization: activity calendar, basic streaks/badges and explicit obsolete-note removal. Visual correction is implemented, independently checked and pushed at 10d7edb. Next exact brief is OPENCODE_ACTIVITY_AND_NOTE_REMOVAL.md. It orders note removal and focused tests first, then derived activity with its own focused checks, then final combined verification. This supersedes the earlier undecided/conditional dispatch wording below. Implementation is not yet done; this preparation changes docs only. Planned documentation follow-through updates HANDOFF/checklist with the authorized scope and exact next brief. The old 19:00 prototype target cannot include this new increment plus review/recording; no deadline success is claimed.
+
 User feedback: remove the visually disliked human climber, allow a small moving circle; compact Finished work cards, replacing the large filled mountain with a minimal white outline at the lower right, cropped at the bottom. User also requests a GitHub/LeetCode-like activity calendar and basic streaks/badges if feasible.
 
 Planned sequence before implementation:

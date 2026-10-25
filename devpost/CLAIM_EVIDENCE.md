@@ -1,5 +1,9 @@
 # Claim and evidence table — 25 October 2026
 
+Current judge-clarity scope: compatible optional goal Priority; exact productivity-first home and always-visible demo access; original mountain brand/favicon; collapsed day actions; title-opened read-only full-history dialog; stable labelled priority palettes; shared populated in-memory year/archive/gallery. Receipt: JUDGE_CLARITY_EVIDENCE.md, priority/clarity/examples focused gates plus state/sample tests. Samples are eight fictional goals / 42 completed actions, not seeded real records or measured effort. Entry is stopped; simulated interruption/correction/link-editor limits are labelled. Accepted year/count/mountain/timing/storage/Undo semantics retained. Independent/user review and native device/delivery gates remain separate. Older no-scenario/inline-disclosure statements below describe prior checkpoints.
+
+Latest local presentation: twelve named calendar months, 14px heatmap/equivalent 44px date control, full day details with busy-day expansion, compact responsive archive and newest eight + Show more. Evidence: YEAR_ACTIVITY_AND_ARCHIVE_EVIDENCE.md and year-archive/activity/compact Chromium gates plus pure month/date tests. Earlier explicit note removal and correction-aware counting/streak/milestone contracts remain unchanged (ACTIVITY_AND_NOTE_REMOVAL_EVIDENCE.md). Only currently checked canonical actions with valid nonfuture completion dates count; no external activity/attention/productivity claim. No new fictional year/gallery/Focus pass. Independent/user visual review pending.
+
 Use implementation and current test evidence for technical claims. User acceptance, independent review, public access and human usefulness are separate. Tests use isolated synthetic records, not the user's normal work.
 
 | Claim | Implementation / behavioral evidence | Boundary |

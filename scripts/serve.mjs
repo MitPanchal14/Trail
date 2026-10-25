@@ -7,7 +7,7 @@ const assets = new Map([
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/proof.js', ['proof.js', 'text/javascript; charset=utf-8']],
-  ...['work.js','state.js','storage.js','timing.js'].map(file=>['/'+file,[file,'text/javascript; charset=utf-8']]),
+  ...['work.js','state.js','storage.js','timing.js','activity.js'].map(file=>['/'+file,[file,'text/javascript; charset=utf-8']]),
 ]);
 export async function handler(req, res) {
   if (!['GET', 'HEAD'].includes(req.method)) {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { handler } from '../scripts/serve.mjs';
 async function request(url, method = 'GET') {
@@ -9,7 +9,7 @@ async function request(url, method = 'GET') {
   return {status, headers, body};
 }
 test('all public assets serve the exact demo bytes', async () => {
-  for (const file of ['index.html', 'styles.css', 'proof.js', 'work.js', 'state.js', 'storage.js', 'timing.js']) {
+  for (const file of ['index.html', 'styles.css', 'proof.js', 'work.js', 'state.js', 'storage.js', 'timing.js', 'activity.js']) {
     const result = await request('/' + file);
     assert.equal(result.status, 200);
     assert.deepEqual(result.body, await readFile(new URL('../demo/' + file, import.meta.url)));
@@ -27,7 +27,8 @@ test('HEAD has no body; writes are rejected', async () => {
 });
 test('build output exactly matches all allowlisted runtime files', async () => {
   execFileSync(process.execPath, ['scripts/build.mjs'], {cwd: new URL('../', import.meta.url)});
-  for (const file of ['index.html', 'styles.css', 'proof.js', 'work.js', 'state.js', 'storage.js', 'timing.js']) {
+  assert.deepEqual((await readdir(new URL('../dist/',import.meta.url))).sort(),['index.html','styles.css','proof.js','work.js','state.js','storage.js','timing.js','activity.js'].sort());
+  for (const file of ['index.html', 'styles.css', 'proof.js', 'work.js', 'state.js', 'storage.js', 'timing.js', 'activity.js']) {
     assert.deepEqual(await readFile(new URL('../dist/' + file, import.meta.url)), await readFile(new URL('../demo/' + file, import.meta.url)));
   }
 });

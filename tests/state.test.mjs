@@ -5,6 +5,35 @@ let sequence=0;
 const cmd=(type,fields={})=>({id:`test-${++sequence}`,type,...fields});
 const run=(w,type,fields={})=>transition(w,cmd(type,fields),10000);
 function setup(){const w=emptyWorkspace();w.ownerToken='owner';return run(w,'save-goal',{goalId:null,title:'Real goal',definition:'Done means tested.',actions:[{id:'a',title:'First'},{id:'b',title:'Second'}]});}
+test('optional v1 priority: old snapshots/commands, defaults, enums and invalid values',()=>{
+  let w=setup(),id=w.openGoalId;assert.equal(w.goals[id].priority,'normal');delete w.goals[id].priority;assert.equal(validate(w),w);
+  const fields={goalId:id,title:'Real goal',definition:'Done means tested.',actions:[{id:'a',title:'First'},{id:'b',title:'Second'}]};
+  w=run(w,'save-goal',fields);assert.equal(Object.hasOwn(w.goals[id],'priority'),false);
+  const legacyOp=cmd('save-goal',fields);w=transition(w,legacyOp,10000);assert.throws(()=>transition(w,{...legacyOp,priority:undefined},10000),/priority/);
+  for(const priority of ['low','normal','important']){w=run(w,'save-goal',{...fields,priority});w=run(w,'save-goal',fields);assert.equal(w.goals[id].priority,priority);assert.deepEqual(w.goals[id].actionOrder,['a','b']);}
+  for(const priority of [undefined,null,'','urgent',0,false,{},[]]){const bad=structuredClone(w);bad.goals[id].priority=priority;assert.throws(()=>validate(bad),/priority/);const before=structuredClone(w);assert.throws(()=>run(w,'save-goal',{...fields,priority}),/priority/);assert.deepEqual(w,before);}
+});
+test('priority survives completion Undo, finish/reopen/refinish and exact command replay without changing effort/order',()=>{
+  let w=setup(),id=w.openGoalId;w=run(w,'save-goal',{goalId:id,title:'Goal',definition:'Done',priority:'important',actions:[{id:'a',title:'First'},{id:'b',title:'Second'}]});
+  w=run(w,'complete-action',{actionId:'a'});w=run(w,'undo',{eventId:w.undo.eventId,expectedRevision:w.revision});assert.equal(w.goals[id].priority,'important');
+  for(const a of ['a','b'])w=run(w,'complete-action',{actionId:a});w=run(w,'finish-goal',{goalId:id});w=run(w,'reopen-goal',{goalId:id});const op=cmd('finish-goal',{goalId:id});w=transition(w,op,10000);assert.equal(transition(w,op,11000),w);assert.equal(w.goals[id].priority,'important');assert.deepEqual(w.goals[id].actionOrder,['a','b']);assert.equal(effort(w,id),0);
+});
+test('explicit independent note removal preserves identity/link/effort; blank defaults and exact replay remain',()=>{
+  const base=run(setup(),'notes',{instruction:'Next',context:'Context',resourceUrl:'https://example.com/work#next'});
+  for(const flags of [{removeInstruction:true},{removeContext:true},{removeInstruction:true,removeContext:true}]){
+    const remove=cmd('notes',{instruction:'',context:'',...flags}),w=transition(base,remove,22000);
+    assert.equal(w.contexts.a.id,base.contexts.a.id);assert.equal(w.contexts.a.nextInstruction,flags.removeInstruction?'':'Next');assert.equal(w.contexts.a.context,flags.removeContext?'':'Context');assert.equal(w.contexts.a.resourceUrl,base.contexts.a.resourceUrl);assert.equal(w.contexts.a.updatedAt,22000);assert.deepEqual(w.intervals,base.intervals);assert.deepEqual(w.events,base.events);assert.equal(transition(w,remove,23000),w);
+  }
+  let w=run(base,'notes',{instruction:' ',context:'\n',removeInstruction:false,removeContext:false});assert.equal(w.contexts.a.nextInstruction,'Next');assert.equal(w.contexts.a.context,'Context');
+  w=run(w,'notes',{instruction:'',context:'',removeInstruction:true,removeContext:true,resourceUrl:null});const {resourceUrl,...withoutLink}=base.contexts.a;assert.deepEqual(w.contexts.a,{...withoutLink,nextInstruction:'',context:'',updatedAt:10000});
+});
+test('invalid removal flags and contradictory replacements reject unchanged; cleared context stays protected and Undo restores it',()=>{
+  let w=run(setup(),'notes',{instruction:'Next',context:'Context'});
+  for(const field of ['removeInstruction','removeContext'])for(const value of [null,undefined,0,1,'true',{},[]]){const before=structuredClone(w);assert.throws(()=>run(w,'notes',{instruction:'',context:'',[field]:value}));assert.deepEqual(w,before);}
+  for(const fields of [{instruction:'Replacement',context:'',removeInstruction:true},{instruction:'',context:'Replacement',removeContext:true}]){const before=structuredClone(w);assert.throws(()=>run(w,'notes',fields));assert.deepEqual(w,before);}
+  w=run(w,'notes',{instruction:'',context:'',removeInstruction:true,removeContext:true});assert.throws(()=>run(w,'save-goal',{goalId:w.openGoalId,title:'Goal',definition:'Done',actions:[{id:'b',title:'Second'}]}),/cannot be removed/);
+  const cleared=structuredClone(w.contexts.a);w=run(w,'complete-action',{actionId:'a'});w=run(w,'undo',{eventId:w.undo.eventId,expectedRevision:w.revision});assert.deepEqual(w.contexts.a,cleared);
+});
 test('fresh workspace has no sample data; stable IDs, edits/reorder, validation',()=>{
   assert.equal(Object.keys(emptyWorkspace().goals).length,0);let w=setup();const id=w.openGoalId;
   w=run(w,'save-goal',{goalId:id,title:'Renamed',definition:'Still done',actions:[{id:'b',title:'Edited'},{id:'a',title:'First'}]});

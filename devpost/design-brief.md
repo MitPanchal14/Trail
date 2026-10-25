@@ -1,5 +1,21 @@
 # Design brief
 
+## Current judge-clarity revision — A/B/C implemented locally
+
+The user accepts the year grid. Preserve its spacing/density/count semantics and mountain/circle/card grid. New hierarchy: “Your productivity and focus companion” → “Pick up where you left off.” → explicit plan/focus/save body, Start working and always-visible three-entry ready-made demo panel. A Goal/Next move workshop preview is labelled fictional; returning real cues/counts remain genuine. Original blue/violet two-peak mark replaces the lightning-like glyph/favicon; Trail. wordmark retained.
+
+Selected-day tasks are collapsed behind View actions; jump to counted Finished goals keeps the archive discoverable. No visible inline Review actions row on cards: underlined title/arrow opens the full read-only scrollable dialog with focus return. Priority is explicit label + stable card family: Low teal/blue, Normal indigo/violet, Important plum/amber, contrasting text in both themes. No automatic sorting or importance from action counts. Shared populated examples use these same controls/palettes/year with deterministic meaningful work and visible fiction/reset/exit/simulation limits. No Focus visual/motion redesign. Current receipt JUDGE_CLARITY_EVIDENCE.md; independent/user visual acceptance pending. Older inline-detail/no-example descriptions below are historical.
+
+## Pass 1 — twelve-month heatmap and compact archive
+
+Current local presentation supersedes the 12-week/44px-tile description below: twelve distinct named months, one label/gaps each, seven Monday-first rows, 14px unnumbered squares with a coherent theme-based violet ramp. Dot=today, outline=selection, visible keyboard focus; a labelled 44px native date selector/View day gives equivalent touch access. Wrap month blocks rather than squeezing phone pixels. Compact stats/legend and expandable help; full busy-day details expand after eight items.
+
+Archive now fills the content width with two compact columns on ordinary desktop/one phone column. Smaller padding/outline leaves full-width readable context/links and unclipped focus. Ordinary collapsed fixtures measure 214px desktop / 207px phone; maximum titles grow, not clip. Newest eight + Show more exposes all retained history. Gradient/white outline, real guards and fictional isolation retained. No new scenario gallery/year samples or Focus/motion changes. See YEAR_ACTIVITY_AND_ARCHIVE_EVIDENCE.md; independent/user visual review still required.
+
+## Activity / removal increment — local review pending
+
+One real Finished work panel precedes unchanged compact cards. Twelve Monday-start columns use theme-based violet/cyan levels, 44px native day targets, sticky weekday labels and labelled internal horizontal scrolling. Visible help documents roving day/week/Home/End keys. Exact escaped goal/action details appear in-flow; streaks and one highest/next milestone stay secondary. No new artwork/reward effects. Independent text removal follows the saved-link checkbox convention; Home/Focus/terrain/circle/campsite remain unchanged. Older no-streak receipts below are historical. See ACTIVITY_AND_NOTE_REMOVAL_EVIDENCE.md; independent/user visual acceptance remains separate.
+
 ## User-requested replacement — compact history / circle, 25 October
 
 The user rejected the human climber. It is now replaced locally by a small solid violet circle with a contrasting border (warm confirmed summit), inside the unchanged travelling group/path/anchor. No face/limbs/backpack remain. A useful saved place still shows the existing tent when stopped. Selection and review remain distinct; post-commit 780ms travel, Off/reduced cancellation and no replay are retained. Active terrain/depth and reward layout are preserved.

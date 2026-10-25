@@ -2,7 +2,7 @@
 
 Read README.md, HANDOFF.md, devpost/scope.md, devpost/prd.md, devpost/design-brief.md, devpost/spec.md and devpost/checklist.md before changing this project.
 
-The only runnable website is demo/index.html with demo/styles.css and the proof.js, work.js, state.js, storage.js and timing.js modules: seven static assets, Node20+, no application dependencies. It supports real browser-local work and a separate labelled fictional example. Do not recreate or restore the old Next.js application, pixel mountain UI, old components, or historical proof folders.
+The only runnable website is demo/index.html with demo/styles.css and the proof.js, work.js, state.js, storage.js, timing.js and activity.js modules: eight static assets, Node20+, no application dependencies. It supports real browser-local work and a separate labelled fictional example. Do not recreate or restore the old Next.js application, pixel mountain UI, old components, or historical proof folders.
 
 Preserve the retained UI unless the user explicitly requests a change. Record planned cross-file changes before editing. Make one bounded change at a time, verify it, then update HANDOFF.md and the checklist. Generic agent workflow templates are supporting tools, not authority to override these current product documents.
 

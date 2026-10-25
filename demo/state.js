@@ -1,5 +1,6 @@
 export const SCHEMA_VERSION=1;
 export const LIMITS={goals:200,actions:30,records:100000,title:160,definition:2000,action:500,context:4000};
+export const PRIORITIES=['low','normal','important'];
 const fail=message=>{throw new Error(message);};
 const validId=id=>typeof id==='string'&&/^[a-zA-Z0-9:-]{1,120}$/.test(id);
 const integer=n=>Number.isSafeInteger(n)&&n>=0;
@@ -35,6 +36,7 @@ export function validate(w){
   let open=0;
   for(const [key,g] of Object.entries(w.goals)){
     checkRecord(key,g);
+    if(Object.hasOwn(g,'priority')&&!PRIORITIES.includes(g.priority))fail('Invalid goal priority. Records have not been changed.');
     if(!text(g.title,160)||!text(g.definitionOfFinished,2000)||!integer(g.createdAt)||!integer(g.updatedAt)||!['open','completed'].includes(g.status)||(g.status==='completed'&&!integer(g.completedAt))||(g.status==='open'&&g.completedAt!=null))fail('Invalid goal.');
     if(g.status==='open')open++;
     if(!Array.isArray(g.actionOrder)||g.actionOrder.length<1||g.actionOrder.length>30||new Set(g.actionOrder).size!==g.actionOrder.length||g.actionOrder.some(id=>w.actions[id]?.goalId!==key))fail('Invalid action order.');
@@ -92,6 +94,7 @@ export function validate(w){
 }
 export function transition(input,command,now){
   validate(input);if(!validId(command.id)||!integer(now))fail('Invalid command.');
+  if(command.type==='save-goal'&&Object.hasOwn(command,'priority')&&!PRIORITIES.includes(command.priority))fail('Choose Low, Normal or Important priority.');
   const fingerprint=JSON.stringify(command);
   const prior=input.operations[command.id];
   if(prior){if(prior.fingerprint!==fingerprint)fail('Operation identity reused.');return input;}
@@ -113,7 +116,8 @@ export function transition(input,command,now){
       if(command.goalId!==(g?.id||null))fail('Goal changed. Reload before saving.');
       const order=command.actions.map(a=>a.id);
       if(s&&JSON.stringify(order)!==JSON.stringify(g.actionOrder))fail('Action order and removal are locked while a focus block exists.');
-      const goal=g||{id:command.id,createdAt:now,status:'open'};
+      const goal=g||{id:command.id,createdAt:now,status:'open',priority:'normal'};
+      if(Object.hasOwn(command,'priority'))goal.priority=command.priority;
       for(const item of command.actions){const old=w.actions[item.id];if(old&&old.goalId!==goal.id)fail('Action belongs to another goal.');w.actions[item.id]={...old,id:item.id,goalId:goal.id,title:item.title.trim(),status:old?.status??'open',createdAt:old?.createdAt??now,updatedAt:now};}
       if(g)for(const id of g.actionOrder)if(!order.includes(id)){
         if(Object.hasOwn(w.contexts,id)||w.actions[id].status==='completed'||values(w.sessions).some(s=>s.actionId===id)||values(w.events).some(e=>e.actionId===id))fail('Actions with saved context or recorded work cannot be removed.');
@@ -142,13 +146,18 @@ export function transition(input,command,now){
     case 'notes': {
       requireAction();if(s?.status==='running')fail('Pause before saving notes.');
       if(!text(command.instruction,4000,false)||!text(command.context,4000,false))fail('Notes may contain up to 4,000 characters each.');
+      for(const [flag,field] of [['removeInstruction','instruction'],['removeContext','context']]){
+        if(Object.hasOwn(command,flag)&&typeof command[flag]!=='boolean')fail('Note removal choices must be booleans.');
+        if(command[flag]&&command[field].trim())fail('Choose removal or replacement for each saved field, not both.');
+      }
       const old=w.contexts[a.id]||{id:command.id,actionId:a.id,nextInstruction:'',context:''};
       if(Object.hasOwn(command,'resourceUrl')){
         if(command.resourceUrl===null)delete old.resourceUrl;
         else if(typeof command.resourceUrl!=='string')fail('Enter a work link or leave it blank to keep the saved link.');
         else if(command.resourceUrl.trim())old.resourceUrl=normalizeResourceUrl(command.resourceUrl);
       }
-      if(command.instruction.trim())old.nextInstruction=command.instruction.trim();if(command.context.trim())old.context=command.context.trim();old.updatedAt=now;w.contexts[a.id]=old;break;
+      if(command.removeInstruction)old.nextInstruction='';else if(command.instruction.trim())old.nextInstruction=command.instruction.trim();
+      if(command.removeContext)old.context='';else if(command.context.trim())old.context=command.context.trim();old.updatedAt=now;w.contexts[a.id]=old;break;
     }
     case 'extend':
       if(!s||!['paused','interrupted','expired'].includes(s.status)||![5,10,20].includes(command.minutes))fail('Pause before extending this block.');
