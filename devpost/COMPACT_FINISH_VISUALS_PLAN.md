@@ -1,0 +1,15 @@
+# Progress circle / compact history — pre-edit plan
+
+25 October 2026. Implement OPENCODE_COMPACT_FINISH_VISUALS.md only, preserving all dirty/imported work, End block and final-demo functionality. No calendar or note-removal increment.
+
+## Exact paths and presentation contract
+- `demo/proof.js`: replace person markup inside the same expedition-marker group with a crisp circular glyph; preserve group/data identities/anchor, campsite paths and existing 780ms path animation/cancellation. Add one original static inline finished-card mountain-outline helper, shared with real history via bootWork adapter and fictional history. Remove routeSVG from fictional history cards only; reward/active mountain remain.
+- `demo/work.js`: replace real history art(g) with shared decorative outline; retain all canonical title/count/effort/date/context/link/reopen data and guards. Add card identity attribute for focused history checks. Move the unblocked explanatory correction sentence into expandable details to avoid excessive collapsed copy; blocked reopening stays visibly explained.
+- `demo/styles.css`: remove obsolete human styles; circle theme-centre/contrasting border and one restrained ring, warm summit variant. Keep campsite distinct. Compact history min-height ~250px desktop/~280px mobile, natural growth; foreground text reserves the left area, art stays in a separate clipped/bottom-cropped wrapper at right. Card itself does not clip expanded content or focus rings. Original muted blue/violet/warm gradient and white card-local strokes; no terrain/fonts/modal/layout overhaul.
+- `tests/browser.mjs`: before/after compact visual gate with actual IDB canonical synthetic history fixtures (ordinary/max title/long context/multiple goals), link/expansion/reopen/identity/effort/no-write/no-replay and theme/390px/focus measurements. Adapt only assertions that intentionally expected mountain routes in history; retain equivalent outcome/history assertions. Existing travelling/rewards/history/full gates remain.
+- Current docs: `HANDOFF.md`, `devpost/checklist.md`, `devpost/design-brief.md`, `devpost/spec.md`, `README.md`, `devpost/DEMO_WALKTHROUGH.md`, `devpost/VIDEO_SCRIPT.md`, plus this plan and new `devpost/COMPACT_FINISH_VISUALS_EVIDENCE.md`. Update only descriptions affected by history/dot visuals.
+
+Documentation follow-through: also correct `devpost/SUBMISSION_DRAFT.md`'s retained-mountain-in-history description to compact goal card, so the delivery claim does not imply history still renders the full route. No additional runtime scope.
+
+## Verification / stop
+Record before captures before runtime edits. Focused compact-history/travelling/reward checks while editing; syntax, 25 Node tests, seven-asset build parity, diff and complete browser suite once after final runtime change. Inspect ordinary/max-title collapsed/expanded, multiple goals in light/dark desktop/390px. No state/storage/timing/schema/durations/dependencies/allowlist changes, historical imports, publication or submission. Stop for independent review/user decision; no visual-acceptance claim.

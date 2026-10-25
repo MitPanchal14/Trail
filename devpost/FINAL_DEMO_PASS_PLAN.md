@@ -1,0 +1,16 @@
+# Final demo pass — exact pre-edit plan
+
+25 October 2026. Implement OPENCODE_FINAL_DEMO_PASS.md only in the existing dirty checkout. Preserve all imported work and reviewed End block. No publication or new engines.
+
+## Paths
+- `demo/work.js`: first-use-only secondary Try a saved place entry using existing changeMode/enterExample; keep primary Start working and accepted headline. Clarify benefit and existing Real work exit. Shared Copy saved place beside Today and Focus saved content, based only on current committed goal/action/context. Allow displayed read-only snapshots and pending-error copying without enabling mutations. Clipboard click success gets local role=status feedback; denied/unavailable gets identical labelled readonly textarea/manual guidance/Close built through DOM/value, never user-text innerHTML. Async results must not attach after navigation/mode/render or duplicate output. No error/Retry, domain/timer, marker/render or Undo changes from copy.
+- `demo/proof.js`: retain existing stopped returning-Today ML fixture/engine; only improve its concrete cue/location/decision if compatible with existing assertions. Reuse existing mode transition. Marker meaning/captions only if necessary; no path/identity/duration changes.
+- `demo/styles.css`: touched discovery/copy spacing, keyboard/mobile fallback; modest person/tent scale and contrast, current violet / earned cyan / confirmed warm roles. No terrain/font/layout rewrite.
+- `tests/browser.mjs`: focused final-demo gate and integrate with full suite. Discovery/storage-unavailable/read-only/draft isolation; clipboard success/denied/unavailable, exact full Unicode text/action scope/drafts, pending Retry, async navigation cleanup, no domain/timing/motion/Undo effects; themes/390px and current marker/camp/review/summit captures. Preserve all existing assertions.
+- Docs: `HANDOFF.md`, `devpost/checklist.md`, `README.md`, `devpost/spec.md`, `devpost/DEMO_WALKTHROUGH.md`, `devpost/VIDEO_SCRIPT.md`, `devpost/SUBMISSION_DRAFT.md`, `devpost/CLAIM_EVIDENCE.md`, new `devpost/FINAL_DEMO_PASS_EVIDENCE.md`, and this plan. No index.html change expected.
+
+## Visual direction
+Retain native system typography, Georgia Trail headline and existing left-aligned saved-place hierarchy / centered Focus. Existing tokens: canvas #f8f9fc / dark #101219, ink #242732 / #f0f2f7, current violet #7849df / #bba2ff, earned cyan #75d7dc and confirmed peach #f7b49d. Secondary discovery sits below the primary; copy remains beside committed notes/reference, not a competing primary. Manual fallback expands in flow, labelled and selectable. The expedition is the signature; tune its small glyph, not terrain or surrounding chrome. Review against brief: reuse approved composition rather than introduce a generic new card/onboarding system.
+
+## Checks and stop
+Focused checks while editing; syntax/25 existing Node tests/build parity/diff and complete Chromium suite once after final runtime edit. Inspect actual captures in both themes/desktop/390px. Record limitations, pending user-owned recording link and deliberately skipped friend/public trials; no invented user validation. Stop for independent review and user's quick visual decision. No note clearing/duration/schema/engine/dependency change, commit/push/license/visibility/deploy/upload/submission.

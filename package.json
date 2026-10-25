@@ -11,6 +11,6 @@
     "start": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check demo/proof.js && node --check scripts/serve.mjs && node --check scripts/build.mjs"
+    "check": "node --check demo/proof.js && node --check demo/work.js && node --check demo/state.js && node --check demo/storage.js && node --check demo/timing.js && node --check demo/activity.js && node --check scripts/serve.mjs && node --check scripts/build.mjs"
   }
 }

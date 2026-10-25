@@ -1,0 +1,19 @@
+# Return-experience implementation plan — 25 October 2026
+
+Started 11:31 IST, branch codex/trail-redesign, HEAD 6d9a930. Preserve existing HANDOFF/checklist edits and untracked dispatch/research plan. One implementation owner; no publication. Scope authority: OPENCODE_RETURN_EXPERIENCE.md. Target ~90 minutes; at two hours stop expansion and record remaining work.
+
+## Exact file/change plan, before edits
+- `demo/state.js`: one exported absolute HTTP(S) URL normalizer; optional context.resourceUrl validation (including Undo snapshot), compatible absent field without read mutation; notes commands preserve on absent/blank, replace on valid nonblank, delete key only on explicit null. No schema-version, collection, timing, ownership or Retry changes.
+- `demo/work.js`: prominent optional next-move prompt; optional context/link and explicit Remove saved link checkbox behind existing disclosure; retain all pause draft fields/disclosure/removal intent across navigation/modes; form-only Cmd/Ctrl+Enter via normal submission, ignoring composition. Show saved instruction vs unfinished-action fallback, real context-save time and safe user-triggered Open work anchors in Today/Focus/history. Label full-goal route and completed count accurately; preserve home/Focus layouts and corrected goal drafts.
+- `demo/styles.css`: minimal additive field spacing, checkbox, saved-time and wrapping/link styles using current tokens; no graphic or layout redesign.
+- `tests/state.test.mjs`: old-v1 read compatibility, optional URL command semantics, unsafe/invalid inputs without mutation, exact Retry, stored/Undo validation and completion/Undo/correction reference preservation.
+- `tests/browser.mjs`: focused return gate with a local reference fixture (no external requests), real save/reload/time/new-tab isolation/explicit Resume, blank/Skip/clear, rejected and aborted saves with exact Retry and draft/removal preservation, action isolation/Undo/history, shortcut/IME and both-theme/390px captures. Retain existing gates and run full suite once after final runtime edits.
+- `README.md`, `devpost/spec.md`, `devpost/prd.md`, `devpost/scope.md`: factual reference/preservation/compatibility/local-only limitations.
+- `HANDOFF.md`, `devpost/checklist.md`, `devpost/DAY_BUILD_EVIDENCE.md`; new `devpost/RETURN_EXPERIENCE_EVIDENCE.md`: current receipt, checks and remaining independent/physical acceptance, distinguished from historical results.
+
+## Contract and acceptance
+Only new canonical key: optional context.resourceUrl. Normalize explicit absolute http:// or https://, trim surrounding spaces, preserve query/fragment, cap normalized/input URL at 2048 characters, reject control characters, credentials, relative/protocol-relative/malformed and other schemes. Stored optional values must already be valid normalized strings; never repair/reset malformed data. Old v1 missing the field validates unchanged. Missing/blank command preserves, null explicitly deletes, valid nonblank replaces after commit. Exact command identity and full Undo context remain unchanged.
+
+Pause still freezes then commits time before showing notes. No optimistic save. Context.updatedAt is the actual note-save timestamp, never an activity date. Link opening is a native target=_blank rel=noopener noreferrer gesture, not a domain command or timer action. No automatic fetching/capture. Unsaved pause drafts are in memory only and action-scoped.
+
+Run focused domain/browser checks while developing; investigate failures locally. Final: npm run check, npm test, npm run build, git diff --check and one full Chromium suite. Inspect Today/pause/Focus/history in both themes and at 390px. Physical sleep, prolonged background, branded browsers, native BFCache and observed user value remain unverified. Stop for independent review; do not commit/push/deploy/submit or add deferred research features.

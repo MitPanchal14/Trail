@@ -1,0 +1,42 @@
+# Pass 1 — twelve-month activity and compact archive
+
+25 October 2026. Local reviewable changes on dirty `codex/trail-redesign`, preserving the previous uncommitted activity/note-removal implementation and both ZIPs. Exact pre-edit plan: YEAR_ACTIVITY_AND_ARCHIVE_PLAN.md. DEMO_REFINEMENT_REPORT.md **Pass 1 only**. No deadline success or user acceptance implied.
+
+## Implemented
+
+- `demo/activity.js`: twelve named calendar months including the current one, unique actual days plus null Monday-first alignment slots. On 25 October 2026: November 2025–October 2026, 365 actual dates. Leap-containing twelve-month ranges have 366 dates. Future current-month dates unavailable; padding never counts. DOM-free; canonical action/date/count/streak/milestone rules retained, no stored activity source.
+- `demo/work.js`: separate month blocks, one label each, 14px unnumbered native buttons with exact date/count names and selected state. Up/down ±1 day, left/right ±7, Home/End Monday/Sunday across real dates; unavailable/out-of-range moves do nothing. Labelled min/max native date input + explicit View day provides >=44px equivalent selection. Today dot, selected outline and focus ring remain separate from intensity. Compact correctly pluralized stats/legend, expandable counting/keyboard help. Exact selected-day items show eight first plus native disclosure of every remaining item.
+- Panel-only local-day/timezone refresh retains valid selection, date input draft/focus, help/busy-day expansion and internal scroll; month-boundary range changes do not affect all-time totals. Other screens/drafts are not rerendered. Current/best streak and 1/5/10/25 highest/next milestone remain correction-aware. No seeded real or new fictional history.
+- `demo/styles.css` + real archive controller: full-width two-column desktop/one-column phone gradient/white-outline cards, smaller padding/decoration, full-width expanded details, natural text wrapping and unclipped focus. Newest eight initially, eight more per Show more, shown/total status, every retained ID reachable. Loaded count and keyed disclosures survive in-app navigation/rerenders, not reload. Show more appends only archive DOM; selection/help/expansion does not save, invalidate Undo or change timing. Pending/read-only Reopen stays disabled and existing domain guards remain.
+- Shared archive styling remains valid for existing examples. `proof.js`, `state.js`, `storage.js`, `timing.js`, asset inventory/allowlists and dependencies are unchanged by this pass. Existing prior dirty engine/tooling edits are preserved, not reverted.
+
+## Verification
+
+- `node --test tests/activity.test.mjs`: **8 passed**. Updated old visible-range assertions only; preserved canonical expectations. Added 365/366 ranges, all month order/year rollover, leap February, unique contiguous dates, Monday-first null padding, current future dates, local midnight/month rollover/timezone regrouping. Existing DST/future/invalid dates, all-time vs period, correction/recompletion/streak/milestone tests remain.
+- `npm run check`: passed. `npm test`: **35 passed**, zero failures/skips. `npm run build`: passed with the retained exact eight-asset inventory/byte parity. `git diff --check`: passed (final documentation check repeated at completion).
+- Focused `activity` gate passed canonical completion/Undo/recompletion, goal refinish/action reopen, abort/exact Retry/reload, exact escaping, roving focus, no writes/Undo invalidation, read-only and synthetic local midnight/timezone/draft/scroll cases. Only superseded 84-date/44px-tile layout assertions changed; 44px equivalent control assertions added.
+- Focused `compact` gate passed, retaining canonical context/URL/effort/timestamp/reopen/blocked/read-only/no-replay assertions, new 180–240px ordinary-card target and full-width rather than old reserved-side-art assertions. Existing old timing/error/isolation assertions were not weakened.
+- New focused `year-archive` gate passed 0/1/8/9/30 goals, all twelve months/date alternative/keyboard/year boundary, padding/future/14px tiles, 30-item exact day disclosure, singular labels, both themes/1440/390/no document overflow, all IDs via Show more, long title/notes/URL/full-width detail, loaded/expanded retention, aborted Reopen/exact Retry/disabled pending guards, non-writer presentation, month rollover/help/day expansion/date draft/focus and no writes. Isolated synthetic canonical fixtures only.
+- Capture-fixture corrections: scoped theme selectors to actual buttons rather than matching root `[data-theme]`; waited 200ms for the existing theme transition before final captures and asserted settled date-control surface. Busy-day preservation fixture ensures a disclosure is open before testing preservation rather than inadvertently toggling an already retained disclosure closed. No runtime workaround or assertion weakening for these test issues.
+
+## Captures and dimensions
+
+Base: `/private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/trail-year/`.
+
+- Before: `before/compact-before-{collapsed,long-expanded,ordinary-expanded}-{light,dark}-{1440,390}.png`, generated before runtime edits with the actual prior compact/activity baseline and isolated canonical records. Ordinary phone cards **283px / 312px**, 160-character title **629px**.
+- Matched after: `focused/compact-after-{collapsed,long-expanded,ordinary-expanded,blocked}-{light,dark}-{1440,390}.png`. Ordinary phone cards **207px**, maximum-title fixture **338px**, with full expanded notes/links reachable.
+- Settled theme year/archive: `settled/year-archive-after-{light,dark}-{1440,390}.png` (preferred screenshots). Earlier focused captures are diagnostic; the settled captures wait for theme transitions. Full suite writes its own captures to `final/`.
+- Measured ordinary nine-goal fixture (newest eight shown): at **1440px**, two **572 × 214px** cards per row; at **390px**, one **346 × 207px** card per row. Same dimensions in both themes. Visual tiles **14 × 14px**; equivalent date input/View day >=44px high. Month blocks wrap internally rather than shrinking tiles; no tested document overflow. Expanded details occupy >80% of card width on phone and retain exact text/safe URL.
+- Inspected both-theme desktop/phone images, including full-width phone details from compact captures. Real new users still see an honestly empty year/archive. Test snapshots are not a new judge-facing fictional scenario or fake real-user history.
+
+## Final combined gate
+
+`TRAIL_EVIDENCE=/private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/trail-year/final node tests/browser.mjs`: **all 16 gates passed**, exit 0, after the final runtime edit. A, B, C, edges, corrections, return, travelling, mountain, rewards, return-fixes, end-block, final-demo, compact, note-removal, activity and new year/archive. Existing timing, uncertain-gap, ownership, exact Retry, clipboard fallback, note-removal, context guards, examples, reduced-motion/reward assertions retained. No runtime change after this full run.
+
+After launch, test-only capture hardening added a 200ms wait for existing theme transitions plus an assertion of the settled date-control background. A fresh focused `year-archive` run with those stronger checks also passed; preferred images are in `settled/`, not the earlier transition-timing captures. Both modes use isolated canonical fixtures. Current targeted tests contain those waits; application behavior unchanged.
+
+Changed runtime paths for this pass: `demo/activity.js`, `demo/work.js`, `demo/styles.css` only. Tests: `tests/activity.test.mjs`, `tests/browser.mjs`. Current product/handoff/checklist/submission/claim docs updated as planned, plus this plan/evidence. Previous dirty `demo/state.js`, serving/build/package tests/docs and both ZIPs retained without reset/staging/publication.
+
+## Boundary / stop
+
+Not implemented: Pass 2 scenario gallery/homepage entries/new fictional year or Pass 3 dark Focus/motion changes; search/filter/sort, pruning, new schemas/dependencies, sync/AI/reminders or new artwork. No reset/stash restoration/branch switch/main change/commit/push/deployment/upload/submission. Independent/user visual review remains required. Chromium automation and controlled date/timezone fixtures do not establish native Safari/Comet, physical phone/sleep/background/BFCache behavior or human usefulness. The native date control's physical-browser interaction still requires device review. Preview remains http://127.0.0.1:3000/.

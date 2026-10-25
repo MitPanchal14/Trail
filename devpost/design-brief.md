@@ -1,5 +1,60 @@
 # Design brief
 
+## Current judge-clarity revision — A/B/C implemented locally
+
+The user accepts the year grid. Preserve its spacing/density/count semantics and mountain/circle/card grid. New hierarchy: “Your productivity and focus companion” → “Pick up where you left off.” → explicit plan/focus/save body, Start working and always-visible three-entry ready-made demo panel. A Goal/Next move workshop preview is labelled fictional; returning real cues/counts remain genuine. Original blue/violet two-peak mark replaces the lightning-like glyph/favicon; Trail. wordmark retained.
+
+Selected-day tasks are collapsed behind View actions; jump to counted Finished goals keeps the archive discoverable. No visible inline Review actions row on cards: underlined title/arrow opens the full read-only scrollable dialog with focus return. Priority is explicit label + stable card family: Low teal/blue, Normal indigo/violet, Important plum/amber, contrasting text in both themes. No automatic sorting or importance from action counts. Shared populated examples use these same controls/palettes/year with deterministic meaningful work and visible fiction/reset/exit/simulation limits. No Focus visual/motion redesign. Current receipt JUDGE_CLARITY_EVIDENCE.md; independent/user visual acceptance pending. Older inline-detail/no-example descriptions below are historical.
+
+## Pass 1 — twelve-month heatmap and compact archive
+
+Current local presentation supersedes the 12-week/44px-tile description below: twelve distinct named months, one label/gaps each, seven Monday-first rows, 14px unnumbered squares with a coherent theme-based violet ramp. Dot=today, outline=selection, visible keyboard focus; a labelled 44px native date selector/View day gives equivalent touch access. Wrap month blocks rather than squeezing phone pixels. Compact stats/legend and expandable help; full busy-day details expand after eight items.
+
+Archive now fills the content width with two compact columns on ordinary desktop/one phone column. Smaller padding/outline leaves full-width readable context/links and unclipped focus. Ordinary collapsed fixtures measure 214px desktop / 207px phone; maximum titles grow, not clip. Newest eight + Show more exposes all retained history. Gradient/white outline, real guards and fictional isolation retained. No new scenario gallery/year samples or Focus/motion changes. See YEAR_ACTIVITY_AND_ARCHIVE_EVIDENCE.md; independent/user visual review still required.
+
+## Activity / removal increment — local review pending
+
+One real Finished work panel precedes unchanged compact cards. Twelve Monday-start columns use theme-based violet/cyan levels, 44px native day targets, sticky weekday labels and labelled internal horizontal scrolling. Visible help documents roving day/week/Home/End keys. Exact escaped goal/action details appear in-flow; streaks and one highest/next milestone stay secondary. No new artwork/reward effects. Independent text removal follows the saved-link checkbox convention; Home/Focus/terrain/circle/campsite remain unchanged. Older no-streak receipts below are historical. See ACTIVITY_AND_NOTE_REMOVAL_EVIDENCE.md; independent/user visual acceptance remains separate.
+
+## User-requested replacement — compact history / circle, 25 October
+
+The user rejected the human climber. It is now replaced locally by a small solid violet circle with a contrasting border (warm confirmed summit), inside the unchanged travelling group/path/anchor. No face/limbs/backpack remain. A useful saved place still shows the existing tent when stopped. Selection and review remain distinct; post-commit 780ms travel, Off/reduced cancellation and no replay are retained. Active terrain/depth and reward layout are preserved.
+
+Finished work cards intentionally no longer contain filled mountains, routes, checkpoints or duplicate captions. One original minimal white outline mountain is decorative, card-local and lower-right/bottom cropped inside its own non-interactive clipped wrapper. Foreground text reserves separate left space; card contents/focus are not clipped. Ordinary collapsed cards target ~250px desktop and 280–320px phone, while max titles/expanded contexts grow naturally. Titles/counts/effort/dates, saved context/safe links and Reopen/blocked explanations remain reachable. Muted blue/violet/warm gradient is retained, with light card-local supporting text in both themes. COMPACT_FINISH_VISUALS_EVIDENCE.md records verification/captures; **independent review and user visual acceptance remain pending**. Older person/history-route descriptions below are dated history.
+
+## Current cloud prototype — visual decision pending, 25 October
+
+One backpacked expedition marker now follows the existing ascent after committed action completion; useful saved notes or a link with timing stopped show a campsite at the same anchor. Blank context records do not create campsites. Checked checkpoints remain visible, selection is independent, all-checked stops below the summit for review, and explicit confirmed finish coordinates the same marker inside the one existing reward. The 780ms travel replaces checkpoint trace/check/sparks; terrain/depth, typography and written composition are retained. Off/reduced motion and cancellations settle instantly without replay or domain writes.
+
+The user accepted the terrain and written layout, then found the previous rewards too similar to an ordinary chart. The new marker is implemented for their decision; **visual satisfaction remains pending**. CLOUD_COMPLETION_EVIDENCE.md records current checks/captures. All earlier sections below are dated historical design receipts, superseded where they call graphic work deferred, return fixes open or marker unimplemented. They are retained as history, not current next-task instructions.
+
+## Reward enhancement implemented — visual acceptance pending
+
+OPENCODE_MOUNTAIN_REWARDS.md is implemented locally: one 600ms applied-completion segment/check/spark response replaces the ring, scoped by real/example goal/action identity. Confirmed finish shows the same mountain with a finite warm summit halo/flag visibly inside the existing dismissible reward. Scoped current violet, earned cyan/blue and confirmed peach distinguish state; terrain/depth and surrounding written layout are preserved. Mobile-only 12px HTML current/summit/count captions replace tiny duplicate SVG labels; full action access remains in the existing list. Note save is not earned ascent. Off/reduced motion stops effects/confetti cleanly; final states are immediate, Undo/navigation cannot be overwritten by cleanup, and static history never replays rewards.
+
+Syntax/20 tests/build/diff and the complete Chromium suite, including live effects/failure/Retry/isolation checks and normal/reduced light/dark desktop/390px captures, passed. See MOUNTAIN_REWARDS_EVIDENCE.md. Stop for visual review; no publication. Three recorded return-edge findings remain open for the following correction pass. This is a design hypothesis, not a proven dopamine/productivity/retention effect. Earlier planned-only reward wording below is historical.
+
+## User visual acceptance and reward direction — 25 October
+
+The user likes the implemented mountain silhouette/depth and confirmed the proposed small checkpoint reward plus stronger summit celebration. Preserve terrain and written layout; do not follow earlier reviewer suggestions for another terrain redesign. Approved next scope: brief post-commit earned-trail/checkpoint feedback, coordinated summit/reward, existing violet/cyan/blue roles with restrained warm summit accent, and improved mobile labels. See OPENCODE_MOUNTAIN_REWARDS.md. These refinements are planned, not implemented. Streaks/audio remain separate.
+
+## Mountain pass implemented locally — awaiting visual review
+
+The bounded OPENCODE_MOUNTAIN_GRAPHIC.md pass replaces floating stones with one shared custom SVG mountain: layered theme-token terrain, restrained contours, winding ascent, actual checked-ID checkpoints, independent selected/current markers and a saved-place cue only for the next action with saved context. All-checked remains Ready for review; only explicitly finished goals earn the summit. Dense goals retain a bounded overview and the full accessible list. Real/example home, Today/Journey and finished-card consumers share the renderer; Focus composition, typography and surrounding colours/layout remain unchanged. A single 650ms post-commit earned response respects Background motion Off/reduced motion and never runs just for rendering/navigation. No time-to-height/distance mapping or stored coordinates.
+
+Syntax, 20 Node tests, build, diff checks and the full Chromium suite including the new mountain gate passed. Light/dark desktop/390px scenes and the actual response were inspected; see MOUNTAIN_EVIDENCE.md. This is a first implementation for the user's visual decision, not visual acceptance. All three RETURN_EDGE_REVIEW findings remain open; no audio/streaks or publication in this pass. Older no-graphic receipts below describe prior checkpoints.
+
+## Latest user direction — 25 October, after saved-place review
+
+The written layout is accepted as a baseline. The user finds the graphic underdeveloped and wants it prioritized now: explore a mountain ascent that makes completing the trail feel rewarding, using the website's current typography, blue/violet/cyan palette and coherent light/dark themes. Preserve surrounding home/Focus composition. This supersedes earlier instructions to defer graphics; it does not authorize restoration of historical pixel mountain code or another runnable app. Actual action outcomes should drive milestone states; elapsed time is separate and must not imply measured productivity. Streaks are a proposed later enhancement whose rules still need agreement. The current Background motion control does not implement sound.
+
+## Day-build implementation receipt
+The approved corrections are implemented locally: Focus rail removed, Background motion labelled On/Off with reduced-motion preference respected, and compact immediate dismissible reward with stable quote/finite particles over Finished. Home layout/art and Focus composition are retained; real inputs and truthful labels are additive adapters. Both-theme/390px screenshots are in the day-build evidence. No graphic redesign or broad dark redesign was performed. The starting-baseline/pending wording below records the pre-build state, not the current runtime.
+
+## Latest user decision — 25 October morning
+
+Home layout and Focus composition look good. Keep the landing illustration and current route composition for now; graphical representation will be redesigned later. Remove the small decorative Focus bar/knob because it implies an interaction. The current “Switch to still” effect feels like a no-op: replace it with a clearly labelled Background motion On/Off state and verify visible freeze/resume, respecting reduced motion. Replace the slow full-screen completion screen with an immediate compact window, a stable short congratulatory quote and finite celebratory pops/confetti around the screen. Preserve the surrounding page and allow dismissal. No broad dark restyling is requested in this feedback. These decisions supersede conflicting pending suggestions below; see OPENCODE_DAY_BUILD.md for measurable acceptance. They are approved requirements, not implemented changes.
+
 ## Retained baseline
 
 The user selected the currently available 01b demo as the sole UI source for this repository cleanup. Its three runtime files are retained byte for byte under demo/. This selection supersedes old pixel-mountain layouts and competing historical proof folders. It does not certify every detail as final.
