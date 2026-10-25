@@ -4,16 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-  <title>Trail — isolated visual proof</title>
+  <title>Trail — a way back to work</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M6 25L14 7h6l-3 9h9L15 27' fill='none' stroke='%234167ec' stroke-width='3'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
-  <script src="proof.js" defer></script>
+  <script src="proof.js" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to work</a>
   <div class="proofbar">
-    <span><i class="demo-dot"></i> Demo — fictional work</span>
-    <div class="proof-controls">
+    <span id="mode-label"><i class="demo-dot"></i> Real work · local to this browser</span>
+    <div><button id="real-mode" class="text-button">Real work</button> · <button id="example-mode" class="text-button">Fictional example</button></div>
+    <div class="proof-controls" id="example-controls" hidden>
       <label for="scenario">Preview state</label>
        <select id="scenario">
          <option value="landing">First visit / landing</option>
@@ -36,6 +37,7 @@
     <div class="theme-control" role="group" aria-label="Colour theme"><button data-theme="light" aria-pressed="true">Light</button><button data-theme="dark" aria-pressed="false">Dark</button></div>
   </header>
   <main id="main" tabindex="-1"></main>
+  <aside id="storage-status" class="storage-status" aria-live="polite"></aside>
   <footer class="footer"><span>Illustrative records & route mapping. Not the production app.</span><span>In memory only. Reload resets this example.</span></footer>
   <div id="notice" class="notice" role="status" aria-live="polite"></div>
   <dialog id="review" aria-labelledby="review-title">
@@ -45,6 +47,12 @@
     <form id="add-form" hidden><label for="new-step">Another step</label><input id="new-step" maxlength="500" placeholder="What still needs doing?"><button class="button" type="submit">Add step & keep open</button></form>
     <div class="dialog-actions"><button class="button primary" data-action="confirm">Confirm goal finished</button><button class="button" data-action="add">Add another step</button><button class="text-button" data-action="keep-open">Keep goal open</button></div>
     <small>Proposed review flow · fictional example</small>
+  </dialog>
+  <dialog id="reward" aria-labelledby="reward-title">
+    <div class="dialog-heading"><span class="goal-token" aria-hidden="true">✓</span><button class="text-button" data-action="exit-celebration" aria-label="Close celebration">✕</button></div>
+    <h2 id="reward-title">You followed through. One step at a time.</h2>
+    <p id="reward-goal" class="review-goal"></p><p id="reward-kind" class="hint"></p>
+    <button class="button primary" data-action="exit-celebration">View finished work</button>
   </dialog>
 </body>
 </html>

@@ -1,5 +1,7 @@
 # One-day prototype checklist
 
+**Superseded schedule/decisions, 25 October morning:** follow [OPENCODE_DAY_BUILD.md](OPENCODE_DAY_BUILD.md) for the current concrete timetable and dispatch. Home layout stays; graphic redesign is deferred. Remove Focus rail, make motion control observable, and replace the slow full-screen reward with compact immediate dialog/confetti. The user requested a full local core loop by 17:00–18:00 IST, hard stop 19:00. Earlier pause and unresolved-UI wording below records the previous session; the new task prepares an OpenCode dispatch, not direct implementation here.
+
 Prepared 25 October 2026, Asia/Kolkata. Work is paused at the user's request. This is the restart plan, not an implementation dispatch or evidence of completed features.
 
 ## Recorded planning changes

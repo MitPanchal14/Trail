@@ -1,8 +1,8 @@
-# Trail UI demo
+# Trail local prototype
 
 Trail helps you focus on one action, leave a useful next step, and return knowing where to begin.
 
-This repository now contains **one website: the retained 01b UI demo**. The previous Next.js app and old UI have been removed. The demo uses fictional work and in-memory state; reloading resets it. It is not the functional product.
+This repository contains **one dependency-free website using the retained 01b composition**. Create a real goal/actions, focus, pause with return context, reload and explicitly Resume, then complete/review/finish into local history. Limited Undo and guarded reopening preserve recorded effort. A separate, clearly labelled fictional example resets on reload and never changes real records. The previous Next.js app remains removed. This is a reviewable local prototype, not a deployed or submission-ready product.
 
 ## Run
 
@@ -14,7 +14,18 @@ npm run dev
 
 Open http://127.0.0.1:3000/. To choose another port: `npm run dev -- --port 52254`.
 
-`npm run check` checks syntax. `npm test` checks asset serving, private-path rejection, HTTP behaviour and build parity. `npm run build` creates `dist/` for a static host. `npm start` serves the same demo locally; it does not start an old app.
+`npm run check` checks syntax. `npm test` runs dependency-free domain/clock/static-serving/build tests. `npm run build` creates an allowlisted `dist/`. `npm start` serves this same prototype locally.
+
+For browser integration, `node tests/browser.mjs` uses the already available local Playwright/Chromium tooling against port 3000. This optional harness is not an application dependency and installs nothing. Set `TRAIL_URL` for another local origin and `TRAIL_EVIDENCE` for screenshots. See [day-build evidence](devpost/DAY_BUILD_EVIDENCE.md) for tested behaviour and gaps.
+
+## Use and recovery
+
+- Start working → Create a goal → enter title, definition and ordered actions → Save. Cancel changes no saved records. One open goal at a time.
+- Start/Resume is explicit. Pause stops local accrual before the note form. Blank fields and Skip preserve prior instruction/context independently. Extend adds time; paused/expired blocks stay paused until Resume.
+- Complete action is explicit and stops timing. Undo restores its saved context and stopped timer until the next saved domain change; navigation/reload alone preserves the window. Recorded effort is retained.
+- All actions checked opens review, not automatic goal completion. Add an action, keep open, or confirm finished. The compact reward follows a committed finish and never replays merely through navigation/reload.
+- Finished work contains real titles, timestamps, counts, context and recorded effort. Reopen a goal only if no other goal is open. It stays all-checked until you explicitly reopen an action or add one; refinish updates the same history identity.
+- Failed writes stop timing and keep the draft/pending operation. Retry reconciles the same operation once, then requires explicit Resume if timing was running. Corrupt/newer records are preserved with raw export where readable; there is no destructive reset/import flow.
 
 ## Current source of truth
 
@@ -26,4 +37,10 @@ Open http://127.0.0.1:3000/. To choose another port: `npm run dev -- --port 5225
 - [Handoff](HANDOFF.md) and [build instructions](BUILD_PROMPT.md): how to continue safely.
 - [Cleanup receipt](devpost/CLEANUP_RECEIPT.md): removal inventory and recovery.
 
-GitHub publication is a source backup, not a hosted deployment. Demo scenarios and timers do not establish background delivery, persistence or real productivity tracking.
+Real work requires IndexedDB and Web Locks. The writer holds an exclusive lock for its document lifetime; other tabs are read-only until the owner closes and you choose Retry ownership. No unsafe storage fallback is used.
+
+Records belong to this browser and site address; changing port/origin changes storage. Clearing site data can lose them; there is no sync or permanent-storage guarantee. Checkpoints are about 5 seconds apart. Gaps over 15 seconds, clock reversal or wall/monotonic disagreement over 2 seconds interrupt without crediting that gap. Reload/BFCache recovery requires explicit Resume and may lose the last uncommitted tail. Committed checkpoints intentionally omit write latency; background throttling can interrupt. Sleeps shorter than the threshold are not universally detectable.
+
+Limits: 160-character goal title, 2,000-character definition, 1–30 actions of 500 characters, 4,000 characters per note, 200 goals, 100,000 records per bounded collection, 24-hour maximum allocation per block. At limits, saving fails visibly rather than silently deleting history. There is no pruning/import/delete workflow.
+
+Physical Mac sleep/wake, branded Chrome/Comet, phone hardware and native BFCache eligibility remain unverified. No AI, reminders, PiP, priority scoring, streaks or real effort-to-route mapping are implemented. No commit, push, hosting or submission is authorized for this local build.

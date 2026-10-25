@@ -18,7 +18,7 @@ Expiry does not complete a subtask. Offer +5/+10/+20 minutes without losing cont
 
 ## Completion and history
 
-Completing a subtask earns restrained visual feedback and a differentiated completed state. When all subtasks are checked, offer final review: add a subtask, keep the goal open or confirm completion. Completing a whole goal should eventually show a compact elegant window with a stable message and finite colourful ribbons; preserve the surrounding page, allow dismissal, respect reduced motion and never replay celebration through navigation. This is a requested future refinement: the retained 01b demo currently uses a full-screen timed reward.
+Completing a subtask earns restrained visual feedback and a differentiated completed state. When all subtasks are checked, offer final review: add a subtask, keep the goal open or confirm completion. Completing a whole goal shows a compact window with a stable message and finite colourful ribbons; preserve the surrounding page, allow dismissal, respect reduced motion and never replay celebration through navigation. The local day-build implements this bounded flow; user acceptance is still pending.
 
 Finished work should persist as a real collection with restrained goal-coloured cards, dates, counts and context. Reopen/correct/Undo behaviour must stay coherent across Today, Journey and Finished work. Navigation cannot create new completion events.
 
@@ -38,4 +38,4 @@ Use minimal composition, legible hierarchy, coherent light/dark styling and sele
 
 ## Current implementation boundary
 
-Only the static UI scenarios exist. Real goal creation, durable storage, real activity history, priority scoring, streak rules, AI, push delivery and floating browser windows remain future work. Passing demo checks is not functional product acceptance.
+The local day-build implements manual goal/actions, focus/pause/explicit return, transactional local storage, tab ownership, completion/limited Undo/review/history and guarded reopening. Fictional examples remain separate. Route mapping, priority scoring, streak rules, AI, push delivery, sync and floating browser windows remain future work. Passing local tests is not physical-device, deployment or user product acceptance. See DAY_BUILD_EVIDENCE.md.

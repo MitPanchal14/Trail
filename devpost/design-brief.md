@@ -1,5 +1,12 @@
 # Design brief
 
+## Day-build implementation receipt
+The approved corrections are implemented locally: Focus rail removed, Background motion labelled On/Off with reduced-motion preference respected, and compact immediate dismissible reward with stable quote/finite particles over Finished. Home layout/art and Focus composition are retained; real inputs and truthful labels are additive adapters. Both-theme/390px screenshots are in the day-build evidence. No graphic redesign or broad dark redesign was performed. The starting-baseline/pending wording below records the pre-build state, not the current runtime.
+
+## Latest user decision — 25 October morning
+
+Home layout and Focus composition look good. Keep the landing illustration and current route composition for now; graphical representation will be redesigned later. Remove the small decorative Focus bar/knob because it implies an interaction. The current “Switch to still” effect feels like a no-op: replace it with a clearly labelled Background motion On/Off state and verify visible freeze/resume, respecting reduced motion. Replace the slow full-screen completion screen with an immediate compact window, a stable short congratulatory quote and finite celebratory pops/confetti around the screen. Preserve the surrounding page and allow dismissal. No broad dark restyling is requested in this feedback. These decisions supersede conflicting pending suggestions below; see OPENCODE_DAY_BUILD.md for measurable acceptance. They are approved requirements, not implemented changes.
+
 ## Retained baseline
 
 The user selected the currently available 01b demo as the sole UI source for this repository cleanup. Its three runtime files are retained byte for byte under demo/. This selection supersedes old pixel-mountain layouts and competing historical proof folders. It does not certify every detail as final.

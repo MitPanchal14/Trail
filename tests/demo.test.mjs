@@ -9,7 +9,7 @@ async function request(url, method = 'GET') {
   return {status, headers, body};
 }
 test('all public assets serve the exact demo bytes', async () => {
-  for (const file of ['index.html', 'styles.css', 'proof.js']) {
+  for (const file of ['index.html', 'styles.css', 'proof.js', 'work.js', 'state.js', 'storage.js', 'timing.js']) {
     const result = await request('/' + file);
     assert.equal(result.status, 200);
     assert.deepEqual(result.body, await readFile(new URL('../demo/' + file, import.meta.url)));
@@ -25,9 +25,9 @@ test('HEAD has no body; writes are rejected', async () => {
   assert.equal((await request('/', 'HEAD')).body, undefined);
   assert.equal((await request('/', 'POST')).status, 405);
 });
-test('build output exactly matches the three runtime files', async () => {
+test('build output exactly matches all allowlisted runtime files', async () => {
   execFileSync(process.execPath, ['scripts/build.mjs'], {cwd: new URL('../', import.meta.url)});
-  for (const file of ['index.html', 'styles.css', 'proof.js']) {
+  for (const file of ['index.html', 'styles.css', 'proof.js', 'work.js', 'state.js', 'storage.js', 'timing.js']) {
     assert.deepEqual(await readFile(new URL('../dist/' + file, import.meta.url)), await readFile(new URL('../demo/' + file, import.meta.url)));
   }
 });
