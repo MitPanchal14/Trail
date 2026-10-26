@@ -2,6 +2,8 @@
 
 Trail helps you focus on one action, leave a useful next step, and return knowing where to begin.
 
+Current capture flow: **Add a step** appends without replacing the unfinished action. Running focus explicitly pauses first; the same block is kept and Resume is separate. **Save another goal for later** opens a separate manual outcome form. Up to10 Later goals persist locally, can be reviewed/edited, and can be made active only after active work is finished; Start stays separate. Queued goals are not finished work, effort or activity. The labelled fictional capture illustration never writes real records. See [current evidence](devpost/FINAL_PRODUCT_POLISH_EVIDENCE.md); independent review and user acceptance remain pending.
+
 This repository contains **one dependency-free website using the retained 01b composition**. Create a real goal/actions, focus, pause with return context, reload and explicitly Resume, then complete/review/finish into local history. Limited Undo and guarded reopening preserve recorded effort. A separate, clearly labelled fictional example resets on reload and never changes real records. The previous Next.js app remains removed. This is a reviewable local prototype, not a deployed or submission-ready product.
 
 ## Run

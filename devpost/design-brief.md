@@ -1,5 +1,9 @@
 # Design brief
 
+## Current capture / final polish
+
+One Trail family: shared near-white cool blue/indigo/violet archive wash, dark navy/charcoal equivalent, small priority accent rule with explicit words. Details cue has its own line in the title control; complete decorative peak has reserved space below copy. Focus is800px maximum with a stationary tabular countdown, restrained brand edge and asymmetric28s translational fields; Off freezes and reduced motion is static. Quiet capture controls lead to append or separate manual Later goal; queue stays on Today. Actual-pending only48px mountain-path SVG with2.6s blue-violet stroke sweep, one factual polite status, static reduced-motion path; no staged progress/delayed status timer. Fictional capture is labelled read-only and volatile. Current receipt FINAL_PRODUCT_POLISH_EVIDENCE.md supersedes pastel/archive/three-dot and20s descriptions below. Visual/physical/user acceptance remains separate.
+
 ## Final screenshot corrections — current
 
 Reviewed AI proposal primary **Save this goal** with separate Start; optional secondary manual transfer. Pending-only compact blue/lilac/teal strip with static reduced-motion fallback. Softer pale priority families in light and muted raised dark surfaces; title has same-control View details cue, less dominant guarded Reopen, complete decorative peak/one ridge (not routeSVG). Calendar weekday column sizes to text, tiles remain14px. Single44px sun/crescent native theme button with action label; Today decorative top-right arrow hidden in both sources. Shared Focus surround uses softer colours/20s drift; card/countdown remain stationary, Off/reduced mechanisms retained. Summary widget/fictional AI scenario deferred to protect verification; no counting/terrain changes. Current captures/acceptance limits: FINAL_FEEDBACK_EVIDENCE.md.

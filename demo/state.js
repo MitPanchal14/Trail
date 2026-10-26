@@ -38,15 +38,19 @@ export function validate(w){
   if(values(w.goals).length>LIMITS.goals)fail('Goal storage limit reached.');
   for(const name of ['actions','contexts','sessions','intervals','operations'])if(values(w[name]).length>LIMITS.records)fail('Local record limit reached. Export your records.');
   const checkRecord=(key,r)=>{if(!r||!validId(key)||r.id!==key)fail('Invalid record identity.');};
-  let open=0;
+   let open=0,queued=0;
   for(const [key,g] of Object.entries(w.goals)){
     checkRecord(key,g);
     if(Object.hasOwn(g,'planning'))validatePlanning(g.planning);
     if(Object.hasOwn(g,'priority')&&!PRIORITIES.includes(g.priority))fail('Invalid goal priority. Records have not been changed.');
-    if(!text(g.title,160)||!text(g.definitionOfFinished,2000)||!integer(g.createdAt)||!integer(g.updatedAt)||!['open','completed'].includes(g.status)||(g.status==='completed'&&!integer(g.completedAt))||(g.status==='open'&&g.completedAt!=null))fail('Invalid goal.');
+    if(!text(g.title,160)||!text(g.definitionOfFinished,2000)||!integer(g.createdAt)||!integer(g.updatedAt)||!['open','completed','queued'].includes(g.status)||(g.status==='completed'&&!integer(g.completedAt))||(g.status!=='completed'&&g.completedAt!=null))fail('Invalid goal.');
     if(g.status==='open')open++;
     if(!Array.isArray(g.actionOrder)||g.actionOrder.length<1||g.actionOrder.length>30||new Set(g.actionOrder).size!==g.actionOrder.length||g.actionOrder.some(id=>w.actions[id]?.goalId!==key))fail('Invalid action order.');
-  }
+    if(g.status==='queued'){
+      queued++;if(g.completionEventId!=null||g.actionOrder.some(id=>w.actions[id].status!=='open'||w.actions[id].completionEventId!=null||Object.hasOwn(w.contexts,id))||values(w.sessions).some(s=>s.goalId===key)||values(w.events||{}).some(e=>e.goalId===key))fail('Queued goals cannot contain completed or recorded work.');
+    }
+   }
+   if(queued>10)fail('Later goals is full (10). Make room by activating and finishing a goal.');
   if(open>1||(open===1&&openGoal(w)?.status!=='open')||(open===0&&w.openGoalId!==null))fail('Invalid open goal.');
   for(const [key,a] of Object.entries(w.actions)){
     if(a&&Object.hasOwn(a,'estimatedMinutes'))validateEstimate(a.estimatedMinutes);
@@ -103,12 +107,14 @@ export function validate(w){
 }
 export function transition(input,command,now){
   validate(input);if(!validId(command.id)||!integer(now))fail('Invalid command.');
-  if(command.type==='save-goal'&&Object.hasOwn(command,'priority')&&!PRIORITIES.includes(command.priority))fail('Choose Low, Normal or Important priority.');
+   if(['save-goal','save-queued-goal'].includes(command.type)&&Object.hasOwn(command,'priority')&&!PRIORITIES.includes(command.priority))fail('Choose Low, Normal or Important priority.');
   // Validate explicit optional values before receipt lookup: JSON drops undefined.
-  if(command.type==='save-goal'){
+   if(['save-goal','save-queued-goal'].includes(command.type)){
     if(Object.hasOwn(command,'planning'))validatePlanning(command.planning);
     if(Array.isArray(command.actions))for(const a of command.actions)if(a&&Object.hasOwn(a,'estimatedMinutes'))validateEstimate(a.estimatedMinutes);
-  }
+   }
+   if(command.type==='append-action'&&Object.hasOwn(command,'estimatedMinutes'))validateEstimate(command.estimatedMinutes);
+   if(['append-action','activate-goal'].includes(command.type)&&!validId(command.goalId)||command.type==='save-queued-goal'&&!(command.goalId===null||validId(command.goalId)))fail('Choose a valid goal to capture or activate.');
   const fingerprint=JSON.stringify(command);
   const prior=input.operations[command.id];
   if(prior){if(prior.fingerprint!==fingerprint)fail('Operation identity reused.');return input;}
@@ -124,13 +130,16 @@ export function transition(input,command,now){
     s.lastCheckpointAt=now;if(s.remainingMs===0){s.status='expired';s.ownerToken=null;}
   };
   switch(command.type){
-    case 'save-goal': {
+    case 'save-queued-goal':case 'save-goal': {
+      const queued=command.type==='save-queued-goal',g=queued?(command.goalId===null?null:w.goals[command.goalId]):openGoal(w);
       if(s?.status==='running')fail('Pause before editing.');
+      if(queued&&command.goalId!==null&&g?.status!=='queued')fail('Only a Later goal can be edited here.');
       if(!text(command.title,160)||!text(command.definition,2000)||!Array.isArray(command.actions)||command.actions.length<1||command.actions.length>30||command.actions.some(a=>!validId(a.id)||!text(a.title,500))||new Set(command.actions.map(a=>a.id)).size!==command.actions.length)fail('Enter a goal, definition and 1–30 nonblank actions within the shown limits.');
       if(command.goalId!==(g?.id||null))fail('Goal changed. Reload before saving.');
       const order=command.actions.map(a=>a.id);
-      if(s&&JSON.stringify(order)!==JSON.stringify(g.actionOrder))fail('Action order and removal are locked while a focus block exists.');
-      const goal=g||{id:command.id,createdAt:now,status:'open',priority:'normal'};
+      if(!queued&&s&&JSON.stringify(order)!==JSON.stringify(g.actionOrder))fail('Action order and removal are locked while a focus block exists.');
+      if(!g&&w.goals[command.id])fail('Goal identity already exists.');
+      const goal=g||{id:command.id,createdAt:now,status:queued?'queued':'open',priority:'normal'};
       if(Object.hasOwn(command,'priority'))goal.priority=command.priority;
       if(Object.hasOwn(command,'planning'))goal.planning=structuredClone(command.planning);
       for(const item of command.actions){const old=w.actions[item.id];if(old&&old.goalId!==goal.id)fail('Action belongs to another goal.');w.actions[item.id]={...old,id:item.id,goalId:goal.id,title:item.title.trim(),status:old?.status??'open',createdAt:old?.createdAt??now,updatedAt:now};}
@@ -139,7 +148,16 @@ export function transition(input,command,now){
         if(Object.hasOwn(w.contexts,id)||w.actions[id].status==='completed'||values(w.sessions).some(s=>s.actionId===id)||values(w.events).some(e=>e.actionId===id))fail('Actions with saved context or recorded work cannot be removed.');
         delete w.actions[id];delete w.contexts[id];
       }
-      Object.assign(goal,{title:command.title.trim(),definitionOfFinished:command.definition.trim(),actionOrder:order,updatedAt:now});w.goals[goal.id]=goal;w.openGoalId=goal.id;break;
+      Object.assign(goal,{title:command.title.trim(),definitionOfFinished:command.definition.trim(),actionOrder:order,updatedAt:now});w.goals[goal.id]=goal;if(!queued)w.openGoalId=goal.id;break;
+    }
+    case 'append-action':
+      if(s?.status==='running')fail('Pause before adding a step.');
+      if(!g||command.goalId!==g.id||g.actionOrder.length>=30||!text(command.title,500)||w.actions[command.id])fail('Add a nonblank step (up to 500 characters) to the active goal; maximum 30 steps.');
+      w.actions[command.id]={id:command.id,goalId:g.id,title:command.title.trim(),status:'open',createdAt:now,updatedAt:now};if(Object.hasOwn(command,'estimatedMinutes'))w.actions[command.id].estimatedMinutes=command.estimatedMinutes;g.actionOrder.push(command.id);g.updatedAt=now;break;
+    case 'activate-goal': {
+      if(g||s)fail('Finish the active goal before making a Later goal active. Start remains separate.');
+      const queued=w.goals[command.goalId];if(queued?.status!=='queued')fail('This goal is not in Later goals.');
+      queued.status='open';queued.updatedAt=now;w.openGoalId=queued.id;break;
     }
     case 'start':
       requireAction();if(s)fail('A block already exists. Resume or extend it.');

@@ -1,0 +1,3 @@
+# Independent capture/product-polish review plan
+
+Review only; no runtime edits. Read instructions/current docs/prompt/evidence, inspect actual domain/controller/visual/test diffs and local/remote state. Independently repeat syntax, Node tests, build, focused capture and visual gates, add a separate touch-enabled multi-step queue/cancel check, then run the full browser suite. Compare nine source/build/preview assets and protected files; inspect phone/desktop captures. No live Gemini calls, private record inspection/migration or Git/publication mutation. Record the result and limits in INDEPENDENT_FINAL_PRODUCT_POLISH_REVIEW.md, then update HANDOFF/checklist. Separate human visual/physical-device acceptance from automated results.

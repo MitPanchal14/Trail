@@ -5,9 +5,10 @@ Updated 26 October 2026. This replaces the accumulated historical checklist. His
 ## Latest user feedback — capture and visual refinement
 
 - [x] Diagnose active-block append lock/one-open-goal restriction; user confirms both step capture and separate later goals. Prepare [bounded final prompt](OPENCODE_FINAL_PRODUCT_POLISH.md). Documentation only.
-- [ ] Implement/verify pause-first append preserving current action/block and a bounded canonical Later-goals queue with explicit activation/no auto-Start; existing records/schema1/Retry/ownership and one active goal retained.
-- [ ] Refine shared Trail blue/indigo/violet archive/Focus and indeterminate mountain-path AI loader; mobile/dark/reduced-motion/fictional parity and full regression evidence.
-- [ ] Independent review and user acceptance; then authorized accepted checkpoint/hosting/final-origin/recording/submission. No fresh live calls or publication authorized.
+- [x] Implement/verify pause-first append preserving current action/block and a bounded canonical Later-goals queue with explicit activation/no auto-Start; existing records/schema1/Retry/ownership and one active goal retained. Functional gate before styling; actual aborted transaction/exact Retry coverage.
+- [x] Refine shared Trail blue/indigo/violet archive/Focus and indeterminate mountain-path AI loader; mobile/dark/reduced-motion/fictional parity.55 Node tests, syntax/build/diff, full retained browser suite, nine-asset parity/protected bytes/private404 passed. Results/screenshots/attempts: [current evidence](FINAL_PRODUCT_POLISH_EVIDENCE.md); not a claim of visual acceptance.
+- [x] Independent source review, fresh55 Node tests/syntax/build/diff, complete browser regression, focused capture/visual gates and extra six touch-enabled phone queue cases passed. Nine-asset parity/protected files/private404 confirmed. No blocking defect. [Review](INDEPENDENT_FINAL_PRODUCT_POLISH_REVIEW.md).
+- [ ] User visual and physical-device acceptance; then authorized accepted checkpoint/hosting/final-origin/recording/submission. No fresh live calls or publication authorized.
 
 ## Final screenshot correction — new requested scope
 

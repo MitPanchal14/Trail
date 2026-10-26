@@ -10,6 +10,7 @@ export async function bootWork(ui){
   let busy=false,pending=null,error='',anchor=null,frozen=true,suspended=false;
   let needsRecovery=false;
   let pauseDraft=null;
+  let stepDraft=null,queueReturn='today',queuePreviousDraft=null,captureMessage='';
   let validationError=null;
   let activityDate=null,activityModel=null;
   let activityInput=null,activityHelp=false,archiveLimit=8;
@@ -84,7 +85,16 @@ export async function bootWork(ui){
   const instruction=()=>context()?.nextInstruction||action()?.title||'Review your goal.';
   const running=()=>session()?.status==='running'&&!frozen&&!suspended;
   const disabled=()=>!ready||!store.writer||busy||!!pending;
-  const planner=createPlanner({getDraft:()=>draft,allowed:()=>real&&view==='edit'&&draft?.goalId===null&&!disabled(),captureManual:captureDraft,render:()=>render(),applyManual:fields=>Object.assign(draft,fields),savePlan:fields=>saveDraft({...draft,...fields})});
+  const planner=createPlanner({getDraft:()=>draft,allowed:()=>real&&view==='edit'&&draft?.goalId===null&&!draft.queued&&!disabled(),captureManual:captureDraft,render:()=>render(),applyManual:fields=>Object.assign(draft,fields),savePlan:fields=>saveDraft({...draft,...fields})});
+  function captureControls(){return `<div class="capture-actions work-actions">${goal()?button(running()?'Pause & add a step':'Add a step','capture-step'):''}${button(running()?'Pause & save another goal for later':'Save another goal for later','capture-goal')}</div>`;}
+  function laterGoals(){const goals=Object.values(workspace.goals).filter(g=>g.status==='queued');return `<section class="later-goals" aria-labelledby="later-title"><h2 id="later-title">Later goals <small>${goals.length} / 10</small></h2><p class="hint">Separate outcomes, not steps in your active goal. Start is always separate.</p>${goals.length?`<ul>${goals.map(g=>`<li><strong>${e(g.title)}</strong><p>${e(g.definitionOfFinished)}</p><p class="hint">${g.actionOrder.length} ordered steps · ${e(g.priority??'normal')}</p><div class="work-actions"><button class="button" data-queue-edit="${g.id}" ${disabled()?'disabled':''}>Review / edit</button><button class="button" data-queue-activate="${g.id}" ${disabled()||goal()||session()?'disabled':''}>Make active</button></div>${goal()||session()?'<p class="hint">Finish the active goal before making this one active.</p>':''}</li>`).join('')}</ul>`:'<p>No goals saved for later yet.</p>'}</section>`;}
+  function stepEditor(){return `${heading('Add a step.','Append after the existing steps; your current action stays unfinished.')}<section class="pause-area"><form id="capture-step-form"><label for="capture-step-title">Step title (required, up to 500 characters)</label><input id="capture-step-title" maxlength="500" required value="${e(stepDraft.title)}"><label for="capture-step-estimate">Estimated minutes (optional)</label><input id="capture-step-estimate" type="number" min="1" max="1440" step="1" value="${e(stepDraft.estimate)}"><div class="work-actions"><button type="submit" class="button primary">Save step</button>${button('Cancel','cancel-step')}</div><p class="hint">${session()?'Your block remains paused. Resume is a separate choice.':'No timer starts when you save.'}</p></form></section>`;}
+  async function pauseForCapture(enter){if(running()){const cmd=timed('pause');frozen=true;anchor=null;await write(cmd,enter);}else enter();}
+  async function beginCapture(kind,id=null){
+    if(disabled())return;const returnTo=view==='focus'?'focus':'today';
+    await pauseForCapture(()=>{captureMessage='';if(kind==='step'){stepDraft={goalId:goal().id,title:'',estimate:'',returnTo};go('capture-step');$('#capture-step-title').focus();}else{queueReturn=returnTo;queuePreviousDraft=draft;const g=id?workspace.goals[id]:null;if(id&&g?.status!=='queued')return;draft={queued:true,goalId:g?.id??null,title:g?.title??'',definition:g?.definitionOfFinished??'',priority:g?.priority??'normal',planning:structuredClone(g?.planning??null),planner:plannerState(),actions:g?g.actionOrder.map(id=>({...workspace.actions[id]})):[{id:crypto.randomUUID(),title:'',estimatedMinutes:null}]};go('edit');$('#goal-title').focus();}});
+  }
+  function leaveQueue(){const previous=queuePreviousDraft;draft=null;queuePreviousDraft=null;go(queueReturn);draft=previous;}
   document.addEventListener('input',event=>{if(real&&draft?.planner&&['plan-description','plan-deadline','plan-budget'].includes(event.target.id)){draft.planner.appliedToManual=false;const h=$('#manual-plan-heading');if(h)h.textContent='Or build your plan manually';$('#manual-transfer-status')?.remove();$('#planner-transfer-status')?.remove();const summary=$('#planner>details>summary');if(summary)summary.textContent='Describe your goal';}});
   document.addEventListener('input',event=>{if(real&&draft&&event.target.closest('#goal-form')){captureDraft();const summary=$('.estimated-summary');if(summary)summary.textContent=estimatedSummary(draft.actions,draft.planning?.availableMinutes);}});
   document.addEventListener('input',event=>{if(real&&draft?.planner&&event.target.id==='plan-transcript')draft.planner.transcript=event.target.value;});
@@ -152,6 +162,7 @@ export async function bootWork(ui){
       if(busy||pending)main.querySelectorAll('input:not(#activity-date),textarea:not([data-copy-text]),select,[data-draft]').forEach(el=>el.disabled=true);
       main.querySelectorAll('#remove-instruction,#remove-context,#remove-resource').forEach(el=>el.disabled=disabled());
       main.querySelectorAll('[data-reopen-goal]').forEach(el=>el.disabled=disabled()||!!goal());
+      main.querySelectorAll('[data-queue-edit],[data-queue-activate]').forEach(el=>el.disabled=disabled()||el.hasAttribute('data-queue-activate')&&!!(goal()||session()));
     }
     if(real&&$('#review').open){
       document.querySelectorAll('#review [data-action],#review button[type="submit"],#review [data-work="undo"]').forEach(b=>b.disabled=disabled());
@@ -253,6 +264,10 @@ export async function bootWork(ui){
     if(!real)return;
     document.body.dataset.view=view;
     main.innerHTML=undoHTML()+strip()+(view==='landing'?home():view==='edit'&&draft?editor():view==='focus'?focus():view==='pause'&&action()?pause():view==='journey'?journey():view==='finished'?history():today());
+    if(view==='capture-step'&&stepDraft)main.innerHTML=stepEditor();
+    if(view==='today'){const target=$('.action-area')||$('.empty');target?.insertAdjacentHTML('beforeend',captureControls());main.insertAdjacentHTML('beforeend',laterGoals());}
+    if(view==='focus')$('.focus-layout')?.insertAdjacentHTML('beforeend',captureControls());
+    if(captureMessage&&['today','focus'].includes(view))main.insertAdjacentHTML('afterbegin',`<p class="capture-confirmation" role="status">${e(captureMessage)}</p>`);
     document.querySelectorAll('[data-nav]').forEach(b=>{if(b.dataset.nav===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
     if(view==='finished')$('.page-heading').insertAdjacentHTML('afterend',activity());
     if(view==='finished')$('.finished-grid').insertAdjacentHTML('beforebegin',`<h2 id="finished-goals" tabindex="-1">Finished goals (${finishedGoals().length})</h2>`);
@@ -261,9 +276,9 @@ export async function bootWork(ui){
       $('#goal-form').insertAdjacentHTML('afterbegin',`<details id="planning-context"><summary>Estimated planning context (optional)</summary><label for="planning-deadline">Deadline text · not a scheduled date</label><input id="planning-deadline" maxlength="160" value="${e(draft.planning?.deadlineText||'')}"><label for="planning-budget">Available minutes · estimated budget</label><input id="planning-budget" type="number" min="1" max="10080" step="1" value="${draft.planning?.availableMinutes??''}"></details>`);
       for(const a of draft.actions)$(`[data-draft-id="${a.id}"]`).insertAdjacentHTML('afterend',`<label for="estimate-${a.id}">Estimated minutes (optional, blank = unknown)</label><input id="estimate-${a.id}" data-estimate-id="${a.id}" type="number" min="1" max="1440" step="1" value="${a.estimatedMinutes??''}">`);
       $('#action-drafts').insertAdjacentHTML('afterend',`<p class="hint estimated-summary" aria-live="polite">${e(estimatedSummary(draft.actions,draft.planning?.availableMinutes))}</p>`);
-      if(draft.goalId===null)$('#goal-form').insertAdjacentHTML('beforebegin',plannerHTML(draft.planner,e));
-      if(draft.goalId===null)$('#goal-form').insertAdjacentHTML('beforebegin',`<h2 id="manual-plan-heading" tabindex="-1">${draft.planner.appliedToManual?'Review and save your plan':'Or build your plan manually'}</h2><p class="hint">Edit these fields, then Save goal. Start focus remains separate.</p>`);
-      if(draft.goalId===null&&draft.planner.appliedToManual)$('#manual-plan-heading').insertAdjacentHTML('afterend','<p id="manual-transfer-status" class="hint" role="status">Plan added to these editable fields. Not saved yet.</p>');
+      if(draft.goalId===null&&!draft.queued)$('#goal-form').insertAdjacentHTML('beforebegin',plannerHTML(draft.planner,e));
+      if(draft.goalId===null&&!draft.queued)$('#goal-form').insertAdjacentHTML('beforebegin',`<h2 id="manual-plan-heading" tabindex="-1">${draft.planner.appliedToManual?'Review and save your plan':'Or build your plan manually'}</h2><p class="hint">Edit these fields, then Save goal. Start focus remains separate.</p>`);
+      if(draft.goalId===null&&!draft.queued&&draft.planner.appliedToManual)$('#manual-plan-heading').insertAdjacentHTML('afterend','<p id="manual-transfer-status" class="hint" role="status">Plan added to these editable fields. Not saved yet.</p>');
       $('#goal-definition').insertAdjacentHTML('afterend',`<label for="goal-priority">Priority</label><select id="goal-priority" aria-describedby="priority-help">${['low','normal','important'].map(p=>`<option value="${p}" ${p===draft.priority?'selected':''}>${p[0].toUpperCase()+p.slice(1)}</option>`).join('')}</select><p id="priority-help" class="hint">Changes the label and card colour; action order stays yours.</p>`);
       const recorded=new Set([...Object.keys(workspace.contexts),...Object.values(workspace.sessions).map(s=>s.actionId),...Object.values(workspace.events||{}).map(e=>e.actionId)]);
       main.querySelectorAll('[data-draft="remove"]').forEach(b=>{
@@ -271,6 +286,7 @@ export async function bootWork(ui){
         b.disabled=true;const explanation=document.createElement('p');explanation.id=`protected-${b.dataset.id}`;explanation.className='hint';explanation.textContent='This action has saved context or recorded work and can’t be removed.';b.setAttribute('aria-describedby',explanation.id);b.closest('.action-draft').append(explanation);
       });
       $('#goal-form h3').nextElementSibling.textContent+=' Actions with saved context or recorded work can’t be removed.';
+      if(draft.queued){$('.page-heading h1').textContent=draft.goalId?'Edit a Later goal.':'Save another goal for later.';$('.page-heading .muted').textContent='A separate outcome, not a step in your active goal. Your current block stays paused.';$('#goal-form button[type="submit"]').textContent='Save for later';$('#goal-form h3').nextElementSibling.textContent='1–30 ordered steps for this separate goal. Nothing starts automatically.';$('#goal-form .end-block-control')?.remove();main.querySelectorAll('[data-draft]').forEach(b=>{const i=draft.actions.findIndex(a=>a.id===b.dataset.id),t=b.dataset.draft;b.disabled=t==='add'?draft.actions.length>=30:t==='up'?i===0:t==='down'?i===draft.actions.length-1:draft.actions.length===1;});}
     }
     if(['today','journey'].includes(view)&&goal()){
       const actions=goal().actionOrder.map(id=>workspace.actions[id]);
@@ -293,7 +309,7 @@ export async function bootWork(ui){
   async function write(cmd,onSuccess,{background=false}={}){
     if(disabled())return false;
     try{transition(workspace,cmd,Date.now());}catch(err){
-      validationError=session()?.status!=='running'?({notes:'real-pause-form','save-goal':'goal-form','add-action':'add-form'}[cmd.type]||'command'):null;
+      validationError=session()?.status!=='running'?({notes:'real-pause-form','save-goal':'goal-form','save-queued-goal':'goal-form','append-action':'capture-step-form','add-action':'add-form'}[cmd.type]||'command'):null;
       if(session()?.status==='running'){frozen=true;anchor=null;pending={cmd,onSuccess};}
       error=err.message;status();return false;
     }
@@ -321,7 +337,7 @@ export async function bootWork(ui){
   function captureDraft(){if(!draft||!$('#goal-form'))return;draft.title=$('#goal-title').value;draft.definition=$('#goal-definition').value;draft.priority=$('#goal-priority').value;draft.actions.forEach(a=>{a.title=$(`[data-draft-id="${a.id}"]`).value;const v=$(`[data-estimate-id="${a.id}"]`).value;a.estimatedMinutes=v===''?null:Number(v);});const deadlineText=$('#planning-deadline').value,v=$('#planning-budget').value;draft.planning=deadlineText||v?{deadlineText,availableMinutes:v===''?null:Number(v)}:null;}
   async function saveDraft(fields){
     if(disabled())return false;
-    return write(command('save-goal',{goalId:fields.goalId,title:fields.title,definition:fields.definition,priority:fields.priority,planning:structuredClone(fields.planning),actions:structuredClone(fields.actions)}),()=>{draft=null;selected=action()?.id;go('today');});
+    return write(command(fields.queued?'save-queued-goal':'save-goal',{goalId:fields.goalId,title:fields.title,definition:fields.definition,priority:fields.priority,planning:structuredClone(fields.planning),actions:structuredClone(fields.actions)}),()=>{if(fields.queued){captureMessage='Goal saved for later. Your active work is unchanged; Resume explicitly when ready.';leaveQueue();}else{draft=null;selected=action()?.id;go('today');}});
   }
   function capturePauseDraft(){
     if(!$('#real-pause-form')||!action())return;
@@ -356,6 +372,8 @@ export async function bootWork(ui){
       b.hidden=count===goals.length;if(b.hidden)$('#archive-count').focus({preventScroll:true});return;
     }
     if(!real)return;
+    if(b.dataset.queueEdit){await beginCapture('goal',b.dataset.queueEdit);return;}
+    if(b.dataset.queueActivate){if(!disabled())await write(command('activate-goal',{goalId:b.dataset.queueActivate}),()=>{selected=action()?.id;captureMessage='Goal is now active. Start focus separately.';go('today');});return;}
     if(b.dataset.plan){await planner.click(b);return;}
     if(b.dataset.demoEntry){await changeMode(false,b.dataset.demoEntry);return;}
     if(b.hasAttribute('data-example-entry')){await changeMode(false);return;}
@@ -407,7 +425,10 @@ export async function bootWork(ui){
     if(disabled())return;
     if(type==='create'||type==='edit'){
       if(running())return;const g=goal();if(!draft||draft.goalId!==(g?.id||null))draft={goalId:g?.id||null,title:g?.title||'',definition:g?.definitionOfFinished||'',priority:g?.priority??'normal',planning:structuredClone(g?.planning??null),planner:plannerState(),actions:g?g.actionOrder.map(id=>({id,title:workspace.actions[id].title,estimatedMinutes:workspace.actions[id].estimatedMinutes??null})):[{id:crypto.randomUUID(),title:''}]};go('edit');$('#goal-title')?.focus();
-    }else if(type==='cancel'){clearFormValidation('goal-form');planner.cancel();draft=null;go('today');}
+    }else if(type==='cancel'){clearFormValidation('goal-form');planner.cancel();if(draft?.queued){captureMessage='Capture cancelled. Your current work remains paused.';leaveQueue();}else{draft=null;go('today');}}
+    else if(type==='capture-step')await beginCapture('step');
+    else if(type==='capture-goal')await beginCapture('goal');
+    else if(type==='cancel-step'){clearFormValidation('capture-step-form');const back=stepDraft.returnTo;stepDraft=null;captureMessage='Step capture cancelled. Your current action is unchanged; any block remains paused.';go(back);}
     else if(type==='start')await write(command('start',{minutes:duration}),()=>go('focus'));
     else if(type==='resume')await write(command('resume'),()=>go('focus'));
     else if(type==='pause')await stopForNotes();
@@ -431,6 +452,7 @@ export async function bootWork(ui){
     }
   });
   document.addEventListener('change',event=>{if(real&&event.target.id==='real-duration')duration=Number(event.target.value);});
+  document.addEventListener('input',event=>{if(real&&stepDraft&&event.target.closest('#capture-step-form')){stepDraft.title=$('#capture-step-title').value;stepDraft.estimate=$('#capture-step-estimate').value;}});
   $('#review').addEventListener('cancel',event=>{if(!real)return;event.preventDefault();if(!pending&&!busy){$('#review').close();$('[data-work="review"]')?.focus();}});
   document.addEventListener('input',event=>{if(!real)return;if(event.target.closest('#planner'))planner.capture();if(event.target.closest('#goal-form'))captureDraft();if(clearFormValidation(event.target.closest('form')?.id))status();if(event.target.closest('#real-pause-form')){capturePauseDraft();$('#work-url').readOnly=pauseDraft.removeResource;$('#return-note').readOnly=pauseDraft.removeInstruction;$('#pause-context').readOnly=pauseDraft.removeContext;}});
   document.addEventListener('toggle',event=>{if(real&&event.target.id==='pause-extras')capturePauseDraft();},true);
@@ -447,7 +469,10 @@ export async function bootWork(ui){
       return;
     }
     if(!real)return;
-    if(event.target.id==='goal-form'){
+    if(event.target.id==='capture-step-form'){
+      event.preventDefault();if(disabled()||!stepDraft)return;const d=stepDraft;
+      await write(command('append-action',{goalId:d.goalId,title:d.title,estimatedMinutes:d.estimate===''?null:Number(d.estimate)}),()=>{captureMessage=`Added step: ${d.title}. Current action unchanged; Resume focus explicitly if paused.`;stepDraft=null;go(d.returnTo);});
+    }else if(event.target.id==='goal-form'){
       event.preventDefault();if(disabled())return;captureDraft();await saveDraft(draft);
     }else if(event.target.id==='real-pause-form'){
       event.preventDefault();capturePauseDraft();await write(command('notes',{instruction:pauseDraft.removeInstruction?'':pauseDraft.instruction,context:pauseDraft.removeContext?'':pauseDraft.context,removeInstruction:pauseDraft.removeInstruction,removeContext:pauseDraft.removeContext,resourceUrl:pauseDraft.removeResource?null:pauseDraft.resourceUrl}),()=>{go('today');pauseDraft=null;});
