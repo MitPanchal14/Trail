@@ -96,8 +96,10 @@ test('deployment upload allowlist, minimal executable function package and senti
   const scratch=await mkdtemp(join(tmpdir(),'trail-vercel-package-'));
   try{
     const config=JSON.parse(await readFile(join(root,'vercel.json'),'utf8')),ignore=await readFile(join(root,'.vercelignore'),'utf8'),lines=ignore.split('\n').filter(s=>s&&!s.startsWith('#'));
-    assert.equal(lines[0],'/*');for(const dir of ['api','scripts','demo']){assert.ok(lines.includes(`!/${dir}/`));assert.ok(lines.includes(`/${dir}/*`));}
-    const uploaded=lines.filter(s=>s.startsWith('!/')&&!s.endsWith('/')).map(s=>s.slice(2));
+    // CLI65.1.0 tests bare directory paths before traversal; trailing-slash
+    // exceptions would prune these parents despite allowing individual files.
+    assert.equal(lines[0],'/*');for(const dir of ['api','scripts','demo']){assert.ok(lines.includes(`!/${dir}`));assert.ok(!lines.includes(`!/${dir}/`));assert.ok(lines.includes(`/${dir}/*`));}
+    const uploaded=lines.filter(s=>s.startsWith('!/')&&!['api','scripts','demo'].includes(s.slice(2))).map(s=>s.slice(2));
     const assets=['index.html','styles.css','proof.js','work.js','state.js','storage.js','timing.js','activity.js','planner.js'];
     const expected=['package.json','vercel.json','.vercelignore','api/plan.mjs','api/ai-status.mjs','scripts/build.mjs','scripts/ai.mjs','scripts/vercel-ai.mjs',...assets.map(f=>'demo/'+f)];assert.deepEqual(uploaded.sort(),expected.sort());
     assert.ok(!uploaded.some(f=>/\.env|\.zip|node_modules|tests\/|devpost\/|docs\//.test(f)));
