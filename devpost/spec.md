@@ -7,6 +7,16 @@ The static ES-module runtime uses state.js (validated canonical transitions), ti
 
 A dependency-free local browser prototype lives in demo/index.html, styles.css, proof.js, work.js, state.js, storage.js, timing.js and activity.js. Real records use browser-local IndexedDB. Fictional examples remain volatile and clearly separate. Node.js 20+ serves only those assets on localhost; unknown/private/traversal paths return 404, write methods return 405, and HEAD has no body. Build copies only those eight assets into dist/. There is no server database, API route, framework, remote AI or notification service.
 
+## Bounded handoff / dark Focus presentation — 26 October
+
+One compact pause heading/stopped explanation + actual action precedes the existing next-move form. Save/Skip now precede collapsed context/link extras; form IDs, submit/shortcut/IME, limits, independent removal, validation/Retry and retained draft/disclosure handlers are unchanged. Pause-only spacing reduces vertical ceremony; full/long content remains naturally accessible. Real and fictional forms retain their separate storage/simulation labels and existing limitations.
+
+Original action is omitted from supporting presentation only if the committed cue's trim equals action title's trim. Both ordinary and compact Today/Focus use the same real predicate; fictional originalTitle matches it. Nothing rewrites saved text/action identity, Copy payload or full-note expansion. Different instructions retain original text.
+
+Dark Focus alone receives raised blue-grey surface/border and blue/violet ambient gradients/10s transform drift. Existing negative-z surround inside isolated main, shared layout/countdown/control geometry, light CSS, .still paused play-state and global reduced-motion prevention remain. No controller/engine/timing changes. Evidence includes 3.5-second rendered pairs and fixed-content geometry; native Safari/user acceptance is separate.
+
+exampleRecords() alone now distributes the same 42 actions over varied local dates, with four actions across days 9–11 in displayed month index 2, always fully elapsed. Intl local-noon offset resolution (iterated around timezone offsets) and current-day clamp preserve intended local keys/nonfuture times, including +14/-12/fractional offsets, leap and early-year/month cases. Other months retain counts 1/2/4/7 repeated so all tiers remain. Eight goals/three priorities, actual sample tasks and no effort/session fabrication remain; real deriveActivity counting/correction logic is unchanged. Current receipt/recovery: HANDOFF_FOCUS_EVIDENCE.md. Earlier descriptions of no Focus pass/uniform samples below are historical.
+
 ## Explicit removal and derived activity
 
 Notes accepts optional boolean `removeInstruction` / `removeContext`. Missing/false preserves blank defaults; true plus a nonblank corresponding replacement rejects. Removal clears only that field in the existing context record; identity, reference, removal protection and normal committed timestamp/receipt/Undo rules remain. UI retains replacement drafts while removal makes their fields readonly.

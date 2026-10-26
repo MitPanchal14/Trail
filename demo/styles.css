@@ -258,6 +258,12 @@ h3 { font-size:15px;font-weight:600;letter-spacing:-.2px; }
 .still .focus-surround i { animation-play-state:paused; }
 .focus-topline { display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:730px;margin:0 auto 18px; }
 .focus-layout { max-width:730px;margin:auto;padding:26px 46px 24px;background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);text-align:center; }
+:root[data-theme="dark"] .focus-layout { background:linear-gradient(145deg,#252c3d,#1c2130 72%);border-color:#586482;box-shadow:0 24px 70px #0005,inset 0 1px 0 #ffffff0c; }
+:root[data-theme="dark"] .focus-surround i { opacity:.4;filter:blur(44px);animation-name:focus-drift;animation-duration:10s; }
+:root[data-theme="dark"] .focus-surround i:nth-child(1) { background:radial-gradient(ellipse,#5274ff,transparent 68%); }
+:root[data-theme="dark"] .focus-surround i:nth-child(2) { background:radial-gradient(ellipse,#9467f5,transparent 68%);animation-delay:-6s; }
+:root[data-theme="dark"] .focus-surround i:nth-child(3) { background:radial-gradient(ellipse,#485bb9,transparent 68%);animation-delay:-11s; }
+@keyframes focus-drift { from { transform:translate3d(-14%,-8%,0) rotate(-8deg); } to { transform:translate3d(18%,12%,0) rotate(9deg); } }
 .focus-layout .goal-label { justify-content:center;margin-bottom:10px; }
 .focus-layout .step-label { margin-bottom:16px; }
 .focus-copy { max-height:210px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:2px 8px 8px; }
@@ -277,6 +283,13 @@ details summary { font-size:12px;color:var(--muted);cursor:pointer;line-height:1
 .pause-area>h1 { margin-bottom:12px; }
 .pause-area>.muted { font-size:14px;line-height:1.6; }
 .pause-task { padding:20px 0;margin:16px 0;border-bottom:1px solid var(--line);font-size:17px;line-height:1.6;overflow-wrap:anywhere; }
+.handoff-heading .page-heading { margin-bottom:16px; }
+.pause-area.pause-capture { padding-top:0; }
+.pause-capture .pause-task { padding:0 0 12px;margin:0 0 16px; }
+.pause-capture .pause-task .eyebrow { display:block;font-size:10px;margin-bottom:4px; }
+.pause-capture .work-actions { margin-top:16px; }
+.pause-capture .remove-link { min-height:44px;display:flex;align-items:center;gap:10px; }
+.pause-capture summary { min-height:44px;align-content:center; }
 form label { display:block;font-size:13px;font-weight:500;margin-bottom:9px; }
 textarea,input { display:block;width:100%;background:var(--paper);border:1px solid var(--strong-line);border-radius:8px;padding:12px;line-height:1.6;font-size:14px; }
 textarea { resize:vertical;min-height:95px; }

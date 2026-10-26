@@ -8,7 +8,9 @@ const output=process.env.TRAIL_EVIDENCE||'/private/var/folders/xf/gtc75bps4tx93_
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch(process.env.TRAIL_CHROMIUM?{executablePath:process.env.TRAIL_CHROMIUM,args:['--no-sandbox']}:{});
 try {
-  if(process.env.TRAIL_GATE==='examples')await runExamples(browser);
+  if(process.env.TRAIL_GATE==='focus-surface')await runFocusSurface(browser);
+  else if(['handoff','handoff-before'].includes(process.env.TRAIL_GATE))await runHandoff(browser,process.env.TRAIL_GATE==='handoff-before');
+  else if(process.env.TRAIL_GATE==='examples')await runExamples(browser);
   else if(process.env.TRAIL_GATE==='clarity')await runClarity(browser);
   else if(process.env.TRAIL_GATE==='priority')await runPriority(browser);
   else if(process.env.TRAIL_GATE==='year-archive')await runYearArchive(browser);
@@ -96,6 +98,8 @@ try {
   await runPriority(browser);
   await runClarity(browser);
   await runExamples(browser);
+  await runHandoff(browser);
+  await runFocusSurface(browser);
   }
 } finally {await browser.close();}
 
@@ -103,11 +107,70 @@ async function snapshot(page){return page.evaluate(async()=>{
   const {openDatabase}=await import('/storage.js');const db=await openDatabase();
   return new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readonly'),r=tx.objectStore('workspace').get('current');let value;r.onsuccess=()=>value=r.result;tx.oncomplete=()=>{db.close();resolve(value);};tx.onerror=()=>reject(tx.error);});
 });}
+async function runHandoff(browser,before=false){
+  const c=await browser.newContext({viewport:{width:1440,height:900}}),p=await c.newPage(),errors=[],geometry=[];p.on('pageerror',e=>errors.push(e.message));
+  async function capture(mode,view,long=false){
+    for(const width of [1440,390])for(const theme of ['light','dark']){
+      await p.setViewportSize({width,height:width===390?844:900});await p.click(`button[data-theme="${theme}"]`);await p.waitForTimeout(200);await p.evaluate(()=>scrollTo(0,0));
+      assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);
+      if(view==='pause'){
+        const g=await p.evaluate(()=>Object.fromEntries(['#return-note','form button[type="submit"]'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return [s,{top:r.top,bottom:r.bottom,height:r.height}];})));geometry.push({mode,width,theme,long,...g});
+        if(!before&&!long){assert.equal(await p.locator('h1').count(),1);assert.ok(g['#return-note'].top>=0&&g['#return-note'].bottom<=(width===390?844:900));assert.ok(g['form button[type="submit"]'].bottom<=(width===390?844:900),JSON.stringify(g));assert.ok(g['form button[type="submit"]'].height>=44);}
+      }
+      await p.screenshot({path:`${output}/${mode}-${view}-${long?'long':'ordinary'}-${theme}-${width}.png`});
+      if(long)await p.screenshot({path:`${output}/${mode}-${view}-long-${theme}-${width}-full.png`,fullPage:true});
+    }
+  }
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});await create(p,'Prepare the workshop update',['Compare room options','Send the update']);await p.click('[data-work="start"]');await p.click('[data-work="pause"]');await capture('real','pause');
+    await p.fill('#return-note','  Compare room options  ');await p.click('#pause-extras summary');await p.fill('#pause-context','Capacity <draft> 日本語 — check accessibility.');await p.fill('#work-url','https://example.com/workshop#capacity');await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();await capture('real','today');
+    const saved=await snapshot(p),a=saved.goals[saved.openGoalId].actionOrder[0];
+    if(!before){assert.equal(await p.locator('.action-area .original-step').count(),0);await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{}}));await p.click('[data-copy-place]');await p.locator('#saved-place-brief').waitFor();assert.ok((await p.inputValue('#saved-place-brief')).includes(`Saved next move: ${saved.contexts[a].nextInstruction}`));assert.deepEqual(await snapshot(p),saved);await p.click('.copy-fallback button');}
+    await p.reload();await p.locator('.workspace').waitFor();assert.equal((await snapshot(p)).contexts[a].nextInstruction,saved.contexts[a].nextInstruction);await p.click('[data-work="resume"]');await p.locator('.focus-layout').waitFor();await capture('real','focus');await p.click('[data-work="pause"]');
+    const long='Compare <draft> 日本語 room options carefully.\n'.repeat(88).slice(0,4000).trim();await p.fill('#return-note',long);await p.click('#real-pause-form [type="submit"]');await p.locator('.workspace').waitFor();if(!before)assert.equal(await p.locator('.action-area .original-step').count(),1);await capture('real','today',true);await p.click('[data-work="pause"]');await capture('real','pause',true);
+    if(!before){await p.click('#pause-extras summary');await p.check('#remove-context');await p.click('[data-nav="journey"]');await p.click('#example-mode');await p.click('#real-mode');await p.click('[data-work="pause"]');assert.equal(await p.inputValue('#return-note'),long);assert.equal(await p.locator('#pause-extras').evaluate(el=>el.open),true);assert.equal(await p.isChecked('#remove-context'),true);await p.uncheck('#remove-context');await p.click('[data-work="skip"]');}
+    await p.click('#example-mode');await p.click('[data-action="pause"]');await capture('example','pause');await p.click('#pause-form [type="submit"]');await capture('example','today');if(!before)assert.equal(await p.locator('.action-area .original-step').count(),0);await p.selectOption('#scenario','sample-focus');await capture('example','focus');await p.selectOption('#scenario','sample-long');await capture('example','today',true);await p.click('[data-action="pause"]');await capture('example','pause',true);
+    assert.deepEqual(errors,[]);console.log(`${before?'Before captures':'Handoff gate passed'}: ${JSON.stringify(geometry)}`);
+  }finally{await c.close();}
+}
+async function runFocusSurface(browser){
+  const c=await browser.newContext({viewport:{width:1440,height:900}}),p=await c.newPage(),errors=[],observations=[];p.on('pageerror',e=>errors.push(e.message));
+  const transforms=()=>p.locator('.focus-surround i').evaluateAll(es=>es.map(e=>getComputedStyle(e).transform));
+  const boxes=()=>p.locator('.focus-copy,.focus-clock,.focus-layout .work-actions').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
+  async function check(mode,state){
+    for(const width of [1440,390])for(const theme of ['light','dark']){
+      await p.setViewportSize({width,height:width===390?844:900});await p.click(`button[data-theme="${theme}"]`);await p.waitForTimeout(220);await p.evaluate(()=>scrollTo(0,0));
+      assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);
+      assert.equal(await p.locator('.focus-clock').evaluate(el=>getComputedStyle(el).fontVariantNumeric),'tabular-nums');
+      await p.screenshot({path:`${output}/${mode}-focus-${state}-${theme}-${width}.png`});
+      if(state==='paused'){
+        const control=p.locator('[data-action="ambience"]');if(await control.getAttribute('aria-pressed')!=='true')await control.click();const start=await transforms(),geometry=await boxes();await p.waitForTimeout(3500);const end=await transforms();assert.notDeepEqual(end,start);assert.deepEqual(await boxes(),geometry,'Ambient movement never shifts instruction, timer or buttons');
+        await p.screenshot({path:`${output}/${mode}-focus-${state}-${theme}-${width}-3.5s.png`});observations.push({mode,theme,width,start,end});
+        await control.click();await p.waitForTimeout(60);const frozen=await transforms();await p.waitForTimeout(300);assert.deepEqual(await transforms(),frozen);assert.match(await control.textContent(),/Off/);
+        const canonical=mode==='real'?await snapshot(p):null;await p.click(`button[data-theme="${theme==='dark'?'light':'dark'}"]`);await p.click(`button[data-theme="${theme}"]`);await p.waitForTimeout(220);assert.match(await control.textContent(),/Off/);const settled=await transforms();await p.waitForTimeout(250);assert.deepEqual(await transforms(),settled);
+        if(canonical)assert.deepEqual(await snapshot(p),canonical);assert.equal(await p.locator('#reward[open],.confetti,.travelling').count(),0);
+        await p.emulateMedia({reducedMotion:'reduce'});await p.waitForFunction(()=>document.querySelector('[data-action="ambience"]').disabled);assert.equal(await control.isDisabled(),true);assert.match(await control.textContent(),/system preference/);assert.equal(await p.locator('.focus-surround i').first().evaluate(el=>getComputedStyle(el).animationName),'none');await p.emulateMedia({reducedMotion:'no-preference'});await p.waitForFunction(()=>!document.querySelector('[data-action="ambience"]').disabled);assert.match(await control.textContent(),/Off/);await control.click();
+      }
+    }
+  }
+  try{
+    await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});await create(p,'Prepare the workshop update',['Compare room options','Send the update']);await p.click('[data-work="start"]');await p.locator('.focus-layout').waitFor();const running=await snapshot(p);await check('real','running');assert.equal((await snapshot(p)).sessions[running.activeSessionId].status,'running');
+    await p.click('[data-work="pause"]');await p.click('[data-work="skip"]');await p.click('[data-work="focus"]');const paused=await snapshot(p);await check('real','paused');assert.deepEqual(await snapshot(p),paused);
+    await p.locator('[data-action="ambience"]').click();await p.click('[data-nav="today"]');await p.click('[data-work="focus"]');assert.match(await p.locator('[data-action="ambience"]').textContent(),/Off/);await p.locator('[data-action="ambience"]').click();
+    await p.click('[data-work="end-block"]');await p.locator('[data-work="start"]').waitFor();assert.match(await p.locator('.timer-label').textContent(),/No active focus block/);await check('real','no-block');
+    // Canonical isolated expiry fixture, same bounded checkpoint commands as end-block gate.
+    await p.evaluate(async()=>{const {LocalStore,openDatabase}=await import('/storage.js'),s=new LocalStore(()=>{});s.db=await openDatabase();s.writer=true;let w=await s.read();s.token=w.ownerToken;const run=async(type,fields={})=>w=(await s.commit(w,{id:crypto.randomUUID(),type,...fields})).workspace;await run('start',{minutes:20});for(let i=0;i<80;i++)await run('checkpoint',{deltaMs:15000});s.db.close();});await p.reload();await p.locator('.workspace').waitFor();await p.click('[data-work="focus"]');assert.match(await p.locator('.timer-label').textContent(),/Block ended/);await check('real','expired');
+    const canonical=await snapshot(p);await p.click('#example-mode');await p.selectOption('#scenario','sample-focus');await check('example','paused');await p.click('[data-action="resume"]');await check('example','running');await p.selectOption('#scenario','expired');await check('example','expired');
+    await p.selectOption('#scenario','sample-long');await p.click('[data-action="resume"]');
+    for(const width of [390,1024,1440]){await p.setViewportSize({width,height:600});await p.waitForTimeout(150);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);await p.locator('.focus-layout .work-actions button').last().scrollIntoViewIfNeeded();await p.locator('.focus-layout .work-actions button').last().focus();await p.keyboard.press('Tab');assert.ok(await p.locator('.focus-copy').evaluate(el=>el.scrollHeight>el.clientHeight));await p.screenshot({path:`${output}/example-focus-long-short-height-${width}.png`,fullPage:true});}
+    assert.deepEqual(await snapshot(p),canonical);assert.deepEqual(errors,[]);console.log('Focus surface gate passed: real/example running/paused/expired/no-block, both themes/1440/390/short height/1024 overflow, 3.5-second On transforms and stable content geometry, immediate Off/theme/nav/reduced freeze, canonical isolation/no replay. Motion samples:',JSON.stringify(observations));
+  }finally{await c.close();}
+}
 async function runExamples(browser){
   const c=await browser.newContext({viewport:{width:1440,height:900}}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
   try{
     await p.goto(url);await p.locator('#storage-status').waitFor({state:'hidden'});await create(p,'Real work stays separate',['Draft','Review']);await p.click('[data-work="start"]');await p.click('[data-work="complete"]');await p.locator('[data-work="undo"]').waitFor();const before=await snapshot(p);assert.ok(before.undo);await p.click('[data-work="edit"]');await p.fill('#goal-title','Unsaved real draft');await p.selectOption('#goal-priority','important');await p.click('.brand');await p.click('[data-demo-entry="activity"]');await p.locator('.activity-month').first().waitFor();assert.match(await p.locator('#mode-label').textContent(),/Fictional example/);assert.equal(await p.locator('.finished-card').count(),8);assert.equal(await p.locator('.finished-card[data-priority="important"]').count()>0,true);assert.equal(await p.locator('#activity-actions').evaluate(el=>el.open),false);
-    const expected=await p.evaluate(async()=>{const {exampleRecords,deriveActivity}=await import('/activity.js');return deriveActivity(exampleRecords());});assert.equal(await p.locator('[data-activity-total]').textContent(),String(expected.total));
+    const expected=await p.evaluate(async()=>{const {exampleRecords,deriveActivity}=await import('/activity.js');return deriveActivity(exampleRecords());});assert.equal(expected.total,42);assert.ok(expected.best>=3);assert.ok(new Set(expected.days.filter(d=>d.count).map(d=>d.key.slice(-2))).size>=6);assert.equal(await p.locator('[data-activity-total]').textContent(),String(expected.total));
     for(const month of expected.months){const d=month.days.find(d=>d.count);await p.locator(`[data-activity-day="${d.key}"]`).click();await p.click('#activity-actions-toggle');assert.equal(await p.locator('.activity-details li').count(),d.count);for(const item of d.items)assert.ok((await p.locator('.activity-details').textContent()).includes(item.title));}
     for(const level of [0,1,2,3,4]){const day=expected.days.find(d=>d.level===level&&!d.future);await p.fill('#activity-date',day.key);await p.click('#activity-view-day');assert.equal(await p.locator(`[data-activity-day="${day.key}"]`).getAttribute('data-level'),String(level));assert.equal(await p.locator('#activity-actions').evaluate(el=>el.open),false);await p.click('#activity-actions-toggle');assert.match(await p.locator('.activity-details').textContent(),new RegExp(`${day.count} completed action`));}
     const map=await p.locator('[data-activity-day]').evaluateAll(ds=>ds.map(d=>[d.dataset.activityDay,d.dataset.level]));await p.click('#reset');assert.deepEqual(await p.locator('[data-activity-day]').evaluateAll(ds=>ds.map(d=>[d.dataset.activityDay,d.dataset.level])),map);assert.deepEqual(await snapshot(p),before);
@@ -280,7 +343,10 @@ async function runCompact(browser,beforeOnly=false){
       await p.setViewportSize({width,height:1000});const box=await ordinary.boundingBox();assert.ok(box.height>=180&&box.height<=240,`Ordinary collapsed card height ${box.height} at ${width}`);
       assert.equal(await ordinary.evaluate(el=>{const card=el.getBoundingClientRect();return [...el.querySelectorAll('h2,p,summary,button')].filter(n=>n.getClientRects().length).every(n=>n.getBoundingClientRect().left>=card.left&&n.getBoundingClientRect().right<=card.right);}),true,'Foreground content stays within the full card width; decoration is non-interactive behind it');
       assert.equal(await ordinary.evaluate(el=>{const art=el.querySelector('.finished-art'),svg=art.querySelector('svg'),a=art.getBoundingClientRect(),s=svg.getBoundingClientRect();return s.bottom>a.bottom&&s.top<a.bottom&&getComputedStyle(svg).pointerEvents==='none'&&svg.getAttribute('focusable')==='false';}),true,'Decorative base is deliberately cropped, not the card contents');
-      await p.bringToFront();await ordinary.locator('.archive-title').focus();await p.keyboard.press('Tab');const focus=await ordinary.locator('[data-reopen-goal]').evaluate(el=>{const card=el.closest('.finished-card'),r=el.getBoundingClientRect(),b=card.getBoundingClientRect();return {active:el===document.activeElement,documentFocused:document.hasFocus(),overflow:getComputedStyle(card).overflow,contained:r.left>=b.left+7&&r.right<=b.right-7,outline:getComputedStyle(el).outlineStyle,actualFocus:document.activeElement?.outerHTML.slice(0,200)};});assert.ok(focus.active&&focus.documentFocused&&focus.overflow==='visible'&&focus.contained&&focus.outline!=='none',`Unclipped keyboard focus: ${JSON.stringify(focus)}`);
+      await p.bringToFront();await ordinary.locator('.archive-title').focus();assert.equal(await ordinary.locator('.archive-title').evaluate(el=>el===document.activeElement),true);
+      await p.evaluate(()=>{window.compactFocusEvents=[];for(const type of ['keydown','keyup','focusin'])document.addEventListener(type,e=>window.compactFocusEvents.push({type,key:e.key,target:e.target.outerHTML?.slice(0,160)}),{once:true});});
+      await ordinary.locator('.archive-title').press('Tab');await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      const focus=await ordinary.locator('[data-reopen-goal]').evaluate(el=>{const card=el.closest('.finished-card'),r=el.getBoundingClientRect(),b=card.getBoundingClientRect();return {active:el===document.activeElement,documentFocused:document.hasFocus(),overflow:getComputedStyle(card).overflow,contained:r.left>=b.left+7&&r.right<=b.right-7,outline:getComputedStyle(el).outlineStyle,disabled:el.disabled,actualFocus:document.activeElement?.outerHTML.slice(0,200),events:window.compactFocusEvents};});assert.ok(focus.active&&focus.documentFocused&&focus.overflow==='visible'&&focus.contained&&focus.outline!=='none',`Unclipped keyboard focus: ${JSON.stringify(focus)}`);
     }
     const longCard=p.locator('.finished-card').filter({has:p.getByRole('heading',{name:longTitle,exact:true})});await longCard.locator('.archive-title').click();assert.equal(await longCard.locator('h2').textContent(),longTitle);assert.ok((await p.locator('#history-detail-body').textContent()).includes(note));const link=p.locator('#history-detail .work-link');assert.equal(await link.getAttribute('href'),reference);assert.equal(await link.getAttribute('rel'),'noopener noreferrer');
     await p.route('https://example.com/**',route=>route.fulfill({body:'Synthetic work-reference target'}));const popupPromise=p.waitForEvent('popup');await link.click();const popup=await popupPromise;await popup.waitForLoadState();assert.equal(await popup.evaluate(()=>window.opener),null);await popup.close();assert.deepEqual(await snapshot(p),history);assert.equal(await p.locator('.travelling,.confetti,#reward[open]').count(),0);

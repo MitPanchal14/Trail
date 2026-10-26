@@ -1,6 +1,20 @@
 # Trail — current delivery checklist
 
-Updated 25 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
+Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
+
+## Next bounded OpenCode dispatch prepared — 26 October
+
+Exact brief: [OPENCODE_HANDOFF_FOCUS.md](OPENCODE_HANDOFF_FOCUS.md); documentation preparation plan: [OPENCODE_HANDOFF_FOCUS_BRIEF_PLAN.md](OPENCODE_HANDOFF_FOCUS_BRIEF_PLAN.md). GPT-6.1 Sol High recommended. Approximately 89-minute reported usage window; reserve at least 25–30 minutes for final verification. These are planned local changes, not implementation or a quota guarantee.
+
+- [x] Prepare one exact-scope prompt with protected contracts, staged checks, recovery notes and morning candidates; no runtime/test edits or OpenCode launch by this chat.
+- [x] A: compact pause capture and display-only duplicate suppression; six focused gates passed, real ordinary Save bottom 528px desktop/599px phone; engines/drafts/Retry/isolation retained. Final combined receipt verified below.
+- [x] B: scoped dark Focus raised surface/blue-violet drift; focus-surface/end-block/rewards gates passed, 3.5-second image pairs inspected, light styling/engines unchanged. Native Safari/user visual acceptance remain open.
+- [x] C: varied timezone-correct fictional dates/historical three-day run, exact eight goals/42 actions/months/tiers/gaps retained; ten activity tests and focused examples/year-archive gates passed within reserve.
+- [x] Final handoff/Focus verification: syntax, **39 Node tests**, exact eight-asset build/byte parity, diff and **all 21 Chromium gates passed** after last runtime edit. Before/after and 3.5-second motion captures inspected; failed attempt/test synchronization diagnostics retained in HANDOFF_FOCUS_EVIDENCE.md. No protected engine/real derivation edits.
+- [x] Independent review: fresh syntax/39 Node tests/build/parity/diff and all 21 Chromium gate receipts passed; actual source/test diff and screenshots inspected, no blocking defect found. [Review and limits](INDEPENDENT_HANDOFF_FOCUS_REVIEW.md).
+- [ ] User visual decision and owned real-work interruption/reload/return rehearsal before freeze; native/device and final hosted-origin checks remain separate.
+
+No new waypoint interaction, Switchback, historical context schema, PiP/extension, AI, multiple goals, import/restore or storage compaction in this batch. They are morning review candidates only. No commit/push/main change/deploy/submission. Official deadline freshly checked: **27 October 2026, 02:30 IST**; [event page](https://learn-ai-basics.devpost.com/). Delivery time must be protected from backlog expansion.
 
 ## Latest feedback — 25 October, after 21:29 IST
 

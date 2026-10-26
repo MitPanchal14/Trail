@@ -1,5 +1,11 @@
 # Design brief
 
+## Bounded handoff / dark Focus correction — 26 October
+
+Preserve home/mountain/circle/calendar/priority/archive composition. Pause now uses one clear heading, concise stopped state and compact actual action, followed immediately by next-move capture and Save/Skip before native collapsed extras. Retain full long-text/removal/draft access; no global typography sweep. Equal trimmed saved/action text no longer repeats as an extra original-action row.
+
+Only dark Focus gains a raised blue-grey surface, restrained edge and controlled blue/violet peripheral light with 10s calm drift. Layout, timer/control positions and light styling remain retained. Off/reduced motion reuse existing freeze/settle mechanisms. Matching desktop/phone/time-separated captures are implementation evidence, not user/native Safari acceptance. The same fictional calendar's 8/42 records now use varied local dates and a historical three-day streak, clearly fictional, without changing heatmap semantics or adding features. Current results: HANDOFF_FOCUS_EVIDENCE.md; independent/user review required.
+
 ## Current judge-clarity revision — A/B/C implemented locally
 
 The user accepts the year grid. Preserve its spacing/density/count semantics and mountain/circle/card grid. New hierarchy: “Your productivity and focus companion” → “Pick up where you left off.” → explicit plan/focus/save body, Start working and always-visible three-entry ready-made demo panel. A Goal/Next move workshop preview is labelled fictional; returning real cues/counts remain genuine. Original blue/violet two-peak mark replaces the lightning-like glyph/favicon; Trail. wordmark retained.

@@ -10,6 +10,21 @@ test('fictional year is deterministic, within real field/action limits, nonfutur
     const options={now:at(time),timeZone},w=exampleRecords(options),m=deriveActivity(w,options);assert.deepEqual(exampleRecords(options),w);assert.equal(Object.keys(w.goals).length,8);assert.deepEqual(new Set(m.days.map(d=>d.level)),new Set([0,1,2,3,4]));assert.ok(m.months.every(month=>month.days.some(d=>d.count>0)));assert.ok(Object.values(w.actions).every(a=>a.completedAt<=options.now&&a.title.length<=500));assert.ok(Object.values(w.goals).every(g=>g.actionOrder.length>=1&&g.actionOrder.length<=30&&['low','normal','important'].includes(g.priority)));assert.equal(m.total,Object.keys(w.actions).length);assert.deepEqual(w.intervals,{});
   }
 });
+test('fictional dates vary in requested local timezone with exact 8/42 records and a historical three-day run',()=>{
+  for(const time of ['2026-10-26T02:00Z','2027-01-01T00:01Z','2028-02-29T23:59Z','2028-03-01T00:00Z'])for(const timeZone of ['UTC','Asia/Kolkata','America/New_York','Pacific/Kiritimati','Etc/GMT+12','Pacific/Chatham']){
+    const options={now:at(time),timeZone},w=exampleRecords(options),m=deriveActivity(w,options);
+    assert.deepEqual(exampleRecords(options),w);assert.equal(Object.keys(w.goals).length,8);assert.equal(Object.keys(w.actions).length,42);assert.equal(m.total,42);assert.equal(m.periodTotal,42);assert.ok(m.best>=3);assert.deepEqual(new Set(m.days.map(d=>d.level)),new Set([0,1,2,3,4]));assert.ok(new Set(m.days.filter(d=>d.count).map(d=>d.key.slice(-2))).size>=6);
+    const expectedDays=[5,12,9,21,7,18,24,11,3,16,26,8];
+    for(const [i,month] of m.months.entries()){
+      const available=month.days.filter(d=>!d.future),base=available[Math.min(expectedDays[i],available.length)-1].key;
+      for(let j=0;j<[1,2,4,7][i%4];j++){const a=w.actions[`sample-action-${i}-${j}`],key=i===2?shiftDay(base,Math.max(0,j-1)):base;assert.equal(dayKey(a.completedAt,timeZone),key);assert.ok(a.completedAt<=options.now);assert.equal(w.contexts[a.id].updatedAt,a.completedAt);assert.ok(m.days.find(d=>d.key===key).items.some(item=>item.actionId===a.id&&item.title===a.title&&item.goalTitle===w.goals[a.goalId].title));}
+      assert.ok(month.days.some(d=>d.count));assert.ok(month.days.some(d=>!d.count&&!d.future)||i===11);
+    }
+    assert.ok(m.months[2].days.slice(8,11).every(d=>d.count>0&&!d.future));
+    for(const g of Object.values(w.goals)){assert.equal(g.completedAt,Math.max(...g.actionOrder.map(id=>w.actions[id].completedAt)));assert.equal(g.updatedAt,g.completedAt);assert.ok(g.actionOrder.length<=30);}
+    assert.deepEqual(w.sessions,{});assert.deepEqual(w.intervals,{});
+  }
+});
 test('empty calendar is twelve named months with unavailable future dates and no badge',()=>{
   const m=model(fixture([]));assert.equal(m.days.length,365);assert.equal(m.start,'2025-04-01');assert.equal(m.today,'2026-03-09');assert.equal(m.end,'2026-03-31');assert.equal(m.days.filter(d=>d.future).length,22);assert.equal(m.total,0);assert.equal(m.current,0);assert.equal(m.best,0);assert.equal(m.badge,null);assert.equal(m.nextBadge.count,1);
 });
