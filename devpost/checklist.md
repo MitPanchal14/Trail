@@ -2,6 +2,8 @@
 
 Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+- [x] Rewrite README for judges with product story, labelled screenshots, jump navigation/collapsible details, key-free setup and optional server-only AI instructions; current evidence/limitations linked. Documentation only; clone command targets reviewed branch until main merge. Publication pending.
+
 ## Latest user feedback — capture and visual refinement
 
 - [x] Diagnose active-block append lock/one-open-goal restriction; user confirms both step capture and separate later goals. Prepare [bounded final prompt](OPENCODE_FINAL_PRODUCT_POLISH.md). Documentation only.

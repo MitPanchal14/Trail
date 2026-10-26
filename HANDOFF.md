@@ -1,5 +1,9 @@
 # Current handoff — local core-loop prototype
 
+## Judge-facing README refresh — documentation only
+
+README now leads with the saved-place problem, judge demo path, features and reproducible reviewed-branch manual setup; optional Gemini/privacy/recovery/browser tooling use collapsible details. Two inspected synthetic captures copied into docs/images/ (documentation only, not public runtime assets). Current55-test/full-browser independent evidence linked; no invented hosting/video/license/Skill Pack invocation claims. GitHub source checkpoint is dd38427 before this documentation pass. No runtime/private configuration/Git publication changes; README needs normal commit/push authorization and should switch clone instructions to main after verified merge. Plan: devpost/README_REFRESH_PLAN.md.
+
 ## Capture/product polish independently reviewed — acceptance next
 
 No blocking defect found. Fresh55 Node tests/syntax/build/diff, focused capture/visual gates AND complete browser regression passed independently. Extra six touch-enabled queue-form cases (320/390/844 landscape, both themes) passed multi-step reorder/estimate identity, unchanged paused session and Cancel. Exact9 source/build/preview parity,7 protected files unchanged and7 private404 confirmed. Review: devpost/INDEPENDENT_FINAL_PRODUCT_POLISH_REVIEW.md. Paused phone Focus remains visually busy but usable; manual Later queue/one active goal/explicit Resume and activation are intentional. Physical-device and user acceptance remain pending. No runtime edits/live calls/Git mutation/publication by review. HEAD/origin22a3f0b, main7aa1235; new implementation uncommitted. Next accept/freeze, then authorized hosting/final-origin/video/submission.
