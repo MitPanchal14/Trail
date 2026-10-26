@@ -1,5 +1,9 @@
 # Design brief
 
+## Final screenshot corrections — current
+
+Reviewed AI proposal primary **Save this goal** with separate Start; optional secondary manual transfer. Pending-only compact blue/lilac/teal strip with static reduced-motion fallback. Softer pale priority families in light and muted raised dark surfaces; title has same-control View details cue, less dominant guarded Reopen, complete decorative peak/one ridge (not routeSVG). Calendar weekday column sizes to text, tiles remain14px. Single44px sun/crescent native theme button with action label; Today decorative top-right arrow hidden in both sources. Shared Focus surround uses softer colours/20s drift; card/countdown remain stationary, Off/reduced mechanisms retained. Summary widget/fictional AI scenario deferred to protect verification; no counting/terrain changes. Current captures/acceptance limits: FINAL_FEEDBACK_EVIDENCE.md.
+
 ## Optional Gemini planner — retained composition
 
 Compact Plan with AI card and native collapsed Describe your goal above manual fields, not a chat reskin. One labelled text source with device-dictation guidance; no website audio controls. Restrained neutral raised surface, cool violet/cyan corner wash/edge and decorative Trail accent; no new animation/assets. Editable proposal, unknown/over-budget findings and recoverable manual draft remain. Apply collapses the AI disclosure, retains recovery and focuses Review and save your plan once. Native44px controls, visible focus, readable gradients and natural390px scroll; surrounding home/Focus/calendar/archive unchanged. Current captures/limits: AI_SIMPLIFY_EVIDENCE.md; user visual/device acceptance remains separate.

@@ -84,7 +84,7 @@ export async function bootWork(ui){
   const instruction=()=>context()?.nextInstruction||action()?.title||'Review your goal.';
   const running=()=>session()?.status==='running'&&!frozen&&!suspended;
   const disabled=()=>!ready||!store.writer||busy||!!pending;
-  const planner=createPlanner({getDraft:()=>draft,allowed:()=>real&&view==='edit'&&draft?.goalId===null&&!disabled(),captureManual:captureDraft,render:()=>render(),applyManual:fields=>Object.assign(draft,fields)});
+  const planner=createPlanner({getDraft:()=>draft,allowed:()=>real&&view==='edit'&&draft?.goalId===null&&!disabled(),captureManual:captureDraft,render:()=>render(),applyManual:fields=>Object.assign(draft,fields),savePlan:fields=>saveDraft({...draft,...fields})});
   document.addEventListener('input',event=>{if(real&&draft?.planner&&['plan-description','plan-deadline','plan-budget'].includes(event.target.id)){draft.planner.appliedToManual=false;const h=$('#manual-plan-heading');if(h)h.textContent='Or build your plan manually';$('#manual-transfer-status')?.remove();$('#planner-transfer-status')?.remove();const summary=$('#planner>details>summary');if(summary)summary.textContent='Describe your goal';}});
   document.addEventListener('input',event=>{if(real&&draft&&event.target.closest('#goal-form')){captureDraft();const summary=$('.estimated-summary');if(summary)summary.textContent=estimatedSummary(draft.actions,draft.planning?.availableMinutes);}});
   document.addEventListener('input',event=>{if(real&&draft?.planner&&event.target.id==='plan-transcript')draft.planner.transcript=event.target.value;});
@@ -319,6 +319,10 @@ export async function bootWork(ui){
     }else if(action())go('pause');
   }
   function captureDraft(){if(!draft||!$('#goal-form'))return;draft.title=$('#goal-title').value;draft.definition=$('#goal-definition').value;draft.priority=$('#goal-priority').value;draft.actions.forEach(a=>{a.title=$(`[data-draft-id="${a.id}"]`).value;const v=$(`[data-estimate-id="${a.id}"]`).value;a.estimatedMinutes=v===''?null:Number(v);});const deadlineText=$('#planning-deadline').value,v=$('#planning-budget').value;draft.planning=deadlineText||v?{deadlineText,availableMinutes:v===''?null:Number(v)}:null;}
+  async function saveDraft(fields){
+    if(disabled())return false;
+    return write(command('save-goal',{goalId:fields.goalId,title:fields.title,definition:fields.definition,priority:fields.priority,planning:structuredClone(fields.planning),actions:structuredClone(fields.actions)}),()=>{draft=null;selected=action()?.id;go('today');});
+  }
   function capturePauseDraft(){
     if(!$('#real-pause-form')||!action())return;
     pauseDraft={actionId:action().id,instruction:$('#return-note').value,context:$('#pause-context').value,resourceUrl:$('#work-url').value,removeResource:$('#remove-resource')?.checked||false,removeInstruction:$('#remove-instruction')?.checked||false,removeContext:$('#remove-context')?.checked||false,extrasOpen:$('#pause-extras').open};
@@ -444,7 +448,7 @@ export async function bootWork(ui){
     }
     if(!real)return;
     if(event.target.id==='goal-form'){
-      event.preventDefault();if(disabled())return;captureDraft();await write(command('save-goal',{goalId:draft.goalId,title:draft.title,definition:draft.definition,priority:draft.priority,planning:structuredClone(draft.planning),actions:structuredClone(draft.actions)}),()=>{draft=null;selected=action()?.id;go('today');});
+      event.preventDefault();if(disabled())return;captureDraft();await saveDraft(draft);
     }else if(event.target.id==='real-pause-form'){
       event.preventDefault();capturePauseDraft();await write(command('notes',{instruction:pauseDraft.removeInstruction?'':pauseDraft.instruction,context:pauseDraft.removeContext?'':pauseDraft.context,removeInstruction:pauseDraft.removeInstruction,removeContext:pauseDraft.removeContext,resourceUrl:pauseDraft.removeResource?null:pauseDraft.resourceUrl}),()=>{go('today');pauseDraft=null;});
     }else if(event.target.id==='add-form'){

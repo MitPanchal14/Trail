@@ -2,6 +2,24 @@
 
 Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+## Latest user feedback — capture and visual refinement
+
+- [x] Diagnose active-block append lock/one-open-goal restriction; user confirms both step capture and separate later goals. Prepare [bounded final prompt](OPENCODE_FINAL_PRODUCT_POLISH.md). Documentation only.
+- [ ] Implement/verify pause-first append preserving current action/block and a bounded canonical Later-goals queue with explicit activation/no auto-Start; existing records/schema1/Retry/ownership and one active goal retained.
+- [ ] Refine shared Trail blue/indigo/violet archive/Focus and indeterminate mountain-path AI loader; mobile/dark/reduced-motion/fictional parity and full regression evidence.
+- [ ] Independent review and user acceptance; then authorized accepted checkpoint/hosting/final-origin/recording/submission. No fresh live calls or publication authorized.
+
+## Final screenshot correction — new requested scope
+
+- [x] Prepare prioritized60min brief: [OPENCODE_FINAL_FEEDBACK.md](OPENCODE_FINAL_FEEDBACK.md). Source/screenshot diagnosis: existing30s timeout and5/10min local cap, generic UI error; current reviewed model3.5 Flash-Lite. Streaks already implemented.
+- [x] Implement precise safe errors/concise planning, primary proposal Save via shared exact Retry/no Start, pending-only animated/static reduced indicator and shared archive/peak/Today/theme/weekday/Focus corrections. Engines/model/config unchanged; optional summary/fictional AI preview deferred.
+- [x] Fresh syntax/52 Node tests/build/protected comparison, focused proposal Save/Retry and visual/theme/mobile/5.5s Focus checks passed. Exact9 source/build/preview/private404 verified. Final combined repeat passed all21 retained gates + planner/Save composite + final visual gate, exit0; earlier obsolete-crop/test-hover corrections documented in evidence.
+- [x] Exactly TWO additional live text calls after mocks: both HTTP200/validated, unchanged gemini-3.5-flash-lite,8320ms/3 actions and19404ms/6 actions. Budget2/2 consumed,0 remaining; no retries. [Evidence](FINAL_FEEDBACK_EVIDENCE.md).
+- [x] Final combined receipt/captures and current documentation reconciled; stopped for review with no further feature/publication.
+- [x] Independent source/evidence review plus fresh52 Node tests/syntax/build/diff, mocked proposal Save/exact Retry and final visual/phone-width gate passed; no blocker. [Review](INDEPENDENT_FINAL_FEEDBACK_REVIEW.md). Full21 results inspected, not independently repeated.
+- [ ] User visual/physical/device acceptance, accepted checkpoint, hosting/final-origin checks, recording and submission. No publication authorized.
+
+
 ## Text-only AI independent review — current result
 
 - [x] Planned simplification/polish/completion scope reviewed; fresh51 Node tests/syntax/build/diff and focused fake-provider composite pass. Protected before-byte comparison unchanged. [Review](INDEPENDENT_AI_SIMPLIFY_REVIEW.md).

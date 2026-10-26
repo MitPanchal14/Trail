@@ -16,7 +16,7 @@ The same situation can arise while preparing an update, writing an assignment or
 
 ## What it does
 
-Optional new-goal setup uses typed/pasted text or the user's device dictation (device-dependent, not activated by Trail). Generate a suggestion with Gemini, review/edit actions and estimates, apply to editable manual fields, then explicitly Save goal and Start separately. Manual creation works without AI. The current website does not record/transcribe audio. Retained unused audio helper/renderer and transcription endpoint are infrastructure, not a current product feature. Estimates/deadline text guide suggestions, not guaranteed schedules or recorded effort.
+Optional new-goal setup uses typed/pasted text or device dictation (device-dependent, not activated by Trail). Generate with Gemini, review/edit actions/estimates, then explicitly **Save this goal** to save once and open Today. Start remains separate. Optional Edit in manual form keeps a recoverable transfer; manual creation works without AI. Fixed errors distinguish local/provider request limits, timeout, configuration and unusable output; no automatic retry or quota-exhaustion assumption. No website audio capture/transcription. Retained audio helper/endpoint is unused infrastructure. Estimates/deadline text are not guaranteed schedules or recorded effort.
 
 Create one open goal, define what finished means and choose ordered actions. Start focus explicitly. Pause to save a next move, optional context and one work link. Return to the saved instruction, open the reference when you want, and choose Resume separately.
 

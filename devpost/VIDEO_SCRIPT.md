@@ -21,7 +21,7 @@ Research basis: [organizer's written review recap](https://learn-ai-basics.devpo
 
 ## Optional AI setup shot
 
-Optional AI setup footage may replace part of the creation shot only if it fits without obscuring the return promise: “I type a rough goal, or use my device’s dictation. Trail suggests editable steps. I review them, apply them to the manual fields and choose Save. Focus still starts only when I choose Start.” Show **Describe your goal → Draft my trail → review/edit → Use this plan → Save goal → Start**. Do not narrate website recording/transcription; those controls are retired, while unused helper/endpoint tests remain. A mocked response must be labelled as such. No new live Gemini recording request is authorized by this script. Device dictation/physical tests, accepted build, hosted origin and public video URL are pending; do not fill them with invented evidence.
+Optional AI footage may replace part of creation only if the return promise stays clear: “I type a rough goal, or use my device’s dictation. Trail suggests editable steps. I review them and choose Save this goal. Focus starts only when I choose Start.” Show **Describe your goal → Draft my trail → review/edit → Save this goal → Today → Start**. Do not narrate website audio recording/transcription. Label mocked responses. The two additional live text checks are consumed; this script grants no further calls. Physical dictation/device tests, accepted build, hosting and public video URL remain pending.
 
 ## Skill Pack sentence — resolve before recording
 

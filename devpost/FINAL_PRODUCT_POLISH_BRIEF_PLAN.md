@@ -1,0 +1,5 @@
+# Final product-polish brief preparation
+
+Documentation only. User rejected current archive/Focus colours and loader and confirmed both adding a step to the current goal and saving a separate goal for later. Prepare one detailed OpenCode prompt and update HANDOFF/checklist. No runtime changes, live API calls, branch changes or publication.
+
+Source diagnosis: state.js deliberately permits only one open goal; save-goal locks order with any active block, add-action is final-review only; work.js disables running editor entry. Plan an explicit pause-first append path preserving the same unfinished action/block and a bounded canonical Later-goals queue with one active goal retained. A narrowly specified state.js extension is necessary; do not bypass validation or use a second storage system. Protect storage/timing/activity engines and existing records. Visual direction: Trail blue/indigo/violet, neutral surfaces, crisp decorative peak, purposeful static Focus hierarchy, compact indeterminate mountain-path loader with accessible/reduced-motion fallback. Keep UI composition and fictional isolation.
