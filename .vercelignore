@@ -1,0 +1,25 @@
+# Deploy only explicit build inputs. Never upload local configuration or ZIPs.
+/*
+!/package.json
+!/vercel.json
+!/.vercelignore
+!/api/
+/api/*
+!/api/plan.mjs
+!/api/ai-status.mjs
+!/scripts/
+/scripts/*
+!/scripts/build.mjs
+!/scripts/ai.mjs
+!/scripts/vercel-ai.mjs
+!/demo/
+/demo/*
+!/demo/index.html
+!/demo/styles.css
+!/demo/proof.js
+!/demo/work.js
+!/demo/state.js
+!/demo/storage.js
+!/demo/timing.js
+!/demo/activity.js
+!/demo/planner.js

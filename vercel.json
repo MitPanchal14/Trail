@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/*.mjs": {
+      "maxDuration": 40,
+      "supportsCancellation": true,
+      "includeFiles": "{scripts/vercel-ai.mjs,scripts/ai.mjs,demo/planner.js}",
+      "excludeFiles": "{.env*,**/.env*,*.zip,**/*.zip,tests/**,test-results/**,devpost/**,docs/**,references/**,dist/**,scripts/serve.mjs,scripts/build.mjs}"
+    }
+  }
+}

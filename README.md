@@ -8,7 +8,7 @@ A focus companion for work that gets interrupted.
 
 **Plan a goal · Focus on one action · Leave a way back**
 
-[Explore Trail](#explore-trail) · [Quick start](#quick-start) · [Try the full loop](#try-the-full-loop) · [AI setup](#optional-gemini-planning) · [Engineering](#under-the-surface)
+[Explore Trail](#explore-trail) · [Quick start](#quick-start) · [Try the full loop](#try-the-full-loop) · [AI setup](#optional-gemini-planning) · [Vercel setup](#vercel-hosting-preparation) · [Engineering](#under-the-surface)
 
 </div>
 
@@ -61,7 +61,7 @@ These are fictional sample records. Their disabled reopening controls are intent
 
 ## Quick start
 
-**You need Git and Node.js 20 or newer, including npm.** Node.js 24.16.0 was used for the latest verification. Use a current browser with IndexedDB and Web Locks; Chromium was used for automated browser checks.
+**You need Git and Node.js 24.x, including npm.** Node.js 24.16.0 was used for local verification; the package now selects Vercel's supported24.x runtime. The local server code is unchanged. Use a current browser with IndexedDB and Web Locks; Chromium was used for automated browser checks.
 
 ```sh
 git clone --branch codex/trail-redesign https://github.com/MitPanchal14/Trail.git
@@ -140,9 +140,49 @@ Only the description and optional deadline/budget you explicitly submit are sent
 
 The animated mountain appears only while a request is pending, and stays static with reduced motion. Cancel keeps your description; safe errors preserve the manual route. There are no automatic retries. Review the proposal before saving: AI can be wrong.
 
-The server key is never injected into the static build. Serving `dist/` alone supports manual work but **does not provide Gemini endpoints**. The included server binds to loopback; it is a local server, not a turnkey public AI deployment. Public hosting needs a suitable server deployment and additional abuse/cost controls.
+The server key is never injected into the static build. Serving `dist/` alone supports manual work but **does not provide Gemini endpoints**. The included local server still binds to loopback. The separate Vercel adapter below supplies hosted planning; public abuse/cost controls and final-origin verification remain required.
 
 </details>
+
+## Vercel hosting preparation
+
+**Prepared locally, not deployed.** Use the existing Vercel project; do not create a second app or publish the repository root. This section and [current preflight](devpost/DEPLOYMENT_PREFLIGHT.md) supersede the old seven-file/static-Pages instructions. Local implementation/check results and platform-validation limits: [adapter evidence](devpost/VERCEL_ADAPTER_EVIDENCE.md). Codex independent review is required before any publication.
+
+### Existing-project dashboard settings (after review/authorization)
+
+1. Open the **existing project → Settings → Build and Deployment**. Root Directory: repository root (`.`), Framework Preset: **Other**, Build Command: **`npm run build`**, Output Directory: **`dist`**, Install Command: empty/skip, Node.js Version: **24.x**. Committed `vercel.json` overrides the build/output/install settings; `package.json` pins Node24.x. There are no application dependencies to install. Do not set the output directory to `.` or `demo`, and do not start the local HTTP server on Vercel.
+2. Under **Settings → Domains**, identify the existing stable production domain. Do not invent a URL, replace the project or change domains in this local task. Under **Settings → Environment Variables**, add the following for **Production** only, using the already-approved Gemini configuration privately:
+
+   | Name | Server-only purpose |
+   | --- | --- |
+   | `GEMINI_API_KEY` | Existing Gemini API project credential. Do not print, commit or prefix with `NEXT_PUBLIC_`/`VITE_`. |
+   | `GEMINI_MODEL` | Existing approved model identifier, unchanged by this task. |
+   | `TRAIL_PUBLIC_ORIGIN` | Exact canonical HTTPS stable origin, e.g. `https://the-existing-project-domain.vercel.app` **with your actual existing domain substituted**. No trailing slash, path, query, credentials, port, wildcard or localhost. |
+
+   No `.env.local` is loaded by build or hosted functions. The local CLI's existing private-file loading remains local only. Do not use `vercel env pull`, print values or download production secrets for verification.
+3. **Preview AI is intentionally unavailable by default.** Do not copy production secrets into Preview automatically. Its Host/Origin will not match the production origin. For a deliberately approved preview, set all three variables scoped to that environment/branch and set `TRAIL_PUBLIC_ORIGIN` to its explicitly trusted exact HTTPS domain. A new generated preview URL needs a matching explicit setting and subsequent authorized build; no request-header/`VERCEL_URL` trust or wildcard list is used. Manual work still works without AI configuration.
+4. Function settings are in `vercel.json`: Node, **40-second maximum duration**, request cancellation enabled. The shared planner still has its existing **30-second text timeout**,32KiB raw input bound,128KiB upstream response bound,2 concurrent requests and5 requests per10 minutes per local bucket. Model, prompt and provider limits are unchanged. The Vercel API contains only **GET `/api/ai-status`** and **POST `/api/plan`**. `/api/transcribe` is not deployed; its existing local endpoint/tests remain.
+5. Configure the WAF rule below **before enabling public Gemini traffic**. Do not buy a plan or accept paid terms without approval. After independent review and explicit deployment authorization, publish the exact reviewed commit using the existing project's normal workflow. No deploy/link/authentication/upload was performed by this task.
+
+### Public API cost/abuse gate — outstanding dashboard work
+
+Origin/Host checking is not authentication: a direct client can supply both headers. Existing in-memory limits are **per warm function instance**, not a global serverless limiter. The Web Request interface has no trusted socket IP, so the existing fallback bucket is conservatively shared by requests in that warm instance; spoofing forwarded IP headers does not create new buckets. Multiple instances can each call Gemini, and legitimate users can share one instance's small limit.
+
+Current [Vercel WAF documentation](https://vercel.com/docs/vercel-firewall/vercel-waf/rate-limiting) supports a **Fixed Window** rule on Hobby, Pro and Enterprise. Hobby permits one rate-limit rule within its three custom rules; account entitlement/availability and any pricing dialog must be checked in the actual dashboard. Setup, not yet applied:
+
+1. Existing project → **Firewall → Configure → + New Rule**; name it `Trail planning request limit`.
+2. Conditions (all true): **Request Path equals `/api/plan`**, **Request Method equals `POST`**. Do not filter only on the trusted Origin, as direct clients can spoof it.
+3. Action **Rate Limit**, strategy **Fixed Window**, key **IP**, window **600 seconds**, request limit **5**, follow-up **Default (429)**, not Log-only. This mirrors the existing per-client window at the edge without changing application limits.
+4. Review plan/pricing/available rule slots without purchasing. **Save Rule → Review Changes → Publish** only when the owner authorizes activation; verify matching traffic and blocked requests in Firewall overview. If unavailable, keep hosted Gemini unconfigured (manual app remains usable) rather than claim protection.
+
+WAF counters are **per region**. Distributed IPs/regions, cold instances, shared IPs and allowed traffic still prevent this from being a global request/dollar cap. The app has no authentication or durable aggregate budget. Before public exposure, the owner must also review Gemini project quotas/billing limits and Vercel usage/available spend controls; no paid resource or quota change was made here. Do not load-test Gemini or make even one live planning verification call without a new explicit budget. WAF/platform failures can be platform responses rather than Trail's JSON errors.
+
+### What still must be verified on the final origin
+
+- Vercel build reports Node24.x and two server functions with the required server dependencies; only the nine `dist/` browser assets are static. Source, tests, ZIPs and `.env*` URLs must404; `/api/transcribe` must404. `.vercelignore` is a CLI upload allowlist, not a sanitizer for Git history; never commit private files. Function `excludeFiles` also excludes private/unnecessary artifacts.
+- Without Gemini configuration, status is disabled and manual creation works. With approved configuration, stable-domain status returns only `{enabled:true}`; wrong Host/POST Origin fail. New live planning calls are **not authorized** by this task or checklist.
+- Signed-out HTTPS access, IndexedDB/Web Locks, create → explicit Start → Pause/save → reload → explicit Resume, Later-goal capture, finish/Undo/history and fictional isolation work at that actual origin. Verify mobile/Safari separately. Deployment Protection must match intended judge access before calling it public.
+- Localhost, preview and stable production domains have separate browser-local records. No records migrate, reset, sync or upload automatically. Select the stable domain before starting real work there.
 
 ## Your records and recovery
 
@@ -179,6 +219,7 @@ There is currently no import/restore, reminders, background capture or real-reco
 | `storage.js`, `timing.js`, `activity.js` | Transactional local persistence, writer ownership, conservative timing and derived activity. |
 | `proof.js` | Labelled in-memory fictional examples, isolated from real records. |
 | `scripts/serve.mjs`, `scripts/ai.mjs` | Allowlisted local serving and bounded server-only API requests. |
+| `api/*.mjs`, `scripts/vercel-ai.mjs`, `vercel.json` | Two hosted Node endpoints, raw Web-stream bridge to the same planner, explicit trusted origin and dist-only static deployment. |
 
 The reliability goal is straightforward: **a success message must correspond to committed work, and retrying a failed save must not duplicate it.** Explicit completion, planning estimates and measured effort remain separate.
 
@@ -191,6 +232,7 @@ npm run build
 ```
 
 - **55 Node tests passed** in the latest independent review.
+- **63 Node tests pass locally with the Vercel adapter** (eight added mocked/packaging tests). The adapter's independent review and actual Vercel/final-origin verification are still pending; see [current evidence](devpost/VERCEL_ADAPTER_EVIDENCE.md).
 - **The full Chromium browser regression passed**, including real IndexedDB abort/Retry, ownership, reload/recovery, capture/queue, planning mocks and fictional isolation.
 - Additional touch-enabled checks covered 320px, 390px and landscape in both themes. Viewport/touch emulation is not physical-device acceptance.
 - The build contains exactly nine public assets; protected engines/API remained unchanged in the final capture/polish pass, and private/server/test paths returned 404.
