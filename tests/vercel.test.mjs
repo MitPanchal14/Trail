@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
 import {execFile} from 'node:child_process';
 import {createVercelApi,trustedOrigin} from '../scripts/vercel-ai.mjs';
+import {planErrors} from '../demo/planner.js';
 
 const run=promisify(execFile),root=fileURLToPath(new URL('../',import.meta.url));
 const origin='https://trail-adapter-test.vercel.app',key='SYNTHETIC_ONLY_VERCEL_SENTINEL_62483',model='synthetic-model';
@@ -16,6 +17,22 @@ const output=(value=proposal)=>new Response(JSON.stringify({candidates:[{finishR
 const request=(path='/api/plan',init={})=>new Request(origin+path,{method:'POST',headers:{host:new URL(origin).host,origin,'content-type':'application/json'},body:JSON.stringify(input),...init});
 const statusRequest=()=>request('/api/ai-status',{method:'GET',body:undefined});
 const api=options=>createVercelApi({origin,key,model,...options});
+
+test('description-only planning accepts blank optional fields; origin rejection is not a field or quota error',async()=>{
+  const description='I need to prepare five slide presentation tomorrow. I have 90 minutes and need to do literature review, building deck, and conclusion';
+  let calls=0;
+  const handler=api({fetchImpl:async(_,init)=>{calls++;const submitted=JSON.parse(JSON.parse(init.body).contents[0].parts[0].text);assert.equal(submitted.description,description);return output();}});
+  const blank={description,deadlineText:'',availableMinutes:null};
+  for(const fields of [blank,{...blank,deadlineText:'Tomorrow'},{...blank,availableMinutes:90}]){
+    const r=await handler(request('/api/plan',{body:JSON.stringify(fields)}));assert.equal(r.status,200);assert.deepEqual(await r.json(),{proposal});
+  }
+  assert.equal(calls,3);
+  const rejected=await handler(request('/api/plan',{headers:{host:new URL(origin).host,origin:'https://different-test.vercel.app','content-type':'application/json'},body:JSON.stringify(blank)}));
+  assert.equal(rejected.status,403);assert.deepEqual(await rejected.json(),{code:'origin_mismatch',error:planErrors.origin_mismatch});assert.equal(calls,3);
+  const malformed=await handler(request('/api/plan',{body:JSON.stringify({...blank,availableMinutes:0})}));assert.equal(malformed.status,400);assert.equal((await malformed.json()).code,'invalid_input');assert.equal(calls,3);
+  const limited=await api({fetchImpl:async()=>{calls++;return new Response('{}',{status:429});}})(request('/api/plan',{body:JSON.stringify(blank)}));
+  assert.equal(limited.status,429);assert.deepEqual(await limited.json(),{code:'provider_limit',error:planErrors.provider_limit});assert.equal(calls,4);
+});
 
 test('Vercel Web Request bridges raw bytes to unchanged planner and exposes only capability',async()=>{
   let calls=0;const handler=api({fetchImpl:async(url,init)=>{calls++;assert.equal(url,`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`);assert.equal(init.headers['x-goog-api-key'],key);assert.equal(init.redirect,'error');const body=JSON.parse(init.body);assert.deepEqual(JSON.parse(body.contents[0].parts[0].text),input);assert.equal(body.generationConfig.maxOutputTokens,8192);assert.equal(body.tools,undefined);return output();}});

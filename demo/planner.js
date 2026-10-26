@@ -10,6 +10,7 @@ export const planErrors=Object.freeze({
   upstream_unavailable:'Gemini is unavailable. Try again later or create manually.',
   invalid_output:'Gemini returned an unusable or incomplete plan. Try again explicitly or create manually.',
   invalid_input:'Check the description and optional planning fields, then try again.',
+  origin_mismatch:'AI planning could not verify this website address. Reload the published site or create manually. Your text is kept.',
   cancelled:'AI request cancelled. Your text and manual draft are kept.'
 });
 export function validateProposal(v){
