@@ -2,6 +2,18 @@
 
 Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+## Current Vercel hosting preparation — no publication authorized
+
+- [x] Record baseline/worktree/remote and pre-edit [adapter plan](VERCEL_ADAPTER_IMPLEMENTATION_PLAN.md); preserve ZIPs/private files and all nine browser assets/local API/domain engines.
+- [x] Add two server-only Node Web functions/raw-stream bridge to existing planner; explicit HTTPS stable origin, exact Host/POST Origin, safe disabled configuration, no Vercel transcription or parsed-body fallback. No framework/dependency/model/prompt/limit/UI change.
+- [x] dist-only Vercel configuration, Node24.x/40s function/cancellation, explicit server dependencies/private exclusions/deny-all CLI upload allowlist; local dev unchanged.
+- [x] Syntax,63 Node tests, build/diff, isolated server-package imports/mock execution and sentinel-free nine-file build;17required upload inputs allowed/18private-extra paths excluded; local CLI/static/status/private404 and actual disabled-adapter manual fallback passed. [Evidence](VERCEL_ADAPTER_EVIDENCE.md).
+- [x] Final full retained Chromium regression passed, exit0, freshly against local CLI52258; existing browser assets/tests/assertions unchanged. This is not hosted Vercel proof. Logs/captures in adapter evidence.
+- [ ] Codex independent review; owner configures existing-project stable origin/private env, confirms/activates WAF rule and reviews remaining public cost/abuse limits before separately authorizing publication.
+- [ ] Actual Vercel build-artifact/final-origin/signed-out/security/cancellation/core-flow/physical-device checks. No live Gemini call without fresh explicit budget. No deploy/link/auth/upload/secret download performed.
+
+Current README/Vercel preflight supersedes obsolete seven-file/static-Pages instructions, not the unchanged local-server behavior or historical evidence.
+
 - [x] Rewrite README for judges with product story, labelled screenshots, jump navigation/collapsible details, key-free setup and optional server-only AI instructions; current evidence/limitations linked. Documentation only; clone command targets reviewed branch until main merge. Publication pending.
 
 ## Latest user feedback — capture and visual refinement

@@ -1,5 +1,17 @@
 # Deployment preflight — prepared, not authorized or executed
 
+## Current Vercel preflight — supersedes historical static-Pages instructions below
+
+The existing-project Vercel adapter is the current hosting preparation. Follow [README Vercel setup](../README.md#vercel-hosting-preparation), [implementation plan](VERCEL_ADAPTER_IMPLEMENTATION_PLAN.md) and [current evidence](VERCEL_ADAPTER_EVIDENCE.md), not the seven-asset/Pages steps below. The history below is retained as a dated receipt, not a current deployment recipe or source-status assertion.
+
+- Build `npm run build`; Other framework, root `.`, static Output Directory **dist only** (exactly9 existing browser assets), install skipped, Node24.x. Two server-only `/api/ai-status` and `/api/plan` functions reuse unchanged scripts/ai.mjs. Explicit includeFiles packages required modules; no hosted transcription. Function max40s, existing text timeout30s; cancellation enabled. No framework/dependency/UI/domain/storage/timing/activity change.
+- Set Production-only server variables `GEMINI_API_KEY`, `GEMINI_MODEL` (existing approved values), `TRAIL_PUBLIC_ORIGIN` (actual stable HTTPS origin, exact canonical form/no slash). Missing/invalid configuration disables AI safely. Host and POST Origin must match; headers never define trust. Preview AI remains unavailable until separately explicitly configured. No wildcard CORS, build secret injection or hosted .env.local loading.
+- Owner must configure the documented WAF Fixed Window rule: POST + exact `/api/plan`, IP key,5/600s,429; confirm actual plan availability/pricing before authorized activation. No rate-limit/global-budget guarantee follows from per-instance memory or per-region WAF counters. No auth/durable cost cap added; public abuse/quota/billing review remains a gate.
+- After independent review and separately authorized publication, inspect actual Vercel build/function artifacts and final-origin routing/privacy/cancellation; verify two functions, nine static assets, private/server/test/ZIP404 and `/api/transcribe`404, disabled-config manual fallback, secure storage/core-loop/fictional isolation, signed-out access and physical devices. No new live Gemini call without fresh explicit budget. Local evidence is not a hosted success claim.
+- Do not run authenticate/link/env pull/upload/deploy now. Keep existing stable project/domain and browser-origin record boundaries; no migration/reset. .vercelignore protects CLI uploads, not existing Git history.
+
+## Historical 25 October snapshot (not current instructions)
+
 25 October 2026. No host/account/domain was selected, no hosting configuration was created, no paid service chosen and nothing was deployed. Current source is the local `codex/cloud-completion` diff over verified `041fe89ac9b27d91973f39b9505d39e0e64ce998`. The remote implementation branch is `codex/trail-redesign`; default `main` is an older source and must not be used accidentally.
 
 ## Inspected build and access
