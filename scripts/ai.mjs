@@ -42,7 +42,7 @@ export function createApi({key=process.env.GEMINI_API_KEY,model=process.env.GEMI
     const audio=path==='/api/transcribe';
     const expected=origin||`http://127.0.0.1:${req.socket?.localPort}`;
     try{
-      if(req.headers.host!==new URL(expected).host||req.headers.origin&&req.headers.origin!==expected||req.method==='POST'&&req.headers.origin!==expected)throw new ApiError(403,'This request must come from Trail on this origin.');
+      if(req.headers.host!==new URL(expected).host||req.headers.origin&&req.headers.origin!==expected||req.method==='POST'&&req.headers.origin!==expected)throw new ApiError(403,'This request must come from Trail on this origin.','origin_mismatch');
       if(path==='/api/ai-status'){if(req.method!=='GET')throw new ApiError(405,'Use GET for availability.');send(res,200,{enabled});return true;}
       if(req.method!=='POST')throw new ApiError(405,'Use POST for planning.');
       if(!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(req.headers['content-type']||''))throw new ApiError(415,'Use application/json.');

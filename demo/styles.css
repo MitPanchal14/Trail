@@ -423,7 +423,6 @@ dialog>small { display:block;font-size:10px;color:var(--muted);margin-top:20px; 
   .hero-saved { margin:0;padding:16px 18px; } .hero-saved p { font-size:12px; }
   .landing-foot { margin-top:24px;gap:16px;flex-direction:column;align-items:flex-start;font-size:11px; }
   .focus-topline { gap:10px;margin-bottom:14px; } .focus-topline .eyebrow { font-size:9px;letter-spacing:.03em; }
-  .ambience-control { font-size:10px; }
   .focus-surround { inset:170px 0 0; } .focus-surround i { width:110%;height:70%;opacity:.4;filter:blur(28px); }
   .focus-layout { padding:24px 18px 20px;border-radius:18px; }
   .focus-layout h2 { font-size:21px; } .focus-copy { max-height:225px;padding-inline:3px; }

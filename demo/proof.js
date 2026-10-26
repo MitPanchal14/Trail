@@ -141,7 +141,7 @@ function scene(){return `<section class="scene-panel" aria-label="Today's illust
 function today(){return `${heading(state.finished?'A goal, brought home.':'Pick up where you left off.')}<div class="workspace"><section class="action-area" aria-label="Your next action"><div class="stage-top">${goalLabel()}<span class="stage-symbol" aria-hidden="true">↗</span></div><p class="step-label">${state.finished?'Goal explicitly confirmed':currentStep()?`Next action · step ${state.completed+1} of ${state.steps.length}`:'All planned steps checked · goal still open'}</p><h2 class="instruction">${escapeHTML(instruction())}</h2>${originalTitle()}${savedContext()}<div class="work-actions"><button class="button primary" data-action="${state.finished?'finished':!currentStep()?'review':state.running||state.blockStarted&&state.seconds===0?'return-focus':'resume'}">${state.finished?'Revisit finished work':!currentStep()?'Review goal':state.running?'Return to focus':state.blockStarted&&state.seconds===0?'Review ended block':'<span aria-hidden="true">▶</span> Resume focus'}</button>${currentStep()?`<button class="text-button" data-action="pause">${state.running?'Pause & edit place':'Edit saved place'}</button>${!state.blockStarted?`<label class="duration">Block <select id="duration" aria-label="Focus block duration"><option value="20" ${state.duration===20?'selected':''}>20 min</option><option value="25" ${state.duration===25?'selected':''}>25 min</option><option value="45" ${state.duration===45?'selected':''}>45 min</option></select></label>`:''}`:''}</div><p class="hint">${state.finished?'Finished work stays available. Visiting it does not celebrate again.':'One small next move. Your earlier work is still here.'}</p></section>${scene()}</div><div class="lower"><section><div class="section-heading"><h3>The path to finished</h3><span>${state.completed} of ${state.steps.length} checked</span></div>${stepsHTML()}</section><section>${recordDetail()}<div class="history-line"><span>Whole goal · fixed illustration</span><strong>70 min across 2 days</strong></div><div class="history-line"><span>Current example status</span><strong>${routeStatus()}</strong></div></section></div>`;}
 function focus(){
   const expired=state.view==='expired';
-   return `<div class="focus-surround" aria-hidden="true"><i></i><i></i><i></i></div><div class="focus-topline"><span class="eyebrow">${expired?'A good place to check in.':'One thing at a time.'}</span><button class="text-button ambience-control" data-action="ambience" aria-pressed="${!motion.matches&&ambience}" ${motion.matches?'disabled':''}>Background motion: ${!motion.matches&&ambience?'On':'Off'}${motion.matches?' · system preference':''}</button></div>
+   return `<div class="focus-surround" aria-hidden="true"><i></i><i></i><i></i></div><div class="focus-topline"><span class="eyebrow">${expired?'A good place to check in.':'One thing at a time.'}</span></div>
   <section class="focus-layout" aria-label="Focus work window">${goalLabel()}<p class="step-label">Step ${state.completed+1} of ${state.steps.length}</p>
     <div class="focus-copy" tabindex="0" aria-label="Current instruction and optional context"><h2 class="instruction">${escapeHTML(instruction())}</h2><details class="focus-details"><summary>Saved context & original step</summary>${originalTitle()}${savedContext()}</details></div>
     <div class="focus-clock" id="clock">${formatTime(state.seconds)}</div>
@@ -217,7 +217,6 @@ function exitCelebration(){closeReward();}
 document.addEventListener('click',event=>{
   const button=event.target.closest('button');if(!button)return;
   if(button.id==='theme-toggle'){clearMountainFeedback();theme=theme==='light'?'dark':'light';document.documentElement.dataset.theme=theme;const label=`Switch to ${theme==='light'?'dark':'light'} mode`;button.setAttribute('aria-label',label);button.title=label;return;}
-   if(button.dataset.action==='ambience'){if(!motion.matches)ambience=!ambience;updateMotion();return;}
    if(button.dataset.action==='exit-celebration'){exitCelebration();return;}
     if(!exampleMode)return;
     if(button.dataset.exampleScene){loadExample(button.dataset.exampleScene);return;}
@@ -231,7 +230,6 @@ document.addEventListener('click',event=>{
        Promise.resolve().then(()=>{if(typeof navigator.clipboard?.writeText!=='function')throw new Error('Clipboard unavailable');return navigator.clipboard.writeText(brief);}).then(()=>{if(button.isConnected&&$('#example-copy-status'))$('#example-copy-status').textContent='Saved place copied (fictional example).';}).catch(()=>{if(button.isConnected)manualExampleCopy(brief);});break;
      }
      case 'reset':reset();break;
-      case 'ambience':if(!motion.matches)ambience=!ambience;updateMotion();break;
      case 'resume':startClock();break;
      case 'return-focus':go(state.seconds===0?'expired':'focus');break;
      case 'pause':if(currentStep()){stopClock();go('pause');}break;
@@ -265,8 +263,8 @@ $('.brand').addEventListener('click',event=>{event.preventDefault();if(exampleMo
 document.addEventListener('change',event=>{if(event.target.id==='duration'){state.duration=Number(event.target.value);state.seconds=state.duration*60;}});
 const motion=matchMedia('(prefers-reduced-motion: reduce)');
 ambience=!motion.matches;
-function updateMotion(){document.body.classList.toggle('still',motion.matches||!ambience);if(motion.matches||!ambience){clearMountainFeedback();clearTimeout(celebrationTimeout);$('.confetti')?.remove();}const button=$('[data-action="ambience"]');if(button){button.disabled=motion.matches;button.setAttribute('aria-pressed',String(!motion.matches&&ambience));button.textContent=`Background motion: ${!motion.matches&&ambience?'On':'Off'}${motion.matches?' · system preference':''}`;}}
-motion.addEventListener('change',()=>{if(motion.matches)ambience=false;updateMotion();});
+function updateMotion(){document.body.classList.toggle('still',motion.matches||!ambience);if(motion.matches||!ambience){clearMountainFeedback();clearTimeout(celebrationTimeout);$('.confetti')?.remove();}}
+motion.addEventListener('change',()=>{ambience=!motion.matches;updateMotion();});
 document.addEventListener('pointerover',event=>{const row=event.target.closest('[data-record]');if(row&&event.pointerType!=='touch'){routePreview=Number(row.dataset.record);highlightRecord(routePreview);}});
 document.addEventListener('pointerout',event=>{const row=event.target.closest('[data-record]');if(row&&!row.contains(event.relatedTarget)){routePreview=null;highlightRecord(state.selected);}});
 document.addEventListener('focusin',event=>{const row=event.target.closest('[data-record]');if(row){routePreview=Number(row.dataset.record);highlightRecord(routePreview);}});

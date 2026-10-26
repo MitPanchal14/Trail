@@ -2,6 +2,17 @@
 
 Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+## Remove Background motion control
+
+- [x] Remove visible toggle from real/example Focus; retain background with system reduced-motion stop/restore. No hidden control.64 Node tests/syntax/build/diff, all retained browser groups across combined run/continuation, light/dark phone/desktop absence/layout/motion/state checks and nine-asset parity pass. [Evidence](REMOVE_MOTION_CONTROL_EVIDENCE.md).
+- [ ] Authorized publication with the separately verified local AI error-category correction; current hosted UI has not changed.
+
+## Description-only AI investigation
+
+- [x] Exact user description with both optional inputs empty passes intercepted browser1440/390 + Vercel API mocked success; blank deadline/minutes remain optional. Separate provider429 and malformed-input400 behavior covered.
+- [x] Correct misleading Host/Origin403 classification from field-error to fixed origin_mismatch message, preserving all guards/drafts. Fresh64 Node tests/syntax/build/diff, six desktop/mobile mocked cases and retained planner Save/Retry/estimates/browser regression pass. [Evidence](AI_OPTIONAL_FIELDS_EVIDENCE.md).
+- [ ] Authorized publication of this local correction and final hosted verification. Historical failing-request cause remains unconfirmed; no new live Gemini budget granted. Public capability status enabled:true is not successful provider planning evidence.
+
 ## Vercel65.1.0 discovery correction
 
 - [x] Record [bounded correction plan](VERCEL_DISCOVERY_CORRECTION_PLAN.md) before editing; preserve branch/HEAD/ZIPs/private files.
