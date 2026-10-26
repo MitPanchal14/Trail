@@ -1,0 +1,25 @@
+# AI discovery — implementation evidence
+
+26 October2026. One writer, presentation-only; initial budget45–55min including15–20min verification reserve. Exact pre-edit plan: AI_DISCOVERY_IMPLEMENTATION_PLAN.md. Pre-existing uncommitted AI work, private file and ZIPs retained. No live Gemini request, environment read/change, branch/commit/push/deploy/submit, record migration/deletion or server termination.
+
+## Change
+
+demo/planner.js: compact always-visible Plan with AI heading/support/optional Gemini attribution and native collapsed Describe or record your goal disclosure. Empty description with placeholder, shorter consent near generation, optional context grouped, secondary privacy/reload facts. Record instead initially; existing request/recordPhase drives hidden stop/transcribe/discard/cancel controls without altering recorder or request lifecycles. Review your suggested plan / Not saved yet; actions/estimates/assumptions/conflicts/recovery unchanged. Successful apply alone focuses/instantly reveals manual destination; no scroll on every render.
+
+demo/work.js: new-real-goal-only manual heading and adjacent unsaved-transfer confirmation; existing-goal presentation unchanged. demo/styles.css: scoped token-based entry, native marker, spacing/responsive context grouping. tests/planner-browser.mjs: substantive prior tests retained, discovery/no initial provider or media request, native keyboard disclosure, collapse/source retention, apply focus/unsaved state and both-theme captures added. README label updated. Backend/domain/configuration/build files not edited by this task.
+
+## Evidence so far
+
+Approved temp base: `/private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/trail-ai-discovery/`. Before edits, isolated profile `before-{light,dark}-{1440,390}.png`; exact pre-pass copies of the four touched runtime/test files also retained there. :3000 planner.js/status404, :52255 both200; no process killed. Different origins have separate records, not lost/migrated records.
+
+Focused fake-provider composite exit0 (`focused.log`); preserved network/credential isolation, proposal/backup, estimates, no pre-Save writes/Start, exact aborted storage Retry/reload/reorder, denied mic and synthetic cleanup/late responses. Tests updated only discovery selectors and idle presentation assertions (now checks Record visible/Stop hidden), not dropped lifecycle assertions. Tool patch context-order failures were atomic/no edits; corrected contexts without reverting prior work.
+
+Final npm run check/test/build exit0; **51 Node tests, zero failures/skips** in final-test.log; static build test verifies exact nine assets/parity and fake-sentinel isolation. git diff --check exit0. Full retained+planner browser run **passed, exit0**, final-browser.log: all21 retained gates plus planner composite, including editor/end-block/compact and existing substantive network/credential/Retry/isolation/recording assertions. No runtime edit followed the final run. Additional comparison confirmed all nine :52255 served bytes equal source and build; configured:true is configuration presence only, not provider health.
+
+Additional `failures.log` exit0: actual unconfigured local fake/no-key server503 and synthetic microphone denial, both themes/desktop/phone screenshots, manual Save succeeds. No provider or physical microphone calls. Inspected screenshots show compact idle entry/manual route, native disclosure, separated transcript review, suggestions/unknown total/over-budget and recovery. Long expanded forms scroll naturally; no auto-expanded giant form or horizontal overflow. Final captures `final/discovery-{entry,description,applied,stop,transcribe}-{light,dark}-{1440,390}.png`, `final/planner-A-*.png` (proposal/unknown/over-budget), plus `failure-{unconfigured,microphone}-{light,dark}-{1440,390}.png`. Before captures are listed above. Final applied light phone includes adjacent not-saved confirmation; ready dark desktop shows only Transcribe/Discard. Keyboard apply focuses the manual heading; no render-wide focus jump. Assertions prove empty source/zero initial provider and media calls, collapse retention, explicit synthetic stages, no pre-Save writes and existing-goal/sample isolation.
+
+Pre-pass byte comparison confirms recorder implementation, proposal validator, planner state factory and estimated arithmetic unchanged. work.js adds only new-goal presentation/confirmation; CSS scoped. No unresolved defect found in this bounded pass; independent review, user acceptance and native limitations are not certified by these checks. Earlier focused capture receipt precedes the final adjacent transfer confirmation; use final/ for current review.
+
+## Stop boundary
+
+Preview http://127.0.0.1:52255/ on this Mac; old :3000 server is stale, left untouched. Human microphone/native Safari/device, owned-work return rehearsal, hosted-origin/security/billing gates and user visual decision remain separate. Initial live3-call budget stays exhausted. Next is Codex independent diff/capture review, not hosting/another feature.

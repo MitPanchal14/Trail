@@ -1,5 +1,23 @@
 # Design brief
 
+## Current capture / final polish
+
+One Trail family: shared near-white cool blue/indigo/violet archive wash, dark navy/charcoal equivalent, small priority accent rule with explicit words. Details cue has its own line in the title control; complete decorative peak has reserved space below copy. Focus is800px maximum with a stationary tabular countdown, restrained brand edge and asymmetric28s translational fields; Off freezes and reduced motion is static. Quiet capture controls lead to append or separate manual Later goal; queue stays on Today. Actual-pending only48px mountain-path SVG with2.6s blue-violet stroke sweep, one factual polite status, static reduced-motion path; no staged progress/delayed status timer. Fictional capture is labelled read-only and volatile. Current receipt FINAL_PRODUCT_POLISH_EVIDENCE.md supersedes pastel/archive/three-dot and20s descriptions below. Visual/physical/user acceptance remains separate.
+
+## Final screenshot corrections — current
+
+Reviewed AI proposal primary **Save this goal** with separate Start; optional secondary manual transfer. Pending-only compact blue/lilac/teal strip with static reduced-motion fallback. Softer pale priority families in light and muted raised dark surfaces; title has same-control View details cue, less dominant guarded Reopen, complete decorative peak/one ridge (not routeSVG). Calendar weekday column sizes to text, tiles remain14px. Single44px sun/crescent native theme button with action label; Today decorative top-right arrow hidden in both sources. Shared Focus surround uses softer colours/20s drift; card/countdown remain stationary, Off/reduced mechanisms retained. Summary widget/fictional AI scenario deferred to protect verification; no counting/terrain changes. Current captures/acceptance limits: FINAL_FEEDBACK_EVIDENCE.md.
+
+## Optional Gemini planner — retained composition
+
+Compact Plan with AI card and native collapsed Describe your goal above manual fields, not a chat reskin. One labelled text source with device-dictation guidance; no website audio controls. Restrained neutral raised surface, cool violet/cyan corner wash/edge and decorative Trail accent; no new animation/assets. Editable proposal, unknown/over-budget findings and recoverable manual draft remain. Apply collapses the AI disclosure, retains recovery and focuses Review and save your plan once. Native44px controls, visible focus, readable gradients and natural390px scroll; surrounding home/Focus/calendar/archive unchanged. Current captures/limits: AI_SIMPLIFY_EVIDENCE.md; user visual/device acceptance remains separate.
+
+## Bounded handoff / dark Focus correction — 26 October
+
+Preserve home/mountain/circle/calendar/priority/archive composition. Pause now uses one clear heading, concise stopped state and compact actual action, followed immediately by next-move capture and Save/Skip before native collapsed extras. Retain full long-text/removal/draft access; no global typography sweep. Equal trimmed saved/action text no longer repeats as an extra original-action row.
+
+Only dark Focus gains a raised blue-grey surface, restrained edge and controlled blue/violet peripheral light with 10s calm drift. Layout, timer/control positions and light styling remain retained. Off/reduced motion reuse existing freeze/settle mechanisms. Matching desktop/phone/time-separated captures are implementation evidence, not user/native Safari acceptance. The same fictional calendar's 8/42 records now use varied local dates and a historical three-day streak, clearly fictional, without changing heatmap semantics or adding features. Current results: HANDOFF_FOCUS_EVIDENCE.md; independent/user review required.
+
 ## Current judge-clarity revision — A/B/C implemented locally
 
 The user accepts the year grid. Preserve its spacing/density/count semantics and mountain/circle/card grid. New hierarchy: “Your productivity and focus companion” → “Pick up where you left off.” → explicit plan/focus/save body, Start working and always-visible three-entry ready-made demo panel. A Goal/Next move workshop preview is labelled fictional; returning real cues/counts remain genuine. Original blue/violet two-peak mark replaces the lightning-like glyph/favicon; Trail. wordmark retained.

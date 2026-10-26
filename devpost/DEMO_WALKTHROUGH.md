@@ -6,6 +6,10 @@ Final-demo revision: friend/public trials were **intentionally skipped by the us
 
 ## Setup
 
+Current optional setup flow: **Plan with AI → Describe your goal → type/paste or device dictation → Draft my trail → review/edit → Save this goal → Today → explicit Start**. No mandatory second confirmation. Optional Edit in manual form retains transfer/recovery for those who choose it; manual Save remains on that route. Correct dictated text before sending; Trail does not activate dictation, record or transcribe audio. AI is optional; safe errors/cancel retain manual creation. The two extra final live text checks are consumed; use labelled mocks/manual setup for rehearsal unless further calls are authorized. Unused audio infrastructure remains tested but is not the current product route.
+
+Final hosted origin, physical device/dictation checks, user acceptance, owned-reference rehearsal and recorded/public video URL remain pending. This document is a plan, not evidence those steps happened. The Node server is required for optional AI; static dist alone cannot provide its API.
+
 Run Node20+ `npm run dev`, or use the approved final HTTPS origin after deployment. `npm run build` produces `dist/`. No package installation or account is needed for the application. Use Chrome as the primary target. Verify IndexedDB and Web Locks are available before recording; see DEPLOYMENT_PREFLIGHT.md. Localhost records do not transfer to a hosted origin.
 
 Create this goal through the UI:

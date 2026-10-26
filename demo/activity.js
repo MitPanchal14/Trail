@@ -15,10 +15,19 @@ export function exampleRecords({now=Date.now(),timeZone=Intl.DateTimeFormat().re
   const w={goals:{},actions:{},contexts:{},sessions:{},intervals:{},openGoalId:null};
   const titles=['Prepare the workshop update','Publish the neighbourhood newsletter','Review community research','Learn accessible web design','Plan a kitchen garden','Organise family photographs','Write a short story','Prepare a learning journal'];
   const tasks=['Compare the two room options','Edit the opening paragraph','Summarise the interview notes','Check keyboard navigation','Choose the planting schedule','Label the selected photographs','Revise the closing scene','Write a clear reflection'];
+  // Resolve fictional local noon iteratively; UTC noon is not the same local date at +14.
+  const localParts=new Intl.DateTimeFormat('en-US',{timeZone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+  const localInstant=key=>{
+    const target=Date.parse(`${key}T12:00:00Z`);let timestamp=target;
+    for(let i=0;i<3;i++){const parts=localParts.formatToParts(timestamp),n=type=>Number(parts.find(p=>p.type===type).value);timestamp+=target-Date.UTC(n('year'),n('month')-1,n('day'),n('hour'),n('minute'),n('second'));}
+    return Math.min(now,timestamp);
+  };
   titles.forEach((title,i)=>{const id=`sample-goal-${i}`;w.goals[id]={id,title,definitionOfFinished:`${title}: a clear, reviewed version is ready to use.`,priority:['important','normal','low'][i%3],status:'completed',actionOrder:[],createdAt:0,updatedAt:0,completedAt:0};});
   calendar.months.forEach((month,i)=>{
-    const day=month.days[Math.min(14,month.days.filter(d=>!d.future).length-1)],timestamp=Math.min(now,Date.parse(`${day.key}T12:00:00Z`));
+    const available=month.days.filter(d=>!d.future),day=available[Math.min([5,12,9,21,7,18,24,11,3,16,26,8][i],available.length)-1];
     for(let j=0;j<[1,2,4,7][i%4];j++){
+      // Redistribute four existing actions over days 9–11 of a fully elapsed month.
+      const key=i===2?shiftDay(day.key,Math.max(0,j-1)):day.key,timestamp=localInstant(key);
       const index=(i+j)%titles.length,g=w.goals[`sample-goal-${index}`],id=`sample-action-${i}-${j}`;
       w.actions[id]={id,goalId:g.id,title:`${tasks[index]} — ${month.label}`,status:'completed',completedAt:timestamp,createdAt:timestamp,updatedAt:timestamp};g.actionOrder.push(id);g.completedAt=Math.max(g.completedAt,timestamp);g.updatedAt=g.completedAt;
       w.contexts[id]={id:`sample-context-${i}-${j}`,actionId:id,nextInstruction:'Read the agreed draft and check the next decision.',context:'Fictional work example. The draft and decision were reviewed in this scenario; no external activity was observed.',resourceUrl:'https://example.com/workshop#capacity',updatedAt:timestamp};

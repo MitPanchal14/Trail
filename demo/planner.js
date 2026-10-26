@@ -1,0 +1,103 @@
+// Browser planner; no server configuration or provider credentials belong here.
+const obj=v=>v&&typeof v==='object'&&!Array.isArray(v);
+const exact=(v,keys)=>obj(v)&&Object.keys(v).length===keys.length&&Object.keys(v).every(k=>keys.includes(k));
+const text=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.length<=max;
+export const planErrors=Object.freeze({
+  local_limit:'Trail’s planning limit is reached. Wait before trying again; manual creation still works.',
+  provider_limit:'Gemini’s request limit is reached. Retry later or check the project quota; manual creation still works.',
+  timeout:'Planning timed out. Try again explicitly or create manually.',
+  unconfigured:'Gemini is not configured on this server. Create your goal manually.',
+  upstream_unavailable:'Gemini is unavailable. Try again later or create manually.',
+  invalid_output:'Gemini returned an unusable or incomplete plan. Try again explicitly or create manually.',
+  invalid_input:'Check the description and optional planning fields, then try again.',
+  cancelled:'AI request cancelled. Your text and manual draft are kept.'
+});
+export function validateProposal(v){
+  if(!exact(v,['title','definition','actions','assumptions','conflicts'])||!text(v.title,160)||!text(v.definition,2000)||!Array.isArray(v.actions)||v.actions.length<1||v.actions.length>12||v.actions.some(a=>!exact(a,['title','estimatedMinutes'])||!text(a.title,500)||!(a.estimatedMinutes===null||Number.isInteger(a.estimatedMinutes)&&a.estimatedMinutes>=1&&a.estimatedMinutes<=1440))||['assumptions','conflicts'].some(k=>!Array.isArray(v[k])||v[k].length>3||v[k].some(s=>!text(s,300))))throw new Error('The proposal is incomplete or outside Trail’s limits. Your draft is unchanged.');
+  return structuredClone(v);
+}
+export function estimatedSummary(actions,budget=null){const known=actions.reduce((n,a)=>n+(a.estimatedMinutes??0),0),unknown=actions.filter(a=>a.estimatedMinutes==null).length;return `${known} estimated min${unknown?` + ${unknown} unknown estimate${unknown===1?'':'s'} (incomplete)`:' total'}${budget!=null?` · ${budget} min available${known>budget?' · Over estimated budget':''}`:''}`;}
+export function plannerState(){return {description:'',deadlineText:'',availableMinutes:'',proposal:null,backup:null,message:'',open:false,pending:false,appliedToManual:false,recordPhase:'idle',recordSeconds:0,transcript:null};}
+export function recordingHTML(s,e){return `<div class="recording"><p class="hint">Or record instead · up to 60 seconds / 2 MiB. Recording requests microphone permission and stays in memory.</p><div class="work-actions">${[['record','Record instead'],['stop','Stop recording'],['discard-audio','Discard recording'],['transcribe','Transcribe with Gemini']].map(([t,label])=>`<button class="button" type="button" data-plan="${t}">${label}</button>`).join('')}</div><p role="status" id="record-status">${s.recordPhase==='idle'?'':e(s.recordPhase)}${s.recordPhase==='recording'?` · ${s.recordSeconds}s / 60s`:''}</p>${['ready','transcribing'].includes(s.recordPhase)?'<p class="hint">Only Transcribe sends this recording to Gemini. Review the transcript for errors, then insert it; Draft my trail is a separate choice. Audio is not saved to records.</p>':''}${s.transcript!==null?`<h3>Review the transcript</h3><label for="plan-transcript">Editable transcript</label><textarea id="plan-transcript" maxlength="6000">${e(s.transcript)}</textarea><div class="work-actions"><button class="button" type="button" data-plan="insert-transcript">Append transcript to description</button><button class="text-button" type="button" data-plan="replace-transcript">Replace description with transcript</button><button class="text-button" type="button" data-plan="discard-transcript">Discard transcript</button></div>`:''}</div>`;}
+export function plannerHTML(s,e){
+  const p=s.proposal;
+  return `<section id="planner" aria-labelledby="planner-heading"><h2 id="planner-heading"><span class="planner-accent" aria-hidden="true">✧</span> Plan with AI</h2><p>Turn a rough idea into clear steps you can edit.</p><p class="hint">AI suggestions · Gemini API · optional</p>${s.appliedToManual?'<p id="planner-transfer-status" class="hint">Plan added to the editable fields below. Not saved yet.</p>':''}<details ${s.open?'open':''}><summary>${s.appliedToManual?'Review AI suggestion':'Describe your goal'}</summary>
+    <label for="plan-description">Describe your goal · up to 6,000 characters</label><textarea id="plan-description" maxlength="6000" placeholder="I need to prepare a five-slide presentation for tomorrow. I have 90 minutes and still need research, slides and a rehearsal.">${e(s.description)}</textarea>
+    <p class="hint">Type your goal, or use your device’s dictation. Correct the text before generating. Trail does not activate dictation; availability and processing depend on your device.</p>
+    <div class="planning-options"><div><label for="plan-deadline">Deadline (optional)</label><input id="plan-deadline" maxlength="160" value="${e(s.deadlineText)}"></div><div><label for="plan-budget">Time available in minutes (optional)</label><input id="plan-budget" type="number" min="1" max="10080" step="1" value="${e(s.availableMinutes)}"></div></div><p class="hint">These guide a suggestion, not calendar scheduling.</p>
+    <div class="work-actions"><button class="button primary" type="button" data-plan="generate">Draft my trail</button><button class="text-button" type="button" data-plan="cancel">Cancel AI request</button></div><p class="hint">Creates a suggestion. Nothing is saved or started.</p><p class="hint">Only this description and optional planning details are sent to Gemini. Saved work and history stay local.</p><details class="planner-privacy"><summary>Privacy and draft limits</summary><p class="hint">Gemini processes submitted text under its API terms; no zero-retention guarantee. Unsaved descriptions and drafts are memory-only and lost on reload. Manual creation works without Gemini. The website does not record or transcribe audio.</p></details>
+    <div class="planner-request" aria-busy="${s.pending}">${s.pending?'<svg class="planner-loading" viewBox="0 0 48 32" aria-hidden="true" focusable="false"><defs><linearGradient id="plan-path-color"><stop stop-color="#4167ec"/><stop offset="1" stop-color="#7849df"/></linearGradient></defs><path class="plan-path-base" d="M3 27L17 5L27 21L33 12L45 27"/><path class="plan-path-sweep" pathLength="100" d="M3 27L17 5L27 21L33 12L45 27"/></svg>':''}<p id="plan-status" role="status" aria-live="polite">${s.pending?'Drafting your plan…':e(s.message)}</p></div>${s.backup?'<div class="work-actions"><button class="button" type="button" data-plan="restore">Restore previous manual draft</button><button class="text-button" type="button" data-plan="forget-backup">Discard previous draft backup</button></div>':''}
+    <div id="plan-proposal">${p?`<h3>Review your suggested plan</h3><p class="hint">Not saved yet · estimates are suggestions, not a guarantee.</p><label for="proposal-title">Suggested goal</label><input id="proposal-title" maxlength="160" value="${e(p.title)}"><label for="proposal-definition">Observable finish condition</label><textarea id="proposal-definition" maxlength="2000">${e(p.definition)}</textarea><ol>${p.actions.map((a,i)=>`<li><label for="proposal-action-${i}">Suggested action ${i+1}</label><input id="proposal-action-${i}" data-proposal-title="${i}" maxlength="500" value="${e(a.title)}"><label for="proposal-estimate-${i}">Estimated minutes (blank = unknown)</label><input id="proposal-estimate-${i}" data-proposal-estimate="${i}" type="number" min="1" max="1440" step="1" value="${a.estimatedMinutes??''}"><div class="draft-controls">${['up','down','remove'].map(t=>`<button class="text-button" type="button" data-plan="${t}" data-plan-index="${i}" ${t==='up'&&i===0||t==='down'&&i===p.actions.length-1||t==='remove'&&p.actions.length===1?'disabled':''}>${t==='up'?'↑ Move up':t==='down'?'↓ Move down':'Remove'} suggestion ${i+1}</button>`).join('')}</div></li>`).join('')}</ol><button type="button" class="button" data-plan="add" ${p.actions.length>=12?'disabled':''}>Add suggested action</button><p class="hint" id="proposal-total">${e(estimatedSummary(p.actions,s.availableMinutes===''?null:Number(s.availableMinutes)))}</p>${['assumptions','conflicts'].map(k=>`<h3>${k==='assumptions'?'Assumptions to check':'Possible conflicts'}</h3><ul>${p[k].map(s=>`<li>${e(s)}</li>`).join('')}</ul>`).join('')}<div class="work-actions"><button type="button" class="button primary" data-plan="save">Save this goal</button><button type="button" class="text-button" data-plan="apply">Edit in manual form</button><button type="button" class="text-button" data-plan="discard">Discard suggestion</button></div><p class="hint">Saves this reviewed plan. Focus starts separately. Edit in manual form is an optional transfer with draft recovery.</p>`:''}</div></details></section>`;
+}
+export function createPlanner({getDraft,allowed,captureManual,render,applyManual,savePlan}){
+  let controller=null,token=0;
+  const state=()=>getDraft()?.planner;
+  const recorder=createRecording({state,allowed,changed:()=>{captureManual();render();},tick:()=>{const el=document.querySelector('#record-status');if(el)el.textContent=`Recording · ${state().recordSeconds}s / 60s`;}});
+  function capture(){const s=state(),root=document.querySelector('#planner');if(!s||!root)return;s.open=root.querySelector('details').open;for(const [key,id]of [['description','plan-description'],['deadlineText','plan-deadline'],['availableMinutes','plan-budget']])s[key]=root.querySelector('#'+id).value;if(s.proposal){s.proposal.title=root.querySelector('#proposal-title').value;s.proposal.definition=root.querySelector('#proposal-definition').value;s.proposal.actions.forEach((a,i)=>{a.title=root.querySelector(`[data-proposal-title="${i}"]`).value;const v=root.querySelector(`[data-proposal-estimate="${i}"]`).value;a.estimatedMinutes=v===''?null:Number(v);});}}
+  function cancel(){const s=state(),stopped=!!controller;token++;controller?.abort();controller=null;recorder.cancel();if(s){s.pending=false;if(stopped)s.message=planErrors.cancelled;}document.querySelector('.planner-loading')?.remove();document.querySelector('.planner-request')?.setAttribute('aria-busy','false');}
+  function sync(){document.querySelectorAll('#planner button').forEach(b=>{const t=b.dataset.plan;b.disabled=!allowed()||!!controller&&t!=='cancel'||t==='generate'&&!!state()?.proposal||['up','down','remove','add'].includes(t)&&b.hasAttribute('disabled');b.hidden=t==='cancel'&&!controller;});}
+  async function click(b){capture();captureManual();const s=state();if(!s)return;const type=b.dataset.plan;if(type==='cancel'){cancel();render();return;}if(!allowed())return;
+    if(type==='generate'){
+      if(controller||s.proposal)return;const budget=s.availableMinutes===''?null:Number(s.availableMinutes);if(!text(s.description,6000)||s.deadlineText.length>160||!(budget===null||Number.isInteger(budget)&&budget>=1&&budget<=10080)){s.message='Enter a description and valid available minutes, or use the manual fields.';render();return;}
+      const identity=getDraft();controller=new AbortController();const current=++token,signal=controller.signal;s.pending=true;s.message='Drafting your plan…';render();sync();
+      let failure='upstream_unavailable';
+      try{const r=await fetch('/api/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({description:s.description,deadlineText:s.deadlineText,availableMinutes:budget}),signal});failure='invalid_output';const raw=await r.text();if(raw.length>65536)throw Error();const data=JSON.parse(raw);if(!r.ok){failure=Object.hasOwn(planErrors,data.code)?data.code:r.status===504?'timeout':r.status===429?'provider_limit':r.status===503?'upstream_unavailable':'invalid_output';throw Error();}const proposal=validateProposal(data.proposal);if(current!==token||getDraft()!==identity||!allowed())return;s.proposal=proposal;s.message='Suggestion ready. Review and edit before saving.';}
+      catch{if(current===token&&getDraft()===identity)s.message=planErrors[signal.aborted?'cancelled':failure];}
+      finally{if(current===token){controller=null;s.pending=false;if(getDraft()===identity&&allowed())render();}}return;
+    }
+    if(type==='save'){
+      const budget=s.availableMinutes===''?null:Number(s.availableMinutes);
+      if(s.deadlineText.length>160||!(budget===null||Number.isInteger(budget)&&budget>=1&&budget<=10080)){s.message=planErrors.invalid_input;render();return;}
+      let p;try{p=validateProposal(s.proposal);}catch{s.message='Check the suggested title, finish condition, actions and estimates before saving.';render();return;}
+      await savePlan({title:p.title,definition:p.definition,planning:{deadlineText:s.deadlineText,availableMinutes:budget},actions:p.actions.map(a=>({id:crypto.randomUUID(),...a}))});return;
+    }
+    if(type==='discard'){s.proposal=null;s.appliedToManual=false;s.message='Suggestion discarded; manual draft unchanged.';}
+    else if(type==='restore'&&s.backup){applyManual(structuredClone(s.backup));s.backup=null;s.appliedToManual=false;s.message='Previous manual draft restored.';}
+    else if(type==='forget-backup')s.backup=null;
+    else if(type==='apply'){
+      const budget=s.availableMinutes===''?null:Number(s.availableMinutes);
+      if(s.deadlineText.length>160||!(budget===null||Number.isInteger(budget)&&budget>=1&&budget<=10080)){s.message='Correct the optional deadline text or available minutes before using this plan.';render();return;}
+      try{const p=validateProposal(s.proposal);captureManual();if(s.backup){s.message='Restore or explicitly discard the previous backup before replacing another draft.';render();return;}const d=getDraft();s.backup={title:d.title,definition:d.definition,priority:d.priority,planning:structuredClone(d.planning),actions:structuredClone(d.actions)};applyManual({title:p.title,definition:p.definition,planning:{deadlineText:s.deadlineText,availableMinutes:s.availableMinutes===''?null:Number(s.availableMinutes)},actions:p.actions.map(a=>({id:crypto.randomUUID(),...a}))});s.appliedToManual=true;s.open=false;s.message='Plan added to the editable fields. Not saved yet; review, then Save goal.';render();document.querySelector('#manual-plan-heading')?.focus();document.querySelector('#manual-plan-heading')?.scrollIntoView({block:'start',behavior:'instant'});return;}catch{s.message='Check the suggestion fields and estimates before using this plan.';}
+    }else if(s.proposal){const i=Number(b.dataset.planIndex),a=s.proposal.actions;if(type==='add'&&a.length<12)a.push({title:'',estimatedMinutes:null});if(type==='remove'&&a.length>1)a.splice(i,1);if(type==='up'&&i>0)[a[i-1],a[i]]=[a[i],a[i-1]];if(type==='down'&&i<a.length-1)[a[i],a[i+1]]=[a[i+1],a[i]];}
+    render();
+  }
+  return {capture,cancel,sync,click};
+}
+
+// In-memory recording only. Injection supports deterministic lifecycle tests, not fake production media.
+export function createRecording({state,allowed,changed,tick=()=>{},media=()=>navigator.mediaDevices,Recorder=()=>globalThis.MediaRecorder,every=setInterval,clear=clearInterval,now=()=>performance.now(),transport=fetch}){
+  let epoch=0,stream=null,recorder=null,timer=null,chunks=[],size=0,blob=null,request=null;
+  const tracks=()=>{stream?.getTracks().forEach(t=>t.stop());stream=null;};
+  function cancel(){epoch++;request?.abort();request=null;clear(timer);timer=null;tracks();if(recorder?.state==='recording')try{recorder.stop();}catch{}recorder=null;chunks=[];size=0;blob=null;const s=state();if(s)s.recordPhase='idle';}
+  function stop(){if(recorder?.state!=='recording')return;state().recordPhase='stopping';clear(timer);timer=null;tracks();try{recorder.stop();}catch{cancel();state().message='Recording failed. Typing still works.';changed();}}
+  async function click(type){
+    if(type==='discard-audio'){cancel();state().message='Recording discarded. Nothing sent.';changed();return;}
+    if(type==='stop'){stop();return;}
+    if(type==='record'){
+      if(['permission','recording','stopping','transcribing'].includes(state().recordPhase))return;cancel();const s=state(),id=epoch,R=Recorder();
+      const mime=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'].find(t=>R?.isTypeSupported?.(t));
+      if(!mime||!media()?.getUserMedia){s.message='No compatible microphone recorder is available. Type your description instead.';changed();return;}
+      s.recordPhase='permission';s.message='Waiting for microphone permission…';changed();
+      try{
+        const received=await media().getUserMedia({audio:true});if(id!==epoch||!allowed()||state()!==s){received.getTracks().forEach(t=>t.stop());return;}stream=received;
+        recorder=new R(stream,{mimeType:mime});const actual=recorder.mimeType||mime;
+        if(!['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'].includes(actual))throw Error('format');
+        recorder.ondataavailable=event=>{if(id!==epoch||!event.data?.size)return;size+=event.data.size;if(size>2*1024*1024){cancel();s.message='Recording exceeded 2 MiB and was discarded. Try a shorter recording or type.';changed();return;}chunks.push(event.data);};
+        recorder.onerror=()=>{if(id!==epoch)return;cancel();s.message='Microphone recording failed. Type or explicitly record again.';changed();};
+        recorder.onstop=()=>{if(id!==epoch)return;tracks();clear(timer);timer=null;recorder=null;blob=new Blob(chunks,{type:actual});chunks=[];size=0;s.recordPhase=blob.size?'ready':'idle';s.message=blob.size?'Recording ready locally. Choose Transcribe to send it to Gemini.':'No audio captured. Type or record again.';changed();};
+        recorder.start(250);s.recordSeconds=0;s.recordPhase='recording';s.message='Recording microphone audio. Stop or discard when ready.';const start=now();timer=every(()=>{if(id!==epoch)return;s.recordSeconds=Math.min(60,Math.floor((now()-start)/1000));tick();if(s.recordSeconds>=60)stop();},250);changed();
+      }catch{if(id!==epoch)return;cancel();s.message='Microphone permission or device unavailable. Your typed description is kept.';changed();}return;
+    }
+    if(type==='transcribe'&&blob&&state().recordPhase==='ready'){
+      const s=state(),id=epoch,audioBlob=blob;request=new AbortController();const signal=request.signal;s.recordPhase='transcribing';s.message='Transcribing with Gemini…';changed();
+      try{
+        const bytes=new Uint8Array(await audioBlob.arrayBuffer());let binary='';for(let offset=0;offset<bytes.length;offset+=8192)binary+=String.fromCharCode(...bytes.subarray(offset,offset+8192));
+        if(id!==epoch||!allowed())return;
+        const r=await transport('/api/transcribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mimeType:audioBlob.type,audio:btoa(binary)}),signal});if(!r.ok)throw Error('transcription');const raw=await r.text();if(raw.length>65536)throw Error('size');const v=JSON.parse(raw);if(!exact(v,['transcript'])||typeof v.transcript!=='string'||v.transcript.length>6000)throw Error('shape');if(id!==epoch||state()!==s||!allowed())return;
+        s.transcript=v.transcript.trim()?v.transcript:null;s.message=v.transcript.trim()?'Transcript ready separately. Edit it, then explicitly insert or replace the description.':'No clear speech returned. Nothing was inserted; type or record again.';s.recordPhase='ready';
+      }catch{if(id===epoch){s.recordPhase='ready';s.message='Transcription failed. Description kept; explicitly retry Transcribe or type.';}}
+      finally{if(id===epoch){request=null;if(allowed())changed();}}
+    }
+  }
+  return {click,cancel};
+}
