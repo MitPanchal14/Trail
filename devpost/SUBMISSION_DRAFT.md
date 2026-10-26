@@ -16,6 +16,8 @@ The same situation can arise while preparing an update, writing an assignment or
 
 ## What it does
 
+Optional new-goal setup uses typed/pasted text or the user's device dictation (device-dependent, not activated by Trail). Generate a suggestion with Gemini, review/edit actions and estimates, apply to editable manual fields, then explicitly Save goal and Start separately. Manual creation works without AI. The current website does not record/transcribe audio. Retained unused audio helper/renderer and transcription endpoint are infrastructure, not a current product feature. Estimates/deadline text guide suggestions, not guaranteed schedules or recorded effort.
+
 Create one open goal, define what finished means and choose ordered actions. Start focus explicitly. Pause to save a next move, optional context and one work link. Return to the saved instruction, open the reference when you want, and choose Resume separately.
 
 First-use Try a saved place opens a clearly isolated, stopped fictional example without adding real work. Copy saved place in real Today or Focus produces a full plain-text handoff from committed values, with manual-copy fallback if clipboard access fails. It is a copy convenience, not sync or backup. End focus block lets stopped work remain unfinished while freeing valid replanning; a later Start is a fresh explicit block.
@@ -30,11 +32,11 @@ Trail brings a concrete return instruction, optional reference, explicit focus c
 
 ## How it was built
 
-One static application uses browser JavaScript modules, HTML and CSS with custom SVG terrain. Node20+ serves/builds eight allowlisted assets including a pure activity helper; the application has no package dependencies or backend. A canonical transition engine validates goals, actions, sessions, notes and events. IndexedDB commits publish successful state only after the transaction completes. Web Locks gives one tab writer ownership. Exact operation receipts make retries idempotent.
+One application uses browser JavaScript modules, HTML/CSS and custom SVG terrain, with nine allowlisted public assets and no application package dependencies. Node serves the optional server-only Gemini text proxy; static-only hosting cannot provide AI. Server credentials never belong in browser assets. A canonical transition engine validates goals/actions/sessions/notes/events. IndexedDB commits before publishing successful state; Web Locks gives one writer and operation receipts make Retry idempotent. Public-host abuse/cost controls and final-origin verification remain pending.
 
 The latest local increments add explicit saved-text removal (blank/Skip still preserve), twelve named browser-local months with accessible date selection and on-demand exact day tasks, current/best streaks and highest/next 1/5/10/25 milestone. A compact two-column desktop/one-column phone archive starts newest eight + Show more; titles open full read-only saved work dialogs. Optional goal Priority changes explicit label/card palette only (Low/Normal/Important), not action order or urgency scoring. Currently checked actions alone count, including corrections; this is not external tracking or proof of attention/productivity.
 
-Home now explains the productivity/focus benefit and exposes a labelled ready-made demo panel even for returning users. The shared fictional year/archive has eight realistic goals, mixed priorities/all intensity levels/gaps and exact sample day details; gallery includes stopped saved return, explicit simulated Focus/Pause/End, labelled interruption, review vs finished, long and empty examples. Samples remain in memory and never become real records. Sample correction/link-editor limitations are explicit. Independent/user review remains pending; dark Focus redesign, native-browser/device checks, publication, recording and submission are not established by local examples/tests.
+Home explains the productivity/focus benefit and exposes a labelled ready-made demo panel even for returning users. Shared fictional year/archive/gallery remain in memory and never become real records; simulated timing and correction/link-editor limitations are explicit. The scoped dark Focus surface is implemented locally. Independent review of the latest AI pass, user acceptance, native/device checks, publication, video recording and submission remain pending; local examples/tests do not establish them.
 
 Timing uses conservative wall/monotonic checks. Uncertain gaps and reopening require explicit Resume, with no unverified away-time credit. Fictional examples are labelled and kept outside the real records. Animation updates only presentation and can be cancelled without changing outcomes.
 
@@ -50,7 +52,7 @@ The visual response also needed restraint: one expedition on the existing path, 
 
 The local prototype supports the complete create → focus → save place → reload → explicit Resume → complete → review → finish → revisit loop. It includes local storage, writer ownership, guarded corrections, safe optional references, bounded long-note controls and a cancellable travelling marker/campsite presentation.
 
-The current 25 Node tests pass. Focused Chromium checks cover discovery isolation, native clipboard success and controlled denial/unavailability, committed full-text copying, read-only/error/Retry safety and the retained marker/lifecycle contracts. See FINAL_DEMO_PASS_EVIDENCE.md for the final combined result and captures; do not substitute this draft for evidence. Scripted acceptance is not evidence of human usefulness or physical sleep/background behavior.
+Consult AI_SIMPLIFY_EVIDENCE.md for the latest actual test count/results and current UI capture paths; earlier counts are dated checkpoints, not current guarantees. Mocked browser checks and unit tests do not establish human usefulness, physical-device/dictation behavior, user acceptance or hosted readiness.
 
 ## Lessons
 
@@ -58,17 +60,17 @@ Completion, saved context and effort need distinct meanings. A return note can b
 
 ## Future work
 
-Observe real interruption/return use and revise the experience around actual confusion. Verify physical Chrome/Mac and phone behavior. Consider export/backup and sync only with an explicit data/recovery design. Reminders, audio, AI planning and extra mountain themes remain ideas, not current features.
+Observe real interruption/return use, verify physical Chrome/Mac/phone and device dictation, then consider backup/sync only with a recovery design. AI text planning is implemented locally; reminders, website audio capture and extra mountain themes are not current product features.
 
 ## Known limits
 
-Records are local to a browser and origin; clearing site data can lose them. There is no sync, import/restore, account, backend, AI, notification service or external activity capture. Timing is conservative recorded effort, with bounded detectable gaps and possible loss of the last uncommitted tail. Physical sleep/wake, unrestricted background behavior and phone hardware remain unverified. The travelling marker has no human visual acceptance yet.
+Records are browser/origin-local; clearing site data can lose them. No sync, import/restore, account, notifications or external activity capture. Optional AI sends explicitly supplied text to Gemini through the Node server; it can be wrong and requires review. No website audio recording/transcription UI. Timing is conservative with possible uncommitted-tail loss. Physical sleep/background/phone/device dictation, user visual acceptance, final deployment URL and public video remain pending.
 
 ## Submission fields to finish — internal notes, remove from public description
 
 | Field/decision | Current evidence / required action |
 | --- | --- |
-| Public source / Try it out | Connector reports `MitPanchal14/Trail` **private**, default branch `main`; current implementation source is `codex/trail-redesign` at `041fe89…` plus this cloud diff. No new source checkpoint published. User must authorize source checkpoint/public access and ensure judges reach current source, not old main. |
+| Public source / Try it out | Local work is on `codex/trail-redesign`, reviewed baseline `2d53bc1` plus uncommitted changes. No source checkpoint/public access was published or freshly verified in this pass. Prior connector metadata is historical. User must authorize and verify public access to the accepted current source rather than assume main contains it. |
 | Hosted app | No final origin selected/verified. Follow DEPLOYMENT_PREFLIGHT.md after user authorization. Do not invent a demo URL. |
 | Video | Script only; record/upload, verify public YouTube/Vimeo access and actual duration. |
 | Recording reference | Pending user-owned document/section URL. example.com is a labelled rehearsal placeholder, not evidence of real work. No external document created/published. |

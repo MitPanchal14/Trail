@@ -2,6 +2,7 @@ import { emptyWorkspace, openGoal, nextAction, activeSession, effort, transition
 import { LocalStore } from './storage.js';
 import { sample, CHECKPOINT_MS } from './timing.js';
 import { deriveActivity, dayKey, shiftDay } from './activity.js';
+import { createPlanner, plannerHTML, plannerState, estimatedSummary } from './planner.js';
 
 export async function bootWork(ui){
   const {$,main,escapeHTML:e,formatTime}=ui;
@@ -83,6 +84,11 @@ export async function bootWork(ui){
   const instruction=()=>context()?.nextInstruction||action()?.title||'Review your goal.';
   const running=()=>session()?.status==='running'&&!frozen&&!suspended;
   const disabled=()=>!ready||!store.writer||busy||!!pending;
+  const planner=createPlanner({getDraft:()=>draft,allowed:()=>real&&view==='edit'&&draft?.goalId===null&&!disabled(),captureManual:captureDraft,render:()=>render(),applyManual:fields=>Object.assign(draft,fields)});
+  document.addEventListener('input',event=>{if(real&&draft?.planner&&['plan-description','plan-deadline','plan-budget'].includes(event.target.id)){draft.planner.appliedToManual=false;const h=$('#manual-plan-heading');if(h)h.textContent='Or build your plan manually';$('#manual-transfer-status')?.remove();$('#planner-transfer-status')?.remove();const summary=$('#planner>details>summary');if(summary)summary.textContent='Describe your goal';}});
+  document.addEventListener('input',event=>{if(real&&draft&&event.target.closest('#goal-form')){captureDraft();const summary=$('.estimated-summary');if(summary)summary.textContent=estimatedSummary(draft.actions,draft.planning?.availableMinutes);}});
+  document.addEventListener('input',event=>{if(real&&draft?.planner&&event.target.id==='plan-transcript')draft.planner.transcript=event.target.value;});
+  document.addEventListener('input',event=>{if(real&&event.target.closest('#planner')){planner.capture();const s=draft?.planner,total=$('#proposal-total');if(total&&s?.proposal)total.textContent=estimatedSummary(s.proposal.actions,s.availableMinutes===''?null:Number(s.availableMinutes));}});
   const button=(text,type,primary=false)=>`<button type="button" class="button ${primary?'primary':''}" data-work="${type}" ${disabled()?'disabled':''}>${text}</button>`;
   const heading=(title,sub='')=>`<div class="page-heading"><div><h1>${e(title)}</h1><p class="muted">${e(sub)}</p></div><span class="date">${e(new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))} · local work</span></div>`;
   const label=()=>`<p class="goal-label"><span class="goal-icon" aria-hidden="true">↗</span>${e(goal().title)}</p>`;
@@ -137,6 +143,7 @@ export async function bootWork(ui){
     validationError=null;error='';return true;
   }
   function status(){
+    if(disabled()){planner.capture();planner.cancel();}planner.sync();
     const box=$('#storage-status');
     box.innerHTML=error?`<strong role="alert">Not saved${validationError?'':' / real timing stopped'}: ${e(error)}</strong><p>${validationError?'Correct the fields and save again. Your draft is unchanged.':'Keep this page open. Your draft is unchanged. Reload recovers only the last committed checkpoint.'}</p>${!validationError?`<button class="button" data-work="retry">Retry ${pending?'save':'storage'}</button>`:''}<button class="text-button" data-work="export" ${store.raw===null?'disabled':''}>Export raw local records</button>`:!ready?'Opening local storage…':!store.writer?'Open in another tab. This tab is read-only. Close the writer tab, then <button class="text-button" data-work="ownership">Retry ownership</button>.':busy?'Saving…':session()?.interruptionReason?e(session().interruptionReason):'';
     box.hidden=!real||!box.innerHTML;
@@ -209,7 +216,7 @@ export async function bootWork(ui){
   function correction(){return workspace.actions[selected]?.status==='completed'?`<p class="hint">Correct a checked action without changing its recorded effort. ${session()?'Finish the current block/action before reopening another.':''}</p>${button('Reopen selected action','reopen-action')}`:'';}
   function historyAction(id){
     const source=archiveSource(),c=source.contexts[id],a=source.actions[id];
-    return `<div class="finished-action"><h3>✓ ${e(a.title)}</h3><p>Completed ${e(new Date(a.completedAt).toLocaleString())}</p>${savedAt(c)}${workLink(c)}${c?`<p>${e([c.nextInstruction,c.context].filter(Boolean).join('\n'))}</p>`:''}</div>`;
+    return `<div class="finished-action"><h3>✓ ${e(a.title)}</h3>${a.estimatedMinutes!=null?`<p>${a.estimatedMinutes} estimated min · not recorded effort</p>`:''}<p>Completed ${e(new Date(a.completedAt).toLocaleString())}</p>${savedAt(c)}${workLink(c)}${c?`<p>${e([c.nextInstruction,c.context].filter(Boolean).join('\n'))}</p>`:''}</div>`;
   }
   const finishedGoals=()=>Object.values(archiveSource().goals).filter(g=>g.status==='completed').sort((a,b)=>b.completedAt-a.completedAt);
   function archiveCards(goals){
@@ -220,6 +227,7 @@ export async function bootWork(ui){
     historyInvoker=invoker;$('#history-detail-title').textContent=g.title;
     $('#history-detail-body').innerHTML=`<p>${real?'Read-only completed work':'Fictional example · read-only sample work'}</p><p>${e(g.definitionOfFinished)}</p><p>Priority: ${e(g.priority??'normal')} · Completed ${e(new Date(g.completedAt).toLocaleString())}</p>${g.actionOrder.map(historyAction).join('')}<p class="hint">Real work corrections preserve IDs, context and recorded effort.</p>`;
     $('#history-detail').showModal();$('#history-detail-close').focus();
+    if(real&&Object.hasOwn(g,'planning'))$('#history-detail-body').insertAdjacentHTML('afterbegin',`<p class="hint">${e(estimatedSummary(g.actionOrder.map(id=>workspace.actions[id]),g.planning?.availableMinutes))} · planning only</p>`);
   }
   $('#history-detail-close').addEventListener('click',()=>$('#history-detail').close());
   $('#history-detail').addEventListener('close',()=>{if(historyInvoker?.isConnected)historyInvoker.focus({preventScroll:true});historyInvoker=null;});
@@ -250,6 +258,12 @@ export async function bootWork(ui){
     if(view==='finished')$('.finished-grid').insertAdjacentHTML('beforebegin',`<h2 id="finished-goals" tabindex="-1">Finished goals (${finishedGoals().length})</h2>`);
     $('#real-duration')&&($('#real-duration').value=String(duration));
     if(view==='edit'&&draft){
+      $('#goal-form').insertAdjacentHTML('afterbegin',`<details id="planning-context"><summary>Estimated planning context (optional)</summary><label for="planning-deadline">Deadline text · not a scheduled date</label><input id="planning-deadline" maxlength="160" value="${e(draft.planning?.deadlineText||'')}"><label for="planning-budget">Available minutes · estimated budget</label><input id="planning-budget" type="number" min="1" max="10080" step="1" value="${draft.planning?.availableMinutes??''}"></details>`);
+      for(const a of draft.actions)$(`[data-draft-id="${a.id}"]`).insertAdjacentHTML('afterend',`<label for="estimate-${a.id}">Estimated minutes (optional, blank = unknown)</label><input id="estimate-${a.id}" data-estimate-id="${a.id}" type="number" min="1" max="1440" step="1" value="${a.estimatedMinutes??''}">`);
+      $('#action-drafts').insertAdjacentHTML('afterend',`<p class="hint estimated-summary" aria-live="polite">${e(estimatedSummary(draft.actions,draft.planning?.availableMinutes))}</p>`);
+      if(draft.goalId===null)$('#goal-form').insertAdjacentHTML('beforebegin',plannerHTML(draft.planner,e));
+      if(draft.goalId===null)$('#goal-form').insertAdjacentHTML('beforebegin',`<h2 id="manual-plan-heading" tabindex="-1">${draft.planner.appliedToManual?'Review and save your plan':'Or build your plan manually'}</h2><p class="hint">Edit these fields, then Save goal. Start focus remains separate.</p>`);
+      if(draft.goalId===null&&draft.planner.appliedToManual)$('#manual-plan-heading').insertAdjacentHTML('afterend','<p id="manual-transfer-status" class="hint" role="status">Plan added to these editable fields. Not saved yet.</p>');
       $('#goal-definition').insertAdjacentHTML('afterend',`<label for="goal-priority">Priority</label><select id="goal-priority" aria-describedby="priority-help">${['low','normal','important'].map(p=>`<option value="${p}" ${p===draft.priority?'selected':''}>${p[0].toUpperCase()+p.slice(1)}</option>`).join('')}</select><p id="priority-help" class="hint">Changes the label and card colour; action order stays yours.</p>`);
       const recorded=new Set([...Object.keys(workspace.contexts),...Object.values(workspace.sessions).map(s=>s.actionId),...Object.values(workspace.events||{}).map(e=>e.actionId)]);
       main.querySelectorAll('[data-draft="remove"]').forEach(b=>{
@@ -257,6 +271,11 @@ export async function bootWork(ui){
         b.disabled=true;const explanation=document.createElement('p');explanation.id=`protected-${b.dataset.id}`;explanation.className='hint';explanation.textContent='This action has saved context or recorded work and can’t be removed.';b.setAttribute('aria-describedby',explanation.id);b.closest('.action-draft').append(explanation);
       });
       $('#goal-form h3').nextElementSibling.textContent+=' Actions with saved context or recorded work can’t be removed.';
+    }
+    if(['today','journey'].includes(view)&&goal()){
+      const actions=goal().actionOrder.map(id=>workspace.actions[id]);
+      if(view==='journey')$('.records').insertAdjacentHTML('afterbegin',`<section class="estimated-journey"><h2>Estimated action sequence</h2><p>${e(estimatedSummary(actions,goal().planning?.availableMinutes))}</p>${goal().planning?.deadlineText?`<p>Deadline context (not scheduled): ${e(goal().planning.deadlineText)}</p>`:''}<ol>${actions.map(a=>`<li>${e(a.title)} · ${a.estimatedMinutes==null?'Estimated time unknown':`${a.estimatedMinutes} estimated min`}</li>`).join('')}</ol><p class="hint">Planning suggestions only; not recorded effort or timer allocation.</p></section>`);
+      else if(action()?.estimatedMinutes!=null)$('.action-area .step-label')?.insertAdjacentHTML('afterend',`<p class="hint">${action().estimatedMinutes} estimated min for this action · not measured effort</p>`);
     }
     if(view==='pause'&&pauseDraft&&action()&&pauseDraft.actionId===action().id){
       $('#return-note').value=pauseDraft.instruction;$('#pause-context').value=pauseDraft.context;
@@ -267,10 +286,10 @@ export async function bootWork(ui){
       $('#return-note').readOnly=!!pauseDraft.removeInstruction;$('#pause-context').readOnly=!!pauseDraft.removeContext;
       $('#work-url').readOnly=pauseDraft.removeResource;
     }
-    $('.footer').innerHTML='<span>Real records stored in this browser on this site address. Geometry is illustrative.</span><span>No sync. Clearing site data can lose records. No reminders, AI or PiP.</span>';
+    $('.footer').innerHTML='<span>Real records stored in this browser on this site address. Geometry is illustrative.</span><span>No sync. Optional new-goal Gemini assistance sends only what you explicitly submit. No reminders or PiP.</span>';
     ui.updateMotion();status();if(moveFocus){main.focus({preventScroll:true});window.scrollTo(0,0);}
   }
-  function go(next){if(pending||busy)return;captureDraft();capturePauseDraft();if($('#review').open)$('#review').close();if($('#history-detail').open)$('#history-detail').close();ui.closeReward();if(next==='finished'&&view!=='finished')dayActionsOpen=false;view=next;render(true);}
+  function go(next){if(pending||busy)return;captureDraft();planner.capture();if(next!=='edit')planner.cancel();capturePauseDraft();if($('#review').open)$('#review').close();if($('#history-detail').open)$('#history-detail').close();ui.closeReward();if(next==='finished'&&view!=='finished')dayActionsOpen=false;view=next;render(true);}
   async function write(cmd,onSuccess,{background=false}={}){
     if(disabled())return false;
     try{transition(workspace,cmd,Date.now());}catch(err){
@@ -299,7 +318,7 @@ export async function bootWork(ui){
       await write(cmd,()=>go('pause'));
     }else if(action())go('pause');
   }
-  function captureDraft(){if(!draft||!$('#goal-form'))return;draft.title=$('#goal-title').value;draft.definition=$('#goal-definition').value;draft.priority=$('#goal-priority').value;draft.actions.forEach(a=>{a.title=$(`[data-draft-id="${a.id}"]`).value;});}
+  function captureDraft(){if(!draft||!$('#goal-form'))return;draft.title=$('#goal-title').value;draft.definition=$('#goal-definition').value;draft.priority=$('#goal-priority').value;draft.actions.forEach(a=>{a.title=$(`[data-draft-id="${a.id}"]`).value;const v=$(`[data-estimate-id="${a.id}"]`).value;a.estimatedMinutes=v===''?null:Number(v);});const deadlineText=$('#planning-deadline').value,v=$('#planning-budget').value;draft.planning=deadlineText||v?{deadlineText,availableMinutes:v===''?null:Number(v)}:null;}
   function capturePauseDraft(){
     if(!$('#real-pause-form')||!action())return;
     pauseDraft={actionId:action().id,instruction:$('#return-note').value,context:$('#pause-context').value,resourceUrl:$('#work-url').value,removeResource:$('#remove-resource')?.checked||false,removeInstruction:$('#remove-instruction')?.checked||false,removeContext:$('#remove-context')?.checked||false,extrasOpen:$('#pause-extras').open};
@@ -311,7 +330,7 @@ export async function bootWork(ui){
   }
   async function changeMode(toReal,entry='saved'){
     if(busy||pending){error='Finish or retry the pending save before changing modes.';status();return;}
-    if(real){captureDraft();capturePauseDraft();captureActivity();captureArchive();realArchivePresentation={activityDate,activityInput,activityHelp,archiveLimit,dayActionsOpen};}
+    if(real){captureDraft();planner.capture();planner.cancel();capturePauseDraft();captureActivity();captureArchive();realArchivePresentation={activityDate,activityInput,activityHelp,archiveLimit,dayActionsOpen};}
     if(!toReal&&running()){
       const cmd=timed('pause');frozen=true;anchor=null;
       if(!await write(cmd,()=>{}))return;
@@ -333,6 +352,7 @@ export async function bootWork(ui){
       b.hidden=count===goals.length;if(b.hidden)$('#archive-count').focus({preventScroll:true});return;
     }
     if(!real)return;
+    if(b.dataset.plan){await planner.click(b);return;}
     if(b.dataset.demoEntry){await changeMode(false,b.dataset.demoEntry);return;}
     if(b.hasAttribute('data-example-entry')){await changeMode(false);return;}
     if(b.dataset.copyPlace){await copySavedPlace(b);return;}
@@ -382,8 +402,8 @@ export async function bootWork(ui){
     }
     if(disabled())return;
     if(type==='create'||type==='edit'){
-      if(running())return;const g=goal();if(!draft||draft.goalId!==(g?.id||null))draft={goalId:g?.id||null,title:g?.title||'',definition:g?.definitionOfFinished||'',priority:g?.priority??'normal',actions:g?g.actionOrder.map(id=>({id,title:workspace.actions[id].title})):[{id:crypto.randomUUID(),title:''}]};go('edit');$('#goal-title')?.focus();
-    }else if(type==='cancel'){clearFormValidation('goal-form');draft=null;go('today');}
+      if(running())return;const g=goal();if(!draft||draft.goalId!==(g?.id||null))draft={goalId:g?.id||null,title:g?.title||'',definition:g?.definitionOfFinished||'',priority:g?.priority??'normal',planning:structuredClone(g?.planning??null),planner:plannerState(),actions:g?g.actionOrder.map(id=>({id,title:workspace.actions[id].title,estimatedMinutes:workspace.actions[id].estimatedMinutes??null})):[{id:crypto.randomUUID(),title:''}]};go('edit');$('#goal-title')?.focus();
+    }else if(type==='cancel'){clearFormValidation('goal-form');planner.cancel();draft=null;go('today');}
     else if(type==='start')await write(command('start',{minutes:duration}),()=>go('focus'));
     else if(type==='resume')await write(command('resume'),()=>go('focus'));
     else if(type==='pause')await stopForNotes();
@@ -408,7 +428,7 @@ export async function bootWork(ui){
   });
   document.addEventListener('change',event=>{if(real&&event.target.id==='real-duration')duration=Number(event.target.value);});
   $('#review').addEventListener('cancel',event=>{if(!real)return;event.preventDefault();if(!pending&&!busy){$('#review').close();$('[data-work="review"]')?.focus();}});
-  document.addEventListener('input',event=>{if(!real)return;if(clearFormValidation(event.target.closest('form')?.id))status();if(event.target.closest('#real-pause-form')){capturePauseDraft();$('#work-url').readOnly=pauseDraft.removeResource;$('#return-note').readOnly=pauseDraft.removeInstruction;$('#pause-context').readOnly=pauseDraft.removeContext;}});
+  document.addEventListener('input',event=>{if(!real)return;if(event.target.closest('#planner'))planner.capture();if(event.target.closest('#goal-form'))captureDraft();if(clearFormValidation(event.target.closest('form')?.id))status();if(event.target.closest('#real-pause-form')){capturePauseDraft();$('#work-url').readOnly=pauseDraft.removeResource;$('#return-note').readOnly=pauseDraft.removeInstruction;$('#pause-context').readOnly=pauseDraft.removeContext;}});
   document.addEventListener('toggle',event=>{if(real&&event.target.id==='pause-extras')capturePauseDraft();},true);
   document.addEventListener('keydown',event=>{
     if(!real||event.isComposing||event.keyCode===229||event.key!=='Enter'||!(event.metaKey||event.ctrlKey)||event.altKey||event.shiftKey)return;
@@ -424,7 +444,7 @@ export async function bootWork(ui){
     }
     if(!real)return;
     if(event.target.id==='goal-form'){
-      event.preventDefault();if(disabled())return;captureDraft();await write(command('save-goal',{goalId:draft.goalId,title:draft.title,definition:draft.definition,priority:draft.priority,actions:structuredClone(draft.actions)}),()=>{draft=null;selected=action()?.id;go('today');});
+      event.preventDefault();if(disabled())return;captureDraft();await write(command('save-goal',{goalId:draft.goalId,title:draft.title,definition:draft.definition,priority:draft.priority,planning:structuredClone(draft.planning),actions:structuredClone(draft.actions)}),()=>{draft=null;selected=action()?.id;go('today');});
     }else if(event.target.id==='real-pause-form'){
       event.preventDefault();capturePauseDraft();await write(command('notes',{instruction:pauseDraft.removeInstruction?'':pauseDraft.instruction,context:pauseDraft.removeContext?'':pauseDraft.context,removeInstruction:pauseDraft.removeInstruction,removeContext:pauseDraft.removeContext,resourceUrl:pauseDraft.removeResource?null:pauseDraft.resourceUrl}),()=>{go('today');pauseDraft=null;});
     }else if(event.target.id==='add-form'){
@@ -442,9 +462,11 @@ export async function bootWork(ui){
       await write(cmd,null,{background:true});
     }
   },250);
-  window.addEventListener('pagehide',()=>{suspended=true;needsRecovery=true;frozen=true;anchor=null;});
+  window.addEventListener('pagehide',()=>{planner.capture();planner.cancel();suspended=true;needsRecovery=true;frozen=true;anchor=null;});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&real&&view==='edit'&&draft){captureDraft();planner.capture();planner.cancel();render();}});
   window.addEventListener('pageshow',async event=>{
     if(!event.persisted)return;suspended=false;frozen=true;anchor=null;
+    if(real&&view==='edit'&&draft)render();
     if(store.writer&&ready&&!pending&&!busy&&session()?.status==='running')await write(command('recover'),()=>render());
     else if(!busy&&!pending&&session()?.status!=='running')needsRecovery=false;
   });

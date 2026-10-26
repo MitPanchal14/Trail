@@ -5,6 +5,11 @@ const fail=message=>{throw new Error(message);};
 const validId=id=>typeof id==='string'&&/^[a-zA-Z0-9:-]{1,120}$/.test(id);
 const integer=n=>Number.isSafeInteger(n)&&n>=0;
 const text=(value,max,required=true)=>typeof value==='string'&&value.length<=max&&(!required||value.trim().length>0);
+function validateEstimate(value){if(!(value===null||Number.isInteger(value)&&value>=1&&value<=1440))fail('Estimated minutes must be blank or a whole number from 1 to 1,440.');}
+function validatePlanning(value){
+  if(value===null)return;
+  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==2||!Object.hasOwn(value,'deadlineText')||!Object.hasOwn(value,'availableMinutes')||!text(value.deadlineText,160,false)||!(value.availableMinutes===null||Number.isInteger(value.availableMinutes)&&value.availableMinutes>=1&&value.availableMinutes<=10080))fail('Planning context needs deadline text and optional whole available minutes (1–10,080).');
+}
 const values=map=>Object.values(map);
 export function normalizeResourceUrl(value){
   const message='Use a full http:// or https:// work link, without sign-in details, up to 2,048 characters.';
@@ -36,6 +41,7 @@ export function validate(w){
   let open=0;
   for(const [key,g] of Object.entries(w.goals)){
     checkRecord(key,g);
+    if(Object.hasOwn(g,'planning'))validatePlanning(g.planning);
     if(Object.hasOwn(g,'priority')&&!PRIORITIES.includes(g.priority))fail('Invalid goal priority. Records have not been changed.');
     if(!text(g.title,160)||!text(g.definitionOfFinished,2000)||!integer(g.createdAt)||!integer(g.updatedAt)||!['open','completed'].includes(g.status)||(g.status==='completed'&&!integer(g.completedAt))||(g.status==='open'&&g.completedAt!=null))fail('Invalid goal.');
     if(g.status==='open')open++;
@@ -43,6 +49,7 @@ export function validate(w){
   }
   if(open>1||(open===1&&openGoal(w)?.status!=='open')||(open===0&&w.openGoalId!==null))fail('Invalid open goal.');
   for(const [key,a] of Object.entries(w.actions)){
+    if(a&&Object.hasOwn(a,'estimatedMinutes'))validateEstimate(a.estimatedMinutes);
     checkRecord(key,a);if(!w.goals[a.goalId]?.actionOrder.includes(key)||!text(a.title,500)||!['open','completed'].includes(a.status)||!integer(a.createdAt)||!integer(a.updatedAt)||(a.status==='completed'&&!integer(a.completedAt))||(a.status==='open'&&a.completedAt!=null))fail('Invalid action.');
   }
   for(const [key,c] of Object.entries(w.contexts)){
@@ -84,7 +91,9 @@ export function validate(w){
   const undo=w.undo;
   if(undo!==undefined&&undo!==null&&(typeof undo!=='object'||Array.isArray(undo)))fail('Invalid Undo record.');
   if(undo){
+    if(undo.action&&Object.hasOwn(undo.action,'estimatedMinutes'))validateEstimate(undo.action.estimatedMinutes);
     const event=events[undo.eventId],a=w.actions[undo.action?.id];
+    if(a&&(Object.hasOwn(undo.action,'estimatedMinutes')!==Object.hasOwn(a,'estimatedMinutes')||undo.action.estimatedMinutes!==a.estimatedMinutes))fail('Invalid Undo estimate snapshot.');
     if(!event||event.type!=='action-completed'||event.actionId!==a?.id||a.status!=='completed'||a.completionEventId!==undo.eventId||undo.goalId!==w.openGoalId||undo.expectedRevision!==w.revision||undo.action.status!=='open'||undo.action.goalId!==a.goalId||undo.action.title!==a.title||undo.action.createdAt!==a.createdAt||undo.activeSessionId!==(undo.session?.id??null))fail('Invalid or stale Undo snapshot.');
     if(undo.session){const current=w.sessions[undo.session.id];if(!current||current.status!=='completed'||current.actionId!==a.id||undo.session.actionId!==a.id||undo.session.creditedMs!==current.creditedMs||undo.session.remainingMs!==current.remainingMs||!['paused','expired'].includes(undo.session.status))fail('Invalid Undo timer snapshot.');}
     if(undo.context&&(undo.context.actionId!==a.id||!text(undo.context.nextInstruction,4000,false)||!text(undo.context.context,4000,false)))fail('Invalid Undo context.');
@@ -95,6 +104,11 @@ export function validate(w){
 export function transition(input,command,now){
   validate(input);if(!validId(command.id)||!integer(now))fail('Invalid command.');
   if(command.type==='save-goal'&&Object.hasOwn(command,'priority')&&!PRIORITIES.includes(command.priority))fail('Choose Low, Normal or Important priority.');
+  // Validate explicit optional values before receipt lookup: JSON drops undefined.
+  if(command.type==='save-goal'){
+    if(Object.hasOwn(command,'planning'))validatePlanning(command.planning);
+    if(Array.isArray(command.actions))for(const a of command.actions)if(a&&Object.hasOwn(a,'estimatedMinutes'))validateEstimate(a.estimatedMinutes);
+  }
   const fingerprint=JSON.stringify(command);
   const prior=input.operations[command.id];
   if(prior){if(prior.fingerprint!==fingerprint)fail('Operation identity reused.');return input;}
@@ -118,7 +132,9 @@ export function transition(input,command,now){
       if(s&&JSON.stringify(order)!==JSON.stringify(g.actionOrder))fail('Action order and removal are locked while a focus block exists.');
       const goal=g||{id:command.id,createdAt:now,status:'open',priority:'normal'};
       if(Object.hasOwn(command,'priority'))goal.priority=command.priority;
+      if(Object.hasOwn(command,'planning'))goal.planning=structuredClone(command.planning);
       for(const item of command.actions){const old=w.actions[item.id];if(old&&old.goalId!==goal.id)fail('Action belongs to another goal.');w.actions[item.id]={...old,id:item.id,goalId:goal.id,title:item.title.trim(),status:old?.status??'open',createdAt:old?.createdAt??now,updatedAt:now};}
+      for(const item of command.actions)if(Object.hasOwn(item,'estimatedMinutes'))w.actions[item.id].estimatedMinutes=item.estimatedMinutes;
       if(g)for(const id of g.actionOrder)if(!order.includes(id)){
         if(Object.hasOwn(w.contexts,id)||w.actions[id].status==='completed'||values(w.sessions).some(s=>s.actionId===id)||values(w.events).some(e=>e.actionId===id))fail('Actions with saved context or recorded work cannot be removed.');
         delete w.actions[id];delete w.contexts[id];

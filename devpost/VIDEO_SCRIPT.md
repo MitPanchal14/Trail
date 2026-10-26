@@ -19,6 +19,10 @@ Final-demo UI revision: friend/public trials were intentionally skipped, not pas
 
 Research basis: [organizer's written review recap](https://learn-ai-basics.devpost.com/updates/47209-will-it-ship-recording-is-up) and [Devpost demo guidance](https://info.devpost.com/blog/how-to-present-a-successful-hackathon-demo). The linked organizer recording was not watched. These timings are editorial targets, not measured user-response results. Full reasoning/comparison: DEMO_IMPROVEMENT_RESEARCH_2026-10-25.md. Actual playback/narration and the revised full story still need rehearsal.
 
+## Optional AI setup shot
+
+Optional AI setup footage may replace part of the creation shot only if it fits without obscuring the return promise: “I type a rough goal, or use my device’s dictation. Trail suggests editable steps. I review them, apply them to the manual fields and choose Save. Focus still starts only when I choose Start.” Show **Describe your goal → Draft my trail → review/edit → Use this plan → Save goal → Start**. Do not narrate website recording/transcription; those controls are retired, while unused helper/endpoint tests remain. A mocked response must be labelled as such. No new live Gemini recording request is authorized by this script. Device dictation/physical tests, accepted build, hosted origin and public video URL are pending; do not fill them with invented evidence.
+
 ## Skill Pack sentence — resolve before recording
 
 The repository has `skills-lock.json` pointing to `challengepost/learn-ai-basics`, the six installed skills and planning documents. That establishes installed source and present artifacts; it does not independently prove which Skill Pack interviews/steps were used to create each document. No invocation transcript was found in the reviewed docs/history. Do not narrate invented process.

@@ -1,5 +1,9 @@
 # Design brief
 
+## Optional Gemini planner — retained composition
+
+Compact Plan with AI card and native collapsed Describe your goal above manual fields, not a chat reskin. One labelled text source with device-dictation guidance; no website audio controls. Restrained neutral raised surface, cool violet/cyan corner wash/edge and decorative Trail accent; no new animation/assets. Editable proposal, unknown/over-budget findings and recoverable manual draft remain. Apply collapses the AI disclosure, retains recovery and focuses Review and save your plan once. Native44px controls, visible focus, readable gradients and natural390px scroll; surrounding home/Focus/calendar/archive unchanged. Current captures/limits: AI_SIMPLIFY_EVIDENCE.md; user visual/device acceptance remains separate.
+
 ## Bounded handoff / dark Focus correction — 26 October
 
 Preserve home/mountain/circle/calendar/priority/archive composition. Pause now uses one clear heading, concise stopped state and compact actual action, followed immediately by next-move capture and Save/Skip before native collapsed extras. Retain full long-text/removal/draft access; no global typography sweep. Equal trimmed saved/action text no longer repeats as an extra original-action row.

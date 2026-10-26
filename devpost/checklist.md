@@ -2,6 +2,55 @@
 
 Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+## Text-only AI independent review — current result
+
+- [x] Planned simplification/polish/completion scope reviewed; fresh51 Node tests/syntax/build/diff and focused fake-provider composite pass. Protected before-byte comparison unchanged. [Review](INDEPENDENT_AI_SIMPLIFY_REVIEW.md).
+- [x] Extra independent touch-browser matrix:320/360/390/430 portrait and844x390 landscape, both themes,10/10 pass. Apply/recover/edit/Save/reload,44px planner targets/no overflow/no media/no Start checked. Emulation only.
+- [ ] User visual acceptance and physical reachable-phone/device dictation/keyboard/owned-work return checks; then authorized freeze/checkpoint/hosting/final-origin/recording/submission. No additional feature required by review.
+
+
+## Current next dispatch — simplify and polish AI input
+
+- [x] Prepare [OPENCODE_AI_SIMPLIFY_AND_POLISH.md](OPENCODE_AI_SIMPLIFY_AND_POLISH.md): device dictation hint/single text source, recorder UI retirement, restrained card treatment, structured applied-state/recoverable collapse and review findings. Medium recommended.
+- [x] Implement text-only UI, explicit applied-state/recoverable collapse/manual destination, scoped card contrast and current documentation reconciliation. Retain unused audio helper/endpoint/tests; no live provider calls/backend changes/publication.
+- [x] Fresh syntax/51 Node tests/build/protected-file parity and actual unconfigured503/manual Save/keyboard/focus/labels/44px/reduced-motion/390px/private404/nine served-asset checks after final runtime edit. Earlier complete text-only suite passed.
+- [x] Final repeated complete suite passed after last runtime edit: all21 retained browser gates + text planner composite; focused repeat also passed. Results/screenshots: [AI_SIMPLIFY_EVIDENCE.md](AI_SIMPLIFY_EVIDENCE.md). Stopped without publication.
+- [ ] Codex independent review and user visual/physical/device-dictation acceptance. Hosting/video/public source URLs remain pending.
+
+## AI discovery independent review — current result
+
+- [x] Independent before-snapshot/source/test/visual review, fresh syntax/51 Node tests/build/diff and focused mocked planner browser composite passed. No blocker; full21+planner inspected as OpenCode evidence, not independently repeated. [Assessment and minor polish](INDEPENDENT_AI_DISCOVERY_REVIEW.md).
+- [ ] User visual/physical microphone/owned-work acceptance; then authorized checkpoint, hosting/public API controls, final-origin checks and delivery. Avoid reopening optional feature scope.
+
+## Current next task — bounded AI discovery
+
+- [x] Prepare detailed Medium-compatible dispatch: [OPENCODE_AI_DISCOVERY.md](OPENCODE_AI_DISCOVERY.md). User target18:00 IST / fallback19:00; scope45–55min including verification.
+- [x] Implemented bounded AI discovery/flow presentation; syntax,51 Node tests,nine-asset build/parity/diff, focused fake/synthetic checks and full21 retained browser gates + planner composite passed. Before/after and failure/voice/transfer screenshots inspected. [Receipt](AI_DISCOVERY_EVIDENCE.md). No live provider requests, record migration/deletion or publication.
+- [ ] Codex independent review and user visual/physical acceptance of discovery pass; hosting remains separately authorized work.
+
+## Current audit — 26 October
+
+Detailed research implementation matrix and remaining work: [RESEARCH_IMPLEMENTATION_AUDIT_2026-10-26.md](RESEARCH_IMPLEMENTATION_AUDIT_2026-10-26.md). The unchecked historical entries below are not all current missing features.
+
+- [x] Independent current AI source/security review, fresh syntax/51 Node tests/build/diff and focused mocked planner browser checks. Full21+planner remains OpenCode's final receipt; not independently rerun in this audit.
+- [x] Diagnose invisible AI: stale :3000 server404s planner.js/API; :52255 supports current feature. New real-goal editor → Describe your goal (optional). Different origins retain separate local records.
+- [ ] Bounded AI discovery/flow polish and user visual decision; human microphone/primary-device/real owned-work return rehearsal.
+- [ ] Freeze accepted source; authorized checkpoint; Node hosting with server-only secret and public API protection; final-origin checks; recording/gallery/source/provenance and reviewed submission.
+
+## Gemini planner — implemented locally, focused independent review passed
+
+User requested speech/paragraph-to-plan integration and chose Gemini API after checkpoint2d53bc1 on codex/trail-redesign. Exact dispatch: [OPENCODE_GEMINI_PLANNER.md](OPENCODE_GEMINI_PLANNER.md). One OpenCode writer; independent review remains separate. Current implementation/evidence: [GEMINI_PLANNER_EVIDENCE.md](GEMINI_PLANNER_EVIDENCE.md). No branch/commit/push/deploy/submit authorization.
+
+- [x] Record scope, secure server/browser boundary, editable acceptance, real-record protection, optional persistent estimates, staged checks and stop boundary before code.
+- [x] A: typed description → validated/editable proposal → recoverable manual draft; focused44-test/mocked-browser/security gate before B; live typed plan HTTP200. No pre-Save writes or auto-Start.
+- [x] B: explicit bounded recording → server transcription → separate editable transcript/explicit insertion; focused48-test/synthetic MediaRecorder gate before C. Actual live synthetic-speech transcript HTTP200, not human microphone/native Safari evidence.
+- [x] C: compatible persistent optional per-action estimates/goal planning context; 51-test metadata/replay/Undo and browser Save/Retry/reorder/clear/reload/read-only gates. No effort/timer allocation. Separate live transcript-to-plan HTTP200. Initial live budget3/3 exhausted.
+- [x] Final syntax, **51 Node tests**, exact nine-asset build/byte parity/private/sentinel/actual-key nonprinting checks and **all21 retained browser gates + planner composite** passed after final runtime edit. Current preview served bytes match source. Three live HTTP200 calls distinguished from mocks/synthetic media; human microphone/native Safari remain unverified. Forty settled UI captures inspected; user visual acceptance is separate.
+- [x] Independent source/security and focused planner review; exact scope and limits are in the current audit above.
+- [ ] User visual decision, human microphone/device checks, deployment/public cost-abuse controls and final-origin proof.
+
+This new feature allows one ninth browser module and a minimal Gemini server proxy; only bounded optional estimate/planning metadata may alter state.js. No storage/timing/activity changes, existing-goal AI rewrite, calendar scheduling, framework or automatic publication. Previous static-only/no-AI descriptions below are historical checkpoints until this feature is actually implemented and documented.
+
 ## Next bounded OpenCode dispatch prepared — 26 October
 
 Exact brief: [OPENCODE_HANDOFF_FOCUS.md](OPENCODE_HANDOFF_FOCUS.md); documentation preparation plan: [OPENCODE_HANDOFF_FOCUS_BRIEF_PLAN.md](OPENCODE_HANDOFF_FOCUS_BRIEF_PLAN.md). GPT-6.1 Sol High recommended. Approximately 89-minute reported usage window; reserve at least 25–30 minutes for final verification. These are planned local changes, not implementation or a quota guarantee.
@@ -31,8 +80,9 @@ User accepts the calendar graphic, requests shorter default details, cleaner arc
 - [x] Final combined judge-clarity verification: syntax, **38 Node tests**, exact eight-asset build/parity, diff and **all 19 Chromium gates passed** after final runtime edit. Exact receipt, repaired findings and matched captures: JUDGE_CLARITY_EVIDENCE.md / trail-clarity/final-verified/.
 - [x] Independent A–C review, 26 October: fresh syntax, 38 Node tests, build/diff, focused priority/clarity/examples and full **19-gate Chromium suite passed**, exit 0; source and fresh desktop/phone captures inspected, no blocking defect found. Receipt: [INDEPENDENT_JUDGE_CLARITY_REVIEW.md](INDEPENDENT_JUDGE_CLARITY_REVIEW.md).
 - [ ] User visual acceptance of home, calendar/details, priorities/cards and history dialog; phone year still tall with archive jump.
-- [ ] Optional pre-recording fixture-only refinement: sample dates currently always the 15th, so best streak is 1; consider varied days/short consecutive run without fake real records or changed counting semantics. Not a blocking defect or implemented correction.
-- [ ] Bounded dark Focus correction and delivery/freeze gates. No automatic source publication/deployment/submission.
+- [x] Fixture-only varied dates and historical three-day streak implemented in the later handoff/Focus C pass; real records and counting semantics preserved.
+- [x] Bounded dark Focus correction implemented and independently reviewed in the later handoff/Focus pass.
+- [ ] User visual/native acceptance and delivery/freeze gates; no automatic publication.
 
 ## Latest user revision — supersedes earlier visual-freeze proposals
 
@@ -48,7 +98,8 @@ Current detailed report: [DEMO_REFINEMENT_REPORT.md](DEMO_REFINEMENT_REPORT.md).
 - [ ] Obtain user visual acceptance of Pass 1, including tall wrapped phone year/busy-day details. Exact brief: [OPENCODE_YEAR_ACTIVITY_AND_ARCHIVE.md](OPENCODE_YEAR_ACTIVITY_AND_ARCHIVE.md).
 - [x] Pass 2: visible home ready-made demo panel and direct saved-return/activity/scenario entries; real work/drafts and explicit timing preserved by judge-clarity increment.
 - [x] Pass 2: shared populated fictional year/archive/scenarios with exact tasks/tiers/priority palettes, memory-only/reset/exit and explicit simulation limits; never seeds real records or claims observed failures.
-- [ ] Pass 3: bounded dark Focus surface/ambient palette correction; reproduce Safari stillness, verify perceptible calm On motion and strict Off/reduced-motion cancellation.
+- [x] Pass 3 dark Focus surface/ambient palette correction and automated motion/cancellation checks completed in the later handoff/Focus pass.
+- [ ] Native Safari stillness and user perception remain unverified.
 - [ ] Final combined review, user visual acceptance, current-doc reconciliation and feature freeze; then existing final-origin/public-source/recording/submission gates below. Friend trials remain intentionally skipped.
 
 Pass 1 changes only the authorized local activity/archive presentation; no source publication, deployment or submission. Historical completed/incomplete entries below must be interpreted against their dated receipts and this latest section. Independent/user visual review remains open; no automatic Pass 2/Focus work.
@@ -117,17 +168,17 @@ The cloud brief authorized this one prototype after the reviewed fixes. Implemen
 - [ ] Align all claims with implemented/tested behaviour and disclose local-only storage and remaining background/device limits.
 - [ ] User reviews final submission materials and submits/authorizes submission.
 
-Working target remains a demo ready around 17:00–18:00 IST on 25 October, with 19:00 as the user's latest desired prototype finish, leaving submission preparation time. Check actual remaining time before starting another scope; these targets do not assert hours remaining or the event deadline.
+Historical 25 October prototype targets have passed. Use the current audit and freshly checked official event cutoff rather than those superseded targets when allocating remaining time.
 
 ## Deferred beyond the current delivery scope
 
 These are product ideas, not unfinished requirements that all have to ship today. Reconsider only after the core demo and delivery work are secure.
 
-- Productive-day calendar/streaks: agree timezone, qualifying work, missed-day/grace and Undo/recompletion rules first. Earlier three-missed-day rule is a proposal, not implemented behaviour.
+- Calendar/streaks are now implemented under the later activity increment. Earlier three-missed-day/grace proposal is not the implemented rule; further rule changes remain deferred.
 - Optional completion sound with a separate explicit toggle. Background motion currently has no audio.
 - Importance/neglect recommendations and closed-site reminders with verified delivery/quiet hours.
 - Floating focus/PiP window and browser fallback.
-- Optional editable AI planning with manual fallback.
+- Optional editable new-goal AI planning with manual fallback is now implemented locally; further AI scope remains deferred.
 - Sync/accounts, automatic activity capture and richer multi-goal features.
 - Daily effort-to-route mapping. Current mountain maps action states; height/distance are illustrative and not measured productivity.
 

@@ -3,12 +3,14 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import http from 'node:http';
+import {runPlanner} from './planner-browser.mjs';
 const url=process.env.TRAIL_URL||'http://127.0.0.1:3000/';
 const output=process.env.TRAIL_EVIDENCE||'/private/var/folders/xf/gtc75bps4tx93_x6dlwfm01r0000gn/T/opencode/trail-evidence';
 await mkdir(output,{recursive:true});
 const browser=await chromium.launch(process.env.TRAIL_CHROMIUM?{executablePath:process.env.TRAIL_CHROMIUM,args:['--no-sandbox']}:{});
 try {
-  if(process.env.TRAIL_GATE==='focus-surface')await runFocusSurface(browser);
+  if(process.env.TRAIL_GATE==='planner')await runPlanner(browser,url,output);
+  else if(process.env.TRAIL_GATE==='focus-surface')await runFocusSurface(browser);
   else if(['handoff','handoff-before'].includes(process.env.TRAIL_GATE))await runHandoff(browser,process.env.TRAIL_GATE==='handoff-before');
   else if(process.env.TRAIL_GATE==='examples')await runExamples(browser);
   else if(process.env.TRAIL_GATE==='clarity')await runClarity(browser);
@@ -83,6 +85,7 @@ try {
   if(process.env.TRAIL_GATE!=='C')await runB(browser);
   await runC(browser);
   await runEdges(browser);
+  await runPlanner(browser,url,output);
   await runCorrections(browser);
   await runReturn(browser);
   await runTravelling(browser);

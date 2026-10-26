@@ -1,0 +1,3 @@
+# AI simplification dispatch preparation — 26 October
+
+Documentation-only user-authorized prompt preparation. Combine device-dictation single input, restrained Trail-owned blue/violet/cyan planner treatment and nonblocking independent-review findings into one bounded OpenCode implementation brief. Explicit UI applied-state replaces message-prefix dependence; collapsed recoverable applied panel and manual destination reduce duplication. Retire recorder UI only, preserve tested backend/helpers pending later cleanup. No new AI endpoint or existing-record access, no runtime implementation here. Update current HANDOFF/checklist dispatch links after writing specification. Publication/provider limits remain unchanged.
