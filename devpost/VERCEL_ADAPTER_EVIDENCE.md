@@ -1,5 +1,9 @@
 # Vercel adapter — local evidence and review handoff
 
+## Current correction — Vercel65.1.0 discovery
+
+[Discovery correction evidence](VERCEL_DISCOVERY_CORRECTION_EVIDENCE.md) supersedes the historical Git-ignore simulation/discovery gap below. Actual CLI65.1.0 walker reproduced the exact unused_function error: trailing-slash parent exceptions pruned api/scripts/demo. Three bare parent exceptions fix it; current factory default exports are recognized, so entries/shared adapter/config remain unchanged. Both functions now discovered and packaged by pinned Node27.0.0 builder (five required files each), then run with confirmed provider mocks through Vercel's local runtime; all9 static bytes preserved. Syntax/63 Node tests/build/diff passed. This is local utility/builder verification, not a linked/cloud build or deployment. Independent review next. **Harness caveat:** one preliminary failed runtime attempt may have issued an outbound request with synthetic-only credentials before mock injection was corrected; no real credentials accessed/no successful live generation. Do not extend the older zero-call claim to this correction. See the full receipt/guard fix in correction evidence.
+
 Prepared locally on `codex/trail-redesign`, baseline `48f1dfbe4d6bdd2a59556c231f6486b4caea3b40`. Before edits: clean tracked tree plus the two unrelated untracked ZIPs; both preserved. Origin remote configuration inspected (`MitPanchal14/Trail`, HTTPS fetch/push). No branch switch/reset/commit/push/fetch/deployment/project linking/authentication/upload/secret download. Private files not opened or changed. Pre-edit [implementation plan](VERCEL_ADAPTER_IMPLEMENTATION_PLAN.md).
 
 **Zero live Gemini requests. Not a Vercel deployment or independent acceptance.** Local manual preview: http://127.0.0.1:52258/ (a different origin has separate local records). Exact existing stable production domain must be taken from the owner's Vercel dashboard; no hosted URL is asserted here.

@@ -2,6 +2,15 @@
 
 Updated 26 October 2026. This replaces the accumulated historical checklist. Historical plans/results remain in their evidence files and Git history. Checked implementation items are not claims of user satisfaction, physical-device verification or deployment.
 
+## Vercel65.1.0 discovery correction
+
+- [x] Record [bounded correction plan](VERCEL_DISCOVERY_CORRECTION_PLAN.md) before editing; preserve branch/HEAD/ZIPs/private files.
+- [x] Reproduce exact unused_function using actual pinned CLI file walker/detector; prove parent-directory filtering cause independently of accepted factory default exports. Fix only3 directory exceptions; function config retained.
+- [x] Prove both functions discovered and packaged with actual Node27 builder (exact5-file Lambda outputs each); confirmed-mock Vercel local runtime200s;17 allowed inputs/9 synthetic exclusions/9 unchanged static assets. Syntax/63 Node tests/build/diff pass; protected source/config bytes unchanged. [Evidence](VERCEL_DISCOVERY_CORRECTION_EVIDENCE.md).
+- [x] Disclose failed preliminary harness run: possible outbound synthetic-only Gemini attempt before child mock injection fixed; no real credential access/successful live generation. Successful verifier confirms mock/outbound guard loaded before POST; do not claim zero task-wide outbound attempts.
+- [x] Codex independent continuation/review: fresh63 Node tests/syntax/build/diff, pinned CLI65.1.0 baseline-error reproduction/corrected discovery, actual Node27 packages and confirmed-mock Vercel runtime200s passed. No further runtime change required. [Review](INDEPENDENT_VERCEL_DISCOVERY_REVIEW.md).
+- [ ] Authorized commit/push/merge and actual cloud build/final-origin/WAF/cost/cancellation and acceptance gates remain open. No commit/push/deploy/auth/link/upload performed in correction or continuation.
+
 ## Current Vercel hosting preparation — no publication authorized
 
 - [x] Record baseline/worktree/remote and pre-edit [adapter plan](VERCEL_ADAPTER_IMPLEMENTATION_PLAN.md); preserve ZIPs/private files and all nine browser assets/local API/domain engines.
